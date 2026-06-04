@@ -25,7 +25,7 @@
 		"build": "vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"lint": "tsc -p tsconfig.json --noEmit",
-		"test": "vitest run --passWithNoTests",
+		"test": "vitest run --config vitest.config.ts",
 		"postinstall": "node scripts/sync-cursor-skills.mjs"
 	},
 	"dependencies": {
@@ -36,9 +36,12 @@
 		"react-dom": ">=18.0.0"
 	},
 	"devDependencies": {
+		"@testing-library/react": "^16.3.2",
 		"@types/react": "^19.1.8",
-		"react": "^19.1.0",
+		"react": "19.2.7",
+		"react-dom": "19.2.7",
 		"typescript": "^6.0.3",
-		"vite": "8.0.5"
+		"vite": "8.0.5",
+		"vitest": "^4.1.8"
 	}
 }

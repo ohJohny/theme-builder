@@ -6,7 +6,6 @@ export { useColorSchemeContext } from './ColorSchemeContext';
 export type { ColorSchemeListItem, ColorSchemeContextValue } from './ColorSchemeContext';
 export { useColorSchemeTogglePosition } from './useColorSchemeTogglePosition';
 export { useUtilityClasses } from './useUtilityClasses';
-export type { UtilityClassesResult, UtilityProps } from './useUtilityClasses';
 
 export {
 	ThemeBuilder,

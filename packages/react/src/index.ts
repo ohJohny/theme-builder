@@ -3,7 +3,6 @@ export type { ThemeProviderProps, ColorSchemeContextValue } from './ColorSchemeC
 export { useColorScheme } from './useColorScheme';
 export { useColorSchemeTogglePosition } from './useColorSchemeTogglePosition';
 export { useUtilityClasses } from './useUtilityClasses';
-export type { UtilityClassesResult, UtilityProps } from './useUtilityClasses';
 
 export {
 	ThemeBuilder,

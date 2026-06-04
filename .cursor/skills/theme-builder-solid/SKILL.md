@@ -9,7 +9,16 @@ description: Solid ThemeProvider, useTheme, useColorScheme from @ohJohny/theme-b
 
 ```tsx
 /** @jsxImportSource solid-js */
-import { ThemeProvider, useTheme, useColorScheme, ThemeBuilder } from '@ohJohny/theme-builder-solid';
+import {
+  ThemeProvider,
+  useTheme,
+  useColorScheme,
+  useUtilityClasses,
+  ThemeBuilder,
+  RawThemeBuilder,
+} from '@ohJohny/theme-builder-solid';
+
+RawThemeBuilder.getInstance().apply(yourThemeConfig);
 
 ThemeBuilder.getInstance().extend({ colors: { brand: 'var(--color-brand)' } });
 
@@ -20,14 +29,28 @@ ThemeBuilder.getInstance().extend({ colors: { brand: 'var(--color-brand)' } });
 
 ## Hooks
 
-- `useTheme()` — token tree from singleton
+- `useTheme()` — token tree from singleton (reactive after `extend()`)
 - `useColorScheme()` — accessors: `colorScheme()`, `changeColorScheme`, `colorSchemeList()`
+- `useUtilityClasses(() => ({ px: 'md' }))` — accessor `() => { className, style }`
 - `useColorSchemeTogglePosition(buttonRef)` — view-transition CSS vars
+
+## Utility props example
+
+```tsx
+function Box() {
+  const utility = useUtilityClasses({ px: 'md', bg: 'surface-main' });
+  return <div class={utility().className} style={utility().style} />;
+}
+```
 
 ## CSS
 
-Import your app's theme CSS. No styles ship with this package.
+Inject theme CSS via `RawThemeBuilder.apply`. No styles ship with this package.
+
+## TypeScript extension
+
+Augment `@ohJohny/theme-builder-core` in a consumer `.d.ts` file.
 
 ## Peer
 
-`solid-js` >= 1.8. No `lucide-solid` in the provider.
+`solid-js` >= 1.8.
