@@ -1,6 +1,6 @@
 {
 	"name": "@ohJohny/theme-builder-react",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "React ThemeProvider, useTheme, and useColorScheme",
 	"type": "module",
 	"license": "MIT",
@@ -12,7 +12,10 @@
 	"publishConfig": {
 		"registry": "https://npm.pkg.github.com/"
 	},
-	"files": ["dist", "scripts/sync-cursor-skills.mjs"],
+	"files": [
+		"dist",
+		"scripts/sync-cursor-skills.mjs"
+	],
 	"sideEffects": false,
 	"exports": {
 		".": {
