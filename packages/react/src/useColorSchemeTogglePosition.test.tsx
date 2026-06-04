@@ -2,7 +2,7 @@ import { render, waitFor } from '@testing-library/react';
 import { useRef } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ThemeProvider } from './ColorSchemeContext';
+import { ThemeProvider } from './ThemeProvider';
 import { useColorSchemeTogglePosition } from './useColorSchemeTogglePosition';
 
 function ToggleButton() {

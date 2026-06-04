@@ -1,5 +1,7 @@
-export { ThemeProvider, useTheme, useColorSchemeContext } from './ColorSchemeContext';
-export type { ThemeProviderProps, ColorSchemeContextValue } from './ColorSchemeContext';
+export { ThemeProvider } from './ThemeProvider';
+export type { ThemeProviderProps } from './ThemeProvider';
+export { useTheme, useColorSchemeContext } from './ColorSchemeContext';
+export type { ColorSchemeContextValue } from './ColorSchemeContext';
 export { useColorScheme } from './useColorScheme';
 export { useColorSchemeTogglePosition } from './useColorSchemeTogglePosition';
 export { useUtilityClasses } from './useUtilityClasses';

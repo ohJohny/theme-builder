@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ThemeBuilder } from '@ohJohny/theme-builder-core';
 
-import { ThemeProvider } from './ColorSchemeContext';
+import { ThemeProvider } from './ThemeProvider';
 import { useUtilityClasses } from './useUtilityClasses';
 
 import type { ReactNode } from 'react';

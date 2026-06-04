@@ -3,11 +3,12 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { ThemeBuilder } from '@ohJohny/theme-builder-core';
 
-import { ThemeProvider, useTheme } from './ColorSchemeContext';
+import { useTheme } from './ColorSchemeContext';
+import { ThemeProvider } from './ThemeProvider';
 import { useColorScheme } from './useColorScheme';
 
 import type { ReactNode } from 'react';
-import type { ThemeProviderProps } from './ColorSchemeContext';
+import type { ThemeProviderProps } from './ThemeProvider';
 
 const STORAGE_KEY = 'theme-builder-react-test';
 
