@@ -47,15 +47,48 @@ export function rewriteUtilityCss(
 	return out;
 }
 
+/** Builds a full canonical → resolved map from catalog names and optional overrides. */
+export function buildUtilityClassMapFromParts(
+	names: readonly string[],
+	overrides: Readonly<Record<string, string>> = {},
+): Readonly<Record<string, string>> {
+	const map: Record<string, string> = {};
+	for (const canonical of names) {
+		map[canonical] = overrides[canonical] ?? canonical;
+	}
+	return map;
+}
+
 export function formatUtilityClassMapModule(
 	map: Readonly<Record<string, string>>,
 	mode: UtilityClassMapMode,
+	catalog: readonly string[] = Object.keys(map).sort(),
 ): string {
-	const lines = Object.entries(map)
-		.sort(([a], [b]) => a.localeCompare(b))
-		.map(([canonical, hashed]) => `\t${JSON.stringify(canonical)}: ${JSON.stringify(hashed)},`);
+	const names = [...catalog].sort();
+	const overrides = Object.fromEntries(
+		Object.entries(map).filter(([canonical, resolved]) => canonical !== resolved),
+	);
 
-	return `/** Auto-generated — do not edit. Mode: ${mode} */\nexport const UTILITY_CLASS_MAP_MODE = ${JSON.stringify(mode)} as const;\n\nexport const UTILITY_CLASS_MAP: Readonly<Record<string, string>> = {\n${lines.join('\n')}\n} as const;\n`;
+	const namesBlock = names.map((n) => `\t${JSON.stringify(n)},`).join('\n');
+
+	const overrideLines =
+		Object.keys(overrides).length === 0
+			? ''
+			: Object.entries(overrides)
+					.sort(([a], [b]) => a.localeCompare(b))
+					.map(([canonical, hashed]) => `\t${JSON.stringify(canonical)}: ${JSON.stringify(hashed)},`)
+					.join('\n');
+
+	const overridesBlock =
+		overrideLines.length > 0
+			? `export const UTILITY_CLASS_OVERRIDES: Readonly<Record<string, string>> = {\n${overrideLines}\n} as const;`
+			: 'export const UTILITY_CLASS_OVERRIDES: Readonly<Record<string, string>> = {};';
+
+	const mapBuild = `export const UTILITY_CLASS_MAP: Readonly<Record<string, string>> = Object.fromEntries(
+\tUTILITY_CLASS_NAMES.map((name) => [name, UTILITY_CLASS_OVERRIDES[name] ?? name]),
+) as Readonly<Record<string, string>>;`;
+
+	return `/** Auto-generated — do not edit. Mode: ${mode} */\nexport const UTILITY_CLASS_MAP_MODE = ${JSON.stringify(mode)} as const;\n\nexport const UTILITY_CLASS_NAMES = [\n${namesBlock}\n] as const;\n\n${overridesBlock}\n\n${mapBuild}\n`;
 }
 
 export interface WriteUtilityClassMapOptions {
@@ -67,11 +100,12 @@ export interface WriteUtilityClassMapOptions {
 export async function writeUtilityClassMapFile(
 	options: WriteUtilityClassMapOptions,
 ): Promise<Readonly<Record<string, string>>> {
-	const map = buildUtilityClassMap(options.mode, options.catalog);
+	const catalog = options.catalog ?? collectUtilityClassNames();
+	const map = buildUtilityClassMap(options.mode, catalog);
 	await mkdir(path.dirname(options.outPath), { recursive: true });
 	await writeFile(
 		options.outPath,
-		formatUtilityClassMapModule(map, options.mode),
+		formatUtilityClassMapModule(map, options.mode, catalog),
 		'utf-8',
 	);
 	return map;

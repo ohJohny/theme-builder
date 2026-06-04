@@ -3,13 +3,16 @@
 	"private": true,
 	"type": "module",
 	"packageManager": "bun@1.3.9",
-	"workspaces": ["packages/*"],
+	"workspaces": ["packages/*", "examples/*"],
 	"scripts": {
 		"build": "bun run --filter '@ohJohny/*' build",
 		"lint": "bun run --filter '@ohJohny/*' lint",
 		"test": "bun run --filter '@ohJohny/*' test",
 		"typecheck": "bun run --filter '@ohJohny/*' typecheck",
-		"generate:utility-class-map": "bun run --filter @ohJohny/theme-builder-core generate:utility-class-map"
+		"generate:utility-class-map": "bun run --filter @ohJohny/theme-builder-core generate:utility-class-map",
+		"sync:cursor-skills": "node scripts/sync-cursor-skills.mjs",
+		"dev:playground": "bun run --filter theme-builder-playground dev",
+		"postinstall": "node scripts/sync-cursor-skills.mjs"
 	},
 	"devDependencies": {
 		"@types/node": "25.9.1",

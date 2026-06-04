@@ -11,6 +11,7 @@ import {
 
 import {
 	createColorSchemeStore,
+	ThemeBuilder,
 	type ColorSchemeId,
 	type ColorSchemeListItem,
 	type ColorSchemeStoreOptions,
@@ -53,7 +54,17 @@ export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
 		changeColorScheme: store.changeColorScheme,
 	};
 
-	const resolvedTheme = createMemo(() => getDefaultTheme());
+	const [themeVersion, setThemeVersion] = createSignal(0);
+	onMount(() => {
+		const unsubTheme = ThemeBuilder.getInstance().subscribe(() =>
+			setThemeVersion((v) => v + 1),
+		);
+		onCleanup(() => unsubTheme());
+	});
+	const resolvedTheme = createMemo(() => {
+		themeVersion();
+		return getDefaultTheme();
+	});
 
 	return (
 		<ColorSchemeContext.Provider value={colorSchemeValue}>

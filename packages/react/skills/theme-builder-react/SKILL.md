@@ -8,7 +8,16 @@ description: React ThemeProvider, useTheme, useColorScheme from @ohJohny/theme-b
 ## Setup
 
 ```tsx
-import { ThemeProvider, useTheme, useColorScheme, ThemeBuilder } from '@ohJohny/theme-builder-react';
+import {
+  ThemeProvider,
+  useTheme,
+  useColorScheme,
+  useUtilityClasses,
+  ThemeBuilder,
+  RawThemeBuilder,
+} from '@ohJohny/theme-builder-react';
+
+RawThemeBuilder.getInstance().apply(yourThemeConfig);
 
 ThemeBuilder.getInstance().extend({ colors: { brand: 'var(--color-brand)' } });
 
@@ -19,13 +28,32 @@ ThemeBuilder.getInstance().extend({ colors: { brand: 'var(--color-brand)' } });
 
 ## Hooks
 
-- `useTheme()` — proxy-guarded token tree
+- `useTheme()` — proxy-guarded token tree (updates after `extend()`)
 - `useColorScheme()` — `colorScheme`, `changeColorScheme`, `colorSchemeList`
-- `useColorSchemeTogglePosition(ref)` — syncs view-transition origin CSS vars
+- `useUtilityClasses({ px: 'md', bg: 'surface-main' })` — `{ className, style }`
+- `useColorSchemeTogglePosition(ref)` — view-transition origin CSS vars
+
+## Utility props example
+
+```tsx
+function Box() {
+  const { className, style } = useUtilityClasses({
+    px: 'md',
+    py: 'sm',
+    color: 'text-primary',
+    fontSize: 'lg',
+  });
+  return <div className={className} style={style} />;
+}
+```
 
 ## CSS
 
-Import your app's theme CSS (`data-theme` on `:root`). This package does not ship styles.
+Import or inject theme CSS (`RawThemeBuilder.apply`). Style `[data-theme="dark"]` on `:root`. This package does not ship styles.
+
+## TypeScript extension
+
+Augment `@ohJohny/theme-builder-core` interfaces `ThemeColorOverrides` / `SemanticColorTokenOverrides` in a `.d.ts` file.
 
 ## Peer
 

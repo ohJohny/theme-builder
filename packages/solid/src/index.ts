@@ -5,6 +5,8 @@ export { useColorScheme } from './useColorScheme';
 export { useColorSchemeContext } from './ColorSchemeContext';
 export type { ColorSchemeListItem, ColorSchemeContextValue } from './ColorSchemeContext';
 export { useColorSchemeTogglePosition } from './useColorSchemeTogglePosition';
+export { useUtilityClasses } from './useUtilityClasses';
+export type { UtilityClassesResult, UtilityProps } from './useUtilityClasses';
 
 export {
 	ThemeBuilder,
@@ -14,7 +16,9 @@ export {
 	applyColorScheme,
 	createColorSchemeStore,
 	resolveUtilityClass,
+	resolveUtilityClasses,
 	UTILITY_CLASS_MAP,
+	UTILITY_CLASS_NAMES,
 	DEFAULT_THEME_META,
 	startColorSchemeViewTransition,
 	updateColorSchemeTogglePosition,
@@ -26,4 +30,8 @@ export type {
 	ThemeStorageConfig,
 	ThemeExtension,
 	DeepPartial,
+	UtilityProps,
+	UtilityClassesResult,
+	ThemeColorOverrides,
+	SemanticColorTokenOverrides,
 } from '@ohJohny/theme-builder-core';

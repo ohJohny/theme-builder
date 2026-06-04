@@ -12,7 +12,7 @@
 	"publishConfig": {
 		"registry": "https://npm.pkg.github.com/"
 	},
-	"files": ["dist"],
+	"files": ["dist", "scripts/sync-cursor-skills.mjs"],
 	"sideEffects": false,
 	"exports": {
 		".": {
@@ -25,7 +25,8 @@
 		"build": "vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"lint": "tsc -p tsconfig.json --noEmit",
-		"test": "vitest run --passWithNoTests"
+		"test": "vitest run --passWithNoTests",
+		"postinstall": "node scripts/sync-cursor-skills.mjs"
 	},
 	"dependencies": {
 		"@ohJohny/theme-builder-core": "workspace:*"

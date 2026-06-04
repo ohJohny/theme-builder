@@ -60,6 +60,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions = {}): C
 
 	let colorScheme: ColorSchemeId = 'light';
 	let appliedVariableKeys: string[] = [];
+	let cachedState: ColorSchemeStoreState | null = null;
 
 	const applyVariables = () => {
 		appliedVariableKeys = applyAdditionalVariables(options.additionalVariables, appliedVariableKeys);
@@ -76,19 +77,30 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions = {}): C
 		return active?.labelShort ?? colorScheme;
 	};
 
+	// Cache the snapshot so `getState` returns a stable reference between
+	// changes. `useSyncExternalStore` compares snapshots with `Object.is`, so
+	// returning a fresh object on every call triggers an infinite render loop.
+	const invalidateState = () => {
+		cachedState = null;
+	};
+
 	const getState = (): ColorSchemeStoreState => {
-		const colorSchemeList = buildList();
-		return {
-			colorScheme,
-			colorSchemeList,
-			labelShort: buildLabelShort(colorSchemeList),
-		};
+		if (cachedState === null) {
+			const colorSchemeList = buildList();
+			cachedState = {
+				colorScheme,
+				colorSchemeList,
+				labelShort: buildLabelShort(colorSchemeList),
+			};
+		}
+		return cachedState;
 	};
 
 	const changeColorScheme = (next?: ColorSchemeId) => {
 		const resolved = next ?? (colorScheme === 'light' ? 'dark' : 'light');
 		if (resolved === colorScheme) return;
 		colorScheme = resolved;
+		invalidateState();
 		applyColorScheme(resolved);
 		if (options.storage) {
 			writePersistedColorScheme(options.storage.key, resolved);
@@ -101,6 +113,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions = {}): C
 	const mount = () => {
 		const initialScheme = resolveInitialColorScheme(preset, options.storage);
 		colorScheme = initialScheme;
+		invalidateState();
 		applyVariables();
 
 		if (applyOnMount) {
@@ -118,6 +131,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions = {}): C
 			const next = event.newValue;
 			if (next && isColorSchemeId(next) && next !== colorScheme) {
 				colorScheme = next;
+				invalidateState();
 				applyColorScheme(next);
 				notify();
 			}

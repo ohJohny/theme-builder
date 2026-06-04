@@ -272,6 +272,7 @@ export class ThemeBuilder {
 	private static instance: ThemeBuilder | undefined;
 	private themeValue: Theme;
 	private readonly extensions: ThemeExtension[] = [];
+	private readonly listeners = new Set<() => void>();
 
 	private constructor() {
 		this.themeValue = wrapInProxy(buildThemeRaw(), '');
@@ -282,6 +283,14 @@ export class ThemeBuilder {
 			ThemeBuilder.instance = new ThemeBuilder();
 		}
 		return ThemeBuilder.instance;
+	}
+
+	/** Subscribe to theme changes after `extend()` / rebuild. */
+	subscribe(listener: () => void): () => void {
+		this.listeners.add(listener);
+		return () => {
+			this.listeners.delete(listener);
+		};
 	}
 
 	/** Merges `extension` after the built-in preset (and any prior `extend` calls). */
@@ -298,5 +307,8 @@ export class ThemeBuilder {
 	private rebuild(): void {
 		const merged = mergeTheme(buildThemeRaw(), ...this.extensions);
 		this.themeValue = wrapInProxy(merged, '');
+		for (const listener of this.listeners) {
+			listener();
+		}
 	}
 }
