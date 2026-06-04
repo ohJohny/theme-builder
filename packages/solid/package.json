@@ -1,0 +1,42 @@
+{
+	"name": "@ohJohny/theme-builder-solid",
+	"version": "0.1.0",
+	"description": "Solid ThemeProvider, useTheme, and useColorScheme",
+	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ohJohny/theme-builder.git",
+		"directory": "packages/solid"
+	},
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/"
+	},
+	"files": ["dist"],
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./dist/types/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./skills/*": "./dist/skills/*"
+	},
+	"scripts": {
+		"build": "vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"lint": "tsc -p tsconfig.json --noEmit",
+		"test": "vitest run --passWithNoTests"
+	},
+	"dependencies": {
+		"@ohJohny/theme-builder-core": "workspace:*"
+	},
+	"peerDependencies": {
+		"solid-js": ">=1.8.0"
+	},
+	"devDependencies": {
+		"solid-js": "1.9.12",
+		"typescript": "^6.0.3",
+		"vite": "8.0.5",
+		"vite-plugin-solid": "2.11.12"
+	}
+}

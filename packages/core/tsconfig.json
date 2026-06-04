@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"rootDir": "src",
+		"noEmit": true
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": [
+		"src/**/*.test.ts",
+		"src/helpers/utility-class-map.ts",
+		"src/helpers/utility-class-hash.ts",
+		"src/helpers/utility-class-catalog.ts"
+	]
+}

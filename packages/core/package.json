@@ -1,0 +1,36 @@
+{
+	"name": "@ohJohny/theme-builder-core",
+	"version": "0.1.0",
+	"description": "Framework-agnostic design-token runtime and color-scheme store",
+	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ohJohny/theme-builder.git",
+		"directory": "packages/core"
+	},
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/"
+	},
+	"files": ["dist"],
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./dist/types/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./skills/*": "./dist/skills/*"
+	},
+	"scripts": {
+		"build": "vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"lint": "tsc -p tsconfig.json --noEmit",
+		"test": "vitest run --config vitest.config.ts",
+		"generate:utility-class-map": "node scripts/generate-utility-class-map.mjs"
+	},
+	"devDependencies": {
+		"@types/node": "25.9.1",
+		"typescript": "^6.0.3",
+		"vite": "8.0.5"
+	}
+}
