@@ -4,12 +4,14 @@ import { defineConfig } from 'vite';
 import solid from 'vite-plugin-solid';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(here, '../..');
+const outDir = path.join(repoRoot, 'dist', 'solid');
 
 export default defineConfig({
 	plugins: [solid()],
 	build: {
-		outDir: path.resolve(here, 'dist'),
-		emptyOutDir: true,
+		outDir,
+		emptyOutDir: false,
 		lib: {
 			entry: path.resolve(here, 'src/index.ts'),
 			formats: ['es'],

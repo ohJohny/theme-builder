@@ -3,7 +3,11 @@
 	"compilerOptions": {
 		"rootDir": "src",
 		"jsx": "react-jsx",
-		"noEmit": true
+		"noEmit": true,
+		"paths": {
+			"@ohJohny/theme-builder-core": ["../../dist/core/types/index.d.ts"],
+			"@ohJohny/theme-builder-core/*": ["../../dist/core/types/*"]
+		}
 	},
 	"include": ["src/**/*.ts", "src/**/*.tsx"]
 }

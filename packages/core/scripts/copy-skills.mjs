@@ -4,5 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pkgRoot = path.resolve(here, '..');
-await mkdir(path.join(pkgRoot, 'dist', 'skills'), { recursive: true });
-await cp(path.join(pkgRoot, 'skills'), path.join(pkgRoot, 'dist', 'skills'), { recursive: true });
+const repoRoot = path.resolve(pkgRoot, '../..');
+const distSkills = path.join(repoRoot, 'dist', 'core', 'skills');
+
+await mkdir(distSkills, { recursive: true });
+await cp(path.join(pkgRoot, 'skills'), distSkills, { recursive: true });

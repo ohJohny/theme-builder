@@ -8,10 +8,11 @@
 		"examples/*"
 	],
 	"scripts": {
-		"build": "bun run --filter '@ohJohny/*' build",
+		"build": "bun run clean:dist && bun run --filter @ohJohny/theme-builder-core build && bun run --filter '@ohJohny/theme-builder-react' --filter '@ohJohny/theme-builder-solid' build",
+		"clean:dist": "node scripts/clean-dist.mjs",
 		"lint": "bun run --filter '@ohJohny/*' lint",
 		"test": "bun run --filter '@ohJohny/*' test",
-		"typecheck": "bun run --filter '@ohJohny/*' typecheck",
+		"typecheck": "bun run --filter @ohJohny/theme-builder-core typecheck && bun run --filter @ohJohny/theme-builder-core build && bun run --filter '@ohJohny/theme-builder-react' --filter '@ohJohny/theme-builder-solid' typecheck",
 		"precommit": "bun run typecheck && bun run test",
 		"generate:utility-class-map": "bun run --filter @ohJohny/theme-builder-core generate:utility-class-map",
 		"sync:cursor-skills": "node scripts/sync-cursor-skills.mjs",

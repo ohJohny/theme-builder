@@ -2,7 +2,11 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"rootDir": "src",
-		"outDir": "dist/types",
+		"outDir": "../../dist/react/types",
+		"paths": {
+			"@ohJohny/theme-builder-core": ["../../dist/core/types/index.d.ts"],
+			"@ohJohny/theme-builder-core/*": ["../../dist/core/types/*"]
+		},
 		"declaration": true,
 		"declarationMap": true,
 		"emitDeclarationOnly": true,

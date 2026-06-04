@@ -16,10 +16,10 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/types/index.d.ts",
-			"import": "./dist/index.js"
+			"types": "../../dist/core/types/index.d.ts",
+			"import": "../../dist/core/index.js"
 		},
-		"./skills/*": "./dist/skills/*"
+		"./skills/*": "../../dist/core/skills/*"
 	},
 	"scripts": {
 		"build": "vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",

@@ -4,7 +4,11 @@
 		"rootDir": "src",
 		"jsx": "preserve",
 		"jsxImportSource": "solid-js",
-		"noEmit": true
+		"noEmit": true,
+		"paths": {
+			"@ohJohny/theme-builder-core": ["../../dist/core/types/index.d.ts"],
+			"@ohJohny/theme-builder-core/*": ["../../dist/core/types/*"]
+		}
 	},
 	"include": ["src/**/*.ts", "src/**/*.tsx"]
 }
