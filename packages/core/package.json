@@ -1,6 +1,6 @@
 {
 	"name": "@ohJohny/theme-builder-core",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"description": "Framework-agnostic design-token runtime and color-scheme store",
 	"type": "module",
 	"license": "MIT",
