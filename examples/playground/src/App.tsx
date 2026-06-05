@@ -3,13 +3,15 @@ import { useState } from 'react';
 import {
 	RawThemeBuilder,
 	ThemeBuilder,
+	type SpacingSizeName,
+} from '@ohJohny/theme-builder/core';
+import {
 	ThemeProvider,
 	useColorScheme,
 	useDeviceSize,
 	useTheme,
 	useUtilityClasses,
-	type SpacingSizeName,
-} from '@ohJohny/theme-builder-react';
+} from '@ohJohny/theme-builder/react';
 
 import { demoThemeConfig, spacingSizeNames } from './demoTheme';
 import './playground.css';

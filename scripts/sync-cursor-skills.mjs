@@ -25,7 +25,9 @@ async function exists(filePath) {
 async function resolveSkillsDir(pkgDir) {
 	const pkgName = path.basename(pkgDir);
 	const candidates = [
+		path.join(repoRoot, 'dist', 'theme-builder', 'skills'),
 		path.join(repoRoot, 'dist', pkgName, 'skills'),
+		path.join(pkgDir, 'dist', 'theme-builder', 'skills'),
 		path.join(pkgDir, 'dist', 'skills'),
 		path.join(pkgDir, 'skills'),
 	];
@@ -67,10 +69,21 @@ async function syncPackage(pkgDir) {
 
 async function syncAll() {
 	const packagesDir = path.join(repoRoot, 'packages');
+	const umbrellaDir = path.join(packagesDir, 'theme-builder');
+	if (await exists(umbrellaDir)) {
+		const umbrellaCount = await syncPackage(umbrellaDir);
+		if (umbrellaCount > 0) {
+			return umbrellaCount;
+		}
+	}
+
 	const names = await readdir(packagesDir);
 	let total = 0;
 
 	for (const name of names) {
+		if (name === 'theme-builder') {
+			continue;
+		}
 		const pkgDir = path.join(packagesDir, name);
 		total += await syncPackage(pkgDir);
 	}

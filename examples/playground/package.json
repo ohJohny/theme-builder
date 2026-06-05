@@ -8,8 +8,7 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"@ohJohny/theme-builder-core": "workspace:*",
-		"@ohJohny/theme-builder-react": "workspace:*",
+		"@ohJohny/theme-builder": "workspace:*",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0"
 	},

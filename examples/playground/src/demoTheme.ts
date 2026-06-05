@@ -1,4 +1,4 @@
-import type { RawThemeConfig } from '@ohJohny/theme-builder-core';
+import type { RawThemeConfig } from '@ohJohny/theme-builder/core';
 import {
 	DISPLAY_KEYWORDS,
 	FONT_SIZE_SCALE,
@@ -7,7 +7,7 @@ import {
 	SHADOW_SCALE,
 	SPACING_SCALE,
 	SPACING_SIZE_NAMES,
-} from '@ohJohny/theme-builder-core';
+} from '@ohJohny/theme-builder/core';
 
 function pxEntries(
 	scale: Readonly<Record<string, number>>,

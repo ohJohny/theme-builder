@@ -1,22 +1,21 @@
 ---
 name: ohjohny-theme-builder-solid
-description: Solid ThemeProvider, useTheme, useColorScheme from @ohJohny/theme-builder-solid. Use for design tokens and light/dark mode in Solid apps.
+description: Solid ThemeProvider, useTheme, useColorScheme from @ohJohny/theme-builder/solid. Use for design tokens and light/dark mode in Solid apps.
 ---
 
-# @ohJohny/theme-builder-solid
+# @ohJohny/theme-builder/solid
 
 ## Setup
 
 ```tsx
 /** @jsxImportSource solid-js */
+import { ThemeBuilder, RawThemeBuilder } from '@ohJohny/theme-builder/core';
 import {
   ThemeProvider,
   useTheme,
   useColorScheme,
   useUtilityClasses,
-  ThemeBuilder,
-  RawThemeBuilder,
-} from '@ohJohny/theme-builder-solid';
+} from '@ohJohny/theme-builder/solid';
 
 RawThemeBuilder.getInstance().apply(yourThemeConfig);
 
@@ -49,7 +48,7 @@ Inject theme CSS via `RawThemeBuilder.apply`. No styles ship with this package.
 
 ## TypeScript extension
 
-Augment `@ohJohny/theme-builder-core` in a consumer `.d.ts` file.
+Augment `@ohJohny/theme-builder/core` in a consumer `.d.ts` file.
 
 ## Peer
 

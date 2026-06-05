@@ -1,7 +1,7 @@
 # Smoke verification
 
 ```ts
-import { ThemeBuilder, createColorSchemeStore } from '@ohJohny/theme-builder-core';
+import { ThemeBuilder, createColorSchemeStore } from '@ohJohny/theme-builder/core';
 
 const theme = ThemeBuilder.getInstance().getTheme();
 console.assert(typeof theme.spacing.p.md.class === 'string', 'spacing token');

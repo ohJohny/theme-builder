@@ -2,13 +2,23 @@
 
 Framework-agnostic design-token runtime with React and Solid providers.
 
-## Packages
+## Install
 
-| Package | Description |
-|---------|-------------|
-| `@ohJohny/theme-builder-core` | `ThemeBuilder`, `RawThemeBuilder`, utility classes, color-scheme DOM helpers |
-| `@ohJohny/theme-builder-react` | `ThemeProvider`, `useTheme`, `useColorScheme`, `useUtilityClasses` |
-| `@ohJohny/theme-builder-solid` | Same surface for Solid |
+```bash
+npm install @ohJohny/theme-builder
+```
+
+Peer dependencies: `react` + `react-dom` for `/react`, `solid-js` for `/solid`.
+
+## Entry points
+
+| Import | Description |
+|--------|-------------|
+| `@ohJohny/theme-builder/core` | `ThemeBuilder`, `RawThemeBuilder`, utility classes, color-scheme DOM helpers |
+| `@ohJohny/theme-builder/react` | `ThemeProvider`, `useTheme`, `useColorScheme`, `useUtilityClasses`, `useDeviceSize` |
+| `@ohJohny/theme-builder/solid` | Same surface for Solid |
+
+`@ohJohny/theme-builder` is a shorthand alias for `/core`.
 
 ## Quick start (React)
 
@@ -17,9 +27,11 @@ import {
   ThemeProvider,
   useTheme,
   useUtilityClasses,
+} from '@ohJohny/theme-builder/react';
+import {
   ThemeBuilder,
   RawThemeBuilder,
-} from '@ohJohny/theme-builder-react';
+} from '@ohJohny/theme-builder/core';
 
 // Inject CSS variables + utility rules (this package does not ship CSS)
 RawThemeBuilder.getInstance().apply(demoThemeConfig);
@@ -72,9 +84,9 @@ The committed map lives at `packages/core/src/generated/utility-class-map.ts` an
 
 ```ts
 // theme-augmentation.d.ts
-import '@ohJohny/theme-builder-core';
+import '@ohJohny/theme-builder/core';
 
-declare module '@ohJohny/theme-builder-core' {
+declare module '@ohJohny/theme-builder/core' {
   interface ThemeColorOverrides {
     brand: string;
     'brand-muted': string;
@@ -89,7 +101,7 @@ After `ThemeBuilder.getInstance().extend({ colors: { brand: 'var(--color-brand)'
 
 ## Agent skills
 
-Skills install to `.cursor/skills/` on `bun install` (monorepo root) and when consumers install `@ohJohny/theme-builder-*` packages (`postinstall` uses `INIT_CWD`).
+Skills install to `.cursor/skills/` on `bun install` (monorepo root) and when consumers install `@ohJohny/theme-builder` (`postinstall` uses `INIT_CWD`).
 
 Canonical sources: `packages/*/skills/`. Sync copies: `.cursor/skills/`.
 
@@ -112,3 +124,9 @@ bun install
 bun run build
 bun run test
 ```
+
+## Monorepo layout
+
+Published artifact: `@ohJohny/theme-builder` (`packages/theme-builder`).
+
+Workspace-only packages (`packages/core`, `packages/react`, `packages/solid`) are built into `dist/` and bundled by the umbrella package. They are not published separately.

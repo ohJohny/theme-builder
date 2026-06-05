@@ -17,6 +17,11 @@ export default defineConfig({
 		},
 		rolldownOptions: {
 			external: ['react', 'react/jsx-runtime', '@ohJohny/theme-builder-core'],
+			output: {
+				paths: {
+					'@ohJohny/theme-builder-core': '../core/index.js',
+				},
+			},
 		},
 	},
 });

@@ -54,7 +54,7 @@ export type ComponentSizeName = SpacingSizeName;
 
 /**
  * Augment in a consumer repo for typed custom palette keys:
- * `declare module '@ohJohny/theme-builder-core' { interface ThemeColorOverrides { brand: string } }`
+ * `declare module '@ohJohny/theme-builder/core' { interface ThemeColorOverrides { brand: string } }`
  */
 export interface ThemeColorOverrides {}
 
@@ -68,7 +68,7 @@ export type BaseColorTokenName = 'white' | 'black';
 
 /**
  * Augment for custom semantic color utility tokens:
- * `declare module '@ohJohny/theme-builder-core' { interface SemanticColorTokenOverrides { 'brand-accent': never } }`
+ * `declare module '@ohJohny/theme-builder/core' { interface SemanticColorTokenOverrides { 'brand-accent': never } }`
  * Use `never` as value type when only extending the key union.
  */
 export interface SemanticColorTokenOverrides {}

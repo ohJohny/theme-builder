@@ -8,7 +8,7 @@
 		"examples/*"
 	],
 	"scripts": {
-		"build": "bun run clean:dist && bun run --filter @ohJohny/theme-builder-core build && bun run --filter '@ohJohny/theme-builder-react' --filter '@ohJohny/theme-builder-solid' build",
+		"build": "bun run clean:dist && bun run --filter @ohJohny/theme-builder-core build && bun run --filter '@ohJohny/theme-builder-react' --filter '@ohJohny/theme-builder-solid' build && bun run --filter @ohJohny/theme-builder build",
 		"clean:dist": "node scripts/clean-dist.mjs",
 		"lint": "bun run --filter '@ohJohny/*' lint",
 		"test": "bun run --filter '@ohJohny/*' test",

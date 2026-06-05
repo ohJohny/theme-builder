@@ -22,8 +22,7 @@
     "examples/playground": {
       "name": "theme-builder-playground",
       "dependencies": {
-        "@ohJohny/theme-builder-core": "workspace:*",
-        "@ohJohny/theme-builder-react": "workspace:*",
+        "@ohJohny/theme-builder": "workspace:*",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
       },
@@ -37,7 +36,7 @@
     },
     "packages/core": {
       "name": "@ohJohny/theme-builder-core",
-      "version": "0.1.0",
+      "version": "0.1.3",
       "devDependencies": {
         "@types/node": "25.9.1",
         "typescript": "^6.0.3",
@@ -46,7 +45,7 @@
     },
     "packages/react": {
       "name": "@ohJohny/theme-builder-react",
-      "version": "0.1.0",
+      "version": "0.1.3",
       "dependencies": {
         "@ohJohny/theme-builder-core": "workspace:*",
       },
@@ -54,18 +53,19 @@
         "@testing-library/react": "^16.3.2",
         "@types/react": "^19.1.8",
         "react": "19.2.7",
+        "react-dom": "19.2.7",
         "typescript": "^6.0.3",
         "vite": "8.0.5",
         "vitest": "^4.1.8",
       },
       "peerDependencies": {
         "react": ">=18.0.0",
-        "react-dom": "19.2.7",
+        "react-dom": ">=18.0.0",
       },
     },
     "packages/solid": {
       "name": "@ohJohny/theme-builder-solid",
-      "version": "0.1.0",
+      "version": "0.1.3",
       "dependencies": {
         "@ohJohny/theme-builder-core": "workspace:*",
       },
@@ -78,6 +78,20 @@
       "peerDependencies": {
         "solid-js": ">=1.8.0",
       },
+    },
+    "packages/theme-builder": {
+      "name": "@ohJohny/theme-builder",
+      "version": "0.1.3",
+      "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0",
+        "solid-js": ">=1.8.0",
+      },
+      "optionalPeers": [
+        "react",
+        "react-dom",
+        "solid-js",
+      ],
     },
   },
   "packages": {
@@ -152,6 +166,8 @@
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.4", "", { "dependencies": { "@tybys/wasm-util": "^0.10.1" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow=="],
+
+    "@ohJohny/theme-builder": ["@ohJohny/theme-builder@workspace:packages/theme-builder"],
 
     "@ohJohny/theme-builder-core": ["@ohJohny/theme-builder-core@workspace:packages/core"],
 

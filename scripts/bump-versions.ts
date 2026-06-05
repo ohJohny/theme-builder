@@ -1,5 +1,5 @@
 /**
- * Bumps version in all publishable packages (lockstep) and prints the new version.
+ * Bumps version in the publishable umbrella package and workspace packages (lockstep).
  * Usage: bun run scripts/bump-versions.ts <major|minor|patch>
  */
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -13,11 +13,11 @@ if (!bump || !['major', 'minor', 'patch'].includes(bump)) {
 }
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const packages = ['core', 'react', 'solid'] as const;
+const packages = ['core', 'react', 'solid', 'theme-builder'] as const;
 
-const corePkgPath = path.join(root, 'packages', 'core', 'package.json');
-const corePkg = JSON.parse(readFileSync(corePkgPath, 'utf8')) as { version: string };
-const [major, minor, patch] = corePkg.version.split('.').map(Number);
+const versionSourcePath = path.join(root, 'packages', 'theme-builder', 'package.json');
+const versionSource = JSON.parse(readFileSync(versionSourcePath, 'utf8')) as { version: string };
+const [major, minor, patch] = versionSource.version.split('.').map(Number);
 
 let nextMajor = major;
 let nextMinor = minor;

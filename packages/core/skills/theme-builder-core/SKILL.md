@@ -1,14 +1,14 @@
 ---
 name: ohjohny-theme-builder-core
-description: Framework-agnostic ThemeBuilder, RawThemeBuilder, color-scheme DOM helpers, and createColorSchemeStore from @ohJohny/theme-builder-core. Use for design tokens, CSS variables, and headless light/dark switching.
+description: Framework-agnostic ThemeBuilder, RawThemeBuilder, color-scheme DOM helpers, and createColorSchemeStore from @ohJohny/theme-builder/core. Use for design tokens, CSS variables, and headless light/dark switching.
 ---
 
-# @ohJohny/theme-builder-core
+# @ohJohny/theme-builder/core
 
 ## ThemeBuilder singleton
 
 ```ts
-import { ThemeBuilder, RawThemeBuilder } from '@ohJohny/theme-builder-core';
+import { ThemeBuilder, RawThemeBuilder } from '@ohJohny/theme-builder/core';
 
 RawThemeBuilder.getInstance().apply({ colors: { 'text-primary': '#111' } });
 
@@ -27,7 +27,7 @@ theme.spacing.px.md.value; // var(--space-md)
 
 ```ts
 // theme-augmentation.d.ts
-declare module '@ohJohny/theme-builder-core' {
+declare module '@ohJohny/theme-builder/core' {
   interface ThemeColorOverrides { brand: string }
   interface SemanticColorTokenOverrides { 'brand-accent': never }
 }
@@ -43,7 +43,7 @@ declare module '@ohJohny/theme-builder-core' {
 ## resolveUtilityClasses
 
 ```ts
-import { resolveUtilityClasses } from '@ohJohny/theme-builder-core';
+import { resolveUtilityClasses } from '@ohJohny/theme-builder/core';
 
 const { className, style } = resolveUtilityClasses(
   { px: 'md', color: 'text-primary', bg: '#fff' },
@@ -55,7 +55,7 @@ const { className, style } = resolveUtilityClasses(
 ## Color scheme (headless)
 
 ```ts
-import { createColorSchemeStore, applyColorScheme } from '@ohJohny/theme-builder-core';
+import { createColorSchemeStore, applyColorScheme } from '@ohJohny/theme-builder/core';
 
 const store = createColorSchemeStore({
   presetColorScheme: 'light',

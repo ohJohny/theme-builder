@@ -1,13 +1,14 @@
 ---
 name: ohjohny-theme-builder-react
-description: React ThemeProvider, useTheme, useColorScheme, useDeviceSize from @ohJohny/theme-builder-react. Use for design tokens, light/dark mode, and responsive device buckets in React apps.
+description: React ThemeProvider, useTheme, useColorScheme, useDeviceSize from @ohJohny/theme-builder/react. Use for design tokens, light/dark mode, and responsive device buckets in React apps.
 ---
 
-# @ohJohny/theme-builder-react
+# @ohJohny/theme-builder/react
 
 ## Setup
 
 ```tsx
+import { ThemeBuilder, RawThemeBuilder } from '@ohJohny/theme-builder/core';
 import {
   ThemeProvider,
   useTheme,
@@ -16,9 +17,7 @@ import {
   useUtilityClasses,
   DeviceSizeProvider,
   DEFAULT_DEVICE_BREAKPOINTS_REM,
-  ThemeBuilder,
-  RawThemeBuilder,
-} from '@ohJohny/theme-builder-react';
+} from '@ohJohny/theme-builder/react';
 
 RawThemeBuilder.getInstance().apply(yourThemeConfig);
 
@@ -70,7 +69,7 @@ Import or inject theme CSS (`RawThemeBuilder.apply`). Style `[data-theme="dark"]
 
 ## TypeScript extension
 
-Augment `@ohJohny/theme-builder-core` interfaces `ThemeColorOverrides` / `SemanticColorTokenOverrides` in a `.d.ts` file.
+Augment `@ohJohny/theme-builder/core` interfaces `ThemeColorOverrides` / `SemanticColorTokenOverrides` in a `.d.ts` file.
 
 ## Peer
 

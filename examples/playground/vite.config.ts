@@ -6,11 +6,11 @@ export default defineConfig({
 	plugins: [react()],
 	resolve: {
 		alias: {
-			'@ohJohny/theme-builder-core': path.resolve(
+			'@ohJohny/theme-builder/core': path.resolve(
 				__dirname,
 				'../../packages/core/src/index.ts',
 			),
-			'@ohJohny/theme-builder-react': path.resolve(
+			'@ohJohny/theme-builder/react': path.resolve(
 				__dirname,
 				'../../packages/react/src/index.ts',
 			),

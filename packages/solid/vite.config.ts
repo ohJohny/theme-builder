@@ -19,6 +19,11 @@ export default defineConfig({
 		},
 		rolldownOptions: {
 			external: ['solid-js', 'solid-js/web', '@ohJohny/theme-builder-core'],
+			output: {
+				paths: {
+					'@ohJohny/theme-builder-core': '../core/index.js',
+				},
+			},
 		},
 	},
 });
