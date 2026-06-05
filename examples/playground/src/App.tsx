@@ -6,6 +6,7 @@ import {
 	type SpacingSizeName,
 } from '@ohJohny/theme-builder/core';
 import {
+	DeviceMatch,
 	ThemeProvider,
 	useColorScheme,
 	useDeviceSize,
@@ -221,11 +222,22 @@ function ShadowChip({ name }: { name: 'sm' | 'md' | 'lg' | 'xl' }) {
 
 function DeviceSizeSection() {
 	const matches = useDeviceSize();
+	const sizes = ['mobile', 'tablet', 'desktop', 'wide'] as const;
 
 	return (
 		<section className="playground-section">
 			<h2>Device size</h2>
 			<pre className="device-matches-json">{JSON.stringify(matches, null, 4)}</pre>
+			<div className="device-match-grid">
+				{sizes.map((size) => (
+					<DeviceMatch key={size} size={size}>
+						<div className={`device-match-panel device-match-panel--${size}`}>
+							<strong>{size}</strong>
+							<span>Visible at this breakpoint</span>
+						</div>
+					</DeviceMatch>
+				))}
+			</div>
 		</section>
 	);
 }

@@ -150,3 +150,35 @@ section.playground-section h2 {
 	color: var(--color-text-primary, #111);
 	overflow-x: auto;
 }
+
+.device-match-grid {
+	display: grid;
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
+.device-match-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	padding: 1rem;
+	border-radius: 8px;
+	border: 1px solid var(--color-border-default, #e5e7eb);
+	background: var(--color-surface-container, #fff);
+}
+
+.device-match-panel--mobile {
+	border-color: #f59e0b;
+}
+
+.device-match-panel--tablet {
+	border-color: #3b82f6;
+}
+
+.device-match-panel--desktop {
+	border-color: #8b5cf6;
+}
+
+.device-match-panel--wide {
+	border-color: #10b981;
+}

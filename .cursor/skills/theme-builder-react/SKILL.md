@@ -1,6 +1,6 @@
 ---
 name: ohjohny-theme-builder-react
-description: React ThemeProvider, useTheme, useColorScheme, useDeviceSize from @ohJohny/theme-builder/react. Use for design tokens, light/dark mode, and responsive device buckets in React apps.
+description: React ThemeProvider, useTheme, useColorScheme, useDeviceSize, DeviceMatch from @ohJohny/theme-builder/react. Use for design tokens, light/dark mode, and responsive device buckets in React apps.
 ---
 
 # @ohJohny/theme-builder/react
@@ -14,6 +14,7 @@ import {
   useTheme,
   useColorScheme,
   useDeviceSize,
+  DeviceMatch,
   useUtilityClasses,
   DeviceSizeProvider,
   DEFAULT_DEVICE_BREAKPOINTS_REM,
@@ -37,6 +38,7 @@ Default breakpoints match component-0 (48 / 62 / 80 rem → 768 / 992 / 1280 px 
 - `useTheme()` — proxy-guarded token tree (updates after `extend()`)
 - `useColorScheme()` — `colorScheme`, `changeColorScheme`, `colorSchemeList`
 - `useDeviceSize()` — `{ mobile, tablet, desktop, wide }` mutually exclusive booleans from viewport width
+- `DeviceMatch` — renders `children` only when viewport matches `size` prop
 - `useUtilityClasses({ px: 'md', bg: 'surface-main' })` — `{ className, style }`
 - `useColorSchemeTogglePosition(ref)` — view-transition origin CSS vars
 
@@ -46,6 +48,23 @@ Default breakpoints match component-0 (48 / 62 / 80 rem → 768 / 992 / 1280 px 
 function Layout() {
   const { mobile, desktop } = useDeviceSize();
   return mobile ? <MobileNav /> : desktop ? <DesktopNav /> : <TabletNav />;
+}
+```
+
+## DeviceMatch example
+
+```tsx
+function Sidebar() {
+  return (
+    <>
+      <DeviceMatch size="mobile">
+        <MobileNav />
+      </DeviceMatch>
+      <DeviceMatch size="desktop">
+        <DesktopNav />
+      </DeviceMatch>
+    </>
+  );
 }
 ```
 

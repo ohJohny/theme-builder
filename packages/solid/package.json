@@ -26,7 +26,7 @@
 		"build": "vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"lint": "tsc -p tsconfig.json --noEmit",
-		"test": "vitest run --passWithNoTests",
+		"test": "vitest run --config vitest.config.ts",
 		"postinstall": "node scripts/sync-cursor-skills.mjs"
 	},
 	"dependencies": {
@@ -36,6 +36,7 @@
 		"solid-js": ">=1.8.0"
 	},
 	"devDependencies": {
+		"@solidjs/testing-library": "^0.8.10",
 		"solid-js": "1.9.12",
 		"typescript": "^6.0.3",
 		"vite": "8.0.5",

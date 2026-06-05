@@ -1,0 +1,43 @@
+import type { Accessor } from 'solid-js';
+import { createMemo, onCleanup, useContext } from 'solid-js';
+
+import {
+	computeMatches,
+	DEFAULT_DEVICE_BREAKPOINTS_REM,
+	getRootFontSizePx,
+	mergeBreakpointsRem,
+	remBreakpointsToPx,
+} from '../utils/deviceSizeCore';
+import { subscribeSharedWindowWidth } from '../utils/subscribeSharedWindowWidth';
+import type { DeviceMatches, UseDeviceSizeOptions } from '../utils/types';
+import { DeviceSizeContext } from './DeviceSizeContext';
+
+export type UseDeviceSizeResult = Accessor<DeviceMatches>;
+
+/**
+ * Reactive device buckets (`mobile` / `tablet` / `desktop` / `wide`).
+ *
+ * Driven by a **shared ref-counted** `window` `resize` subscription shared with
+ * {@link DeviceMatch}. Subscription runs **synchronously** when the hook is
+ * evaluated so the first paint matches the current viewport. Optional
+ * {@link DeviceSizeProvider} supplies default `breakpointsRem`; call-site
+ * `options` override context.
+ */
+export function useDeviceSize(options?: UseDeviceSizeOptions): UseDeviceSizeResult {
+	const ctx = useContext(DeviceSizeContext);
+
+	const [width, release] = subscribeSharedWindowWidth();
+	onCleanup(release);
+
+	const breakpointsRem = createMemo(() => {
+		const base = ctx?.().breakpointsRem ?? DEFAULT_DEVICE_BREAKPOINTS_REM;
+		return mergeBreakpointsRem(base, options?.breakpointsRem);
+	});
+
+	const matches = createMemo(() => {
+		const px = remBreakpointsToPx(breakpointsRem(), getRootFontSizePx());
+		return computeMatches(width(), px);
+	});
+
+	return matches;
+}

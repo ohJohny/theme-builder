@@ -8,6 +8,8 @@ export { useUtilityClasses } from './components/useUtilityClasses';
 export { DeviceSizeProvider } from './components/DeviceSizeProvider';
 export type { DeviceSizeProviderProps } from './components/DeviceSizeProvider';
 export { useDeviceSize } from './components/useDeviceSize';
+export { DeviceMatch } from './components/DeviceMatch';
+export type { DeviceMatchProps } from './components/DeviceMatch';
 export { DEFAULT_DEVICE_BREAKPOINTS_REM } from './utils/deviceSizeCore';
 export type {
 	DeviceSizeName,

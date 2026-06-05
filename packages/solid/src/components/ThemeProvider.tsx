@@ -18,9 +18,13 @@ import {
 } from '@ohJohny/theme-builder-core';
 
 import { ColorSchemeContext } from './ColorSchemeContext';
+import { DeviceSizeProvider } from './DeviceSizeProvider';
 import { getDefaultTheme, ThemeContext } from './useTheme';
+import type { DeviceBreakpointsRem } from '../utils/types';
 
-export type ThemeProviderProps = ColorSchemeStoreOptions;
+export type ThemeProviderProps = ColorSchemeStoreOptions & {
+	readonly breakpointsRem?: Partial<DeviceBreakpointsRem>;
+};
 
 export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
 	const merged = mergeProps(
@@ -31,7 +35,7 @@ export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
 		props,
 	);
 
-	const [local, storeOptions] = splitProps(merged, ['children']);
+	const [local, storeOptions] = splitProps(merged, ['children', 'breakpointsRem']);
 	const store = createColorSchemeStore(storeOptions);
 	const [snapshot, setSnapshot] = createSignal(store.getState());
 
@@ -68,7 +72,11 @@ export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
 
 	return (
 		<ColorSchemeContext.Provider value={colorSchemeValue}>
-			<ThemeContext.Provider value={resolvedTheme}>{local.children}</ThemeContext.Provider>
+			<ThemeContext.Provider value={resolvedTheme}>
+				<DeviceSizeProvider breakpointsRem={local.breakpointsRem}>
+					{local.children}
+				</DeviceSizeProvider>
+			</ThemeContext.Provider>
 		</ColorSchemeContext.Provider>
 	);
 };
