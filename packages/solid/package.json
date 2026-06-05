@@ -1,7 +1,7 @@
 {
 	"name": "@ohJohny/theme-builder-solid",
 	"private": true,
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"description": "Solid ThemeProvider, useTheme, and useColorScheme",
 	"type": "module",
 	"license": "MIT",
