@@ -1,6 +1,6 @@
 ---
 name: ohjohny-theme-builder-react
-description: React ThemeProvider, useTheme, useColorScheme from @ohJohny/theme-builder-react. Use for design tokens and light/dark mode in React apps.
+description: React ThemeProvider, useTheme, useColorScheme, useDeviceSize from @ohJohny/theme-builder-react. Use for design tokens, light/dark mode, and responsive device buckets in React apps.
 ---
 
 # @ohJohny/theme-builder-react
@@ -12,7 +12,10 @@ import {
   ThemeProvider,
   useTheme,
   useColorScheme,
+  useDeviceSize,
   useUtilityClasses,
+  DeviceSizeProvider,
+  DEFAULT_DEVICE_BREAKPOINTS_REM,
   ThemeBuilder,
   RawThemeBuilder,
 } from '@ohJohny/theme-builder-react';
@@ -26,12 +29,26 @@ ThemeBuilder.getInstance().extend({ colors: { brand: 'var(--color-brand)' } });
 </ThemeProvider>
 ```
 
+`ThemeProvider` always wraps children with `DeviceSizeProvider`, so `useDeviceSize()` works anywhere under `ThemeProvider` without extra wiring. Optional `breakpointsRem` on `ThemeProvider` is forwarded to the inner provider. For a subtree override, nest another `DeviceSizeProvider`.
+
+Default breakpoints match component-0 (48 / 62 / 80 rem → 768 / 992 / 1280 px at 16px root): `DEFAULT_DEVICE_BREAKPOINTS_REM`.
+
 ## Hooks
 
 - `useTheme()` — proxy-guarded token tree (updates after `extend()`)
 - `useColorScheme()` — `colorScheme`, `changeColorScheme`, `colorSchemeList`
+- `useDeviceSize()` — `{ mobile, tablet, desktop, wide }` mutually exclusive booleans from viewport width
 - `useUtilityClasses({ px: 'md', bg: 'surface-main' })` — `{ className, style }`
 - `useColorSchemeTogglePosition(ref)` — view-transition origin CSS vars
+
+## Device size example
+
+```tsx
+function Layout() {
+  const { mobile, desktop } = useDeviceSize();
+  return mobile ? <MobileNav /> : desktop ? <DesktopNav /> : <TabletNav />;
+}
+```
 
 ## Utility props example
 

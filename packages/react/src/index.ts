@@ -5,6 +5,16 @@ export type { ColorSchemeContextValue } from './ColorSchemeContext';
 export { useColorScheme } from './useColorScheme';
 export { useColorSchemeTogglePosition } from './useColorSchemeTogglePosition';
 export { useUtilityClasses } from './useUtilityClasses';
+export { DeviceSizeProvider } from './deviceSize/DeviceSizeProvider';
+export type { DeviceSizeProviderProps } from './deviceSize/DeviceSizeProvider';
+export { useDeviceSize } from './deviceSize/useDeviceSize';
+export { DEFAULT_DEVICE_BREAKPOINTS_REM } from './deviceSize/deviceSizeCore';
+export type {
+	DeviceSizeName,
+	DeviceMatches,
+	DeviceBreakpointsRem,
+	UseDeviceSizeOptions,
+} from './deviceSize/types';
 
 export {
 	ThemeBuilder,

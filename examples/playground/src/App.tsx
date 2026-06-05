@@ -5,6 +5,7 @@ import {
 	ThemeBuilder,
 	ThemeProvider,
 	useColorScheme,
+	useDeviceSize,
 	useTheme,
 	useUtilityClasses,
 	type SpacingSizeName,
@@ -216,6 +217,17 @@ function ShadowChip({ name }: { name: 'sm' | 'md' | 'lg' | 'xl' }) {
 	);
 }
 
+function DeviceSizeSection() {
+	const matches = useDeviceSize();
+
+	return (
+		<section className="playground-section">
+			<h2>Device size</h2>
+			<pre className="device-matches-json">{JSON.stringify(matches, null, 4)}</pre>
+		</section>
+	);
+}
+
 function DisplaySection() {
 	const keys = ['block', 'flex', 'grid', 'none'] as const;
 	return (
@@ -248,6 +260,7 @@ export function App() {
 				<LineHeightSection />
 				<ShadowsSection />
 				<DisplaySection />
+				<DeviceSizeSection />
 			</div>
 		</ThemeProvider>
 	);

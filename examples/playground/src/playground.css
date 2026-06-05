@@ -137,3 +137,16 @@ section.playground-section h2 {
 .typography-sample {
 	white-space: nowrap;
 }
+
+.device-matches-json {
+	margin: 0;
+	padding: 1rem;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.85rem;
+	line-height: 1.5;
+	border: 1px solid var(--color-border-default, #e5e7eb);
+	border-radius: 8px;
+	background: var(--color-surface-container, #fff);
+	color: var(--color-text-primary, #111);
+	overflow-x: auto;
+}

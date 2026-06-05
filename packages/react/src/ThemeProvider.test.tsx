@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ThemeBuilder } from '@ohJohny/theme-builder-core';
 
 import { useTheme } from './ColorSchemeContext';
+import { useDeviceSize } from './deviceSize/useDeviceSize';
 import { ThemeProvider } from './ThemeProvider';
 import { useColorScheme } from './useColorScheme';
 
@@ -54,6 +55,20 @@ describe('ThemeProvider / useTheme', () => {
 
 		expect(result.current.spacing.px.md.class).toBe('tb-test-px-md');
 		expect(result.current.spacing.px.md.class).not.toBe(before);
+	});
+});
+
+describe('ThemeProvider / useDeviceSize', () => {
+	it('provides device size matches without an extra DeviceSizeProvider', () => {
+		Object.defineProperty(window, 'innerWidth', {
+			configurable: true,
+			writable: true,
+			value: 400,
+		});
+
+		const { result } = renderHook(() => useDeviceSize(), { wrapper: createWrapper() });
+		expect(result.current.mobile).toBe(true);
+		expect(result.current.tablet).toBe(false);
 	});
 });
 

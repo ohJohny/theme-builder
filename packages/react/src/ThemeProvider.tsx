@@ -16,13 +16,16 @@ import {
 	type ColorSchemeContextValue,
 	ThemeContext,
 } from './ColorSchemeContext';
+import { DeviceSizeProvider } from './deviceSize/DeviceSizeProvider';
+import type { DeviceBreakpointsRem } from './deviceSize/types';
 
 export type ThemeProviderProps = ColorSchemeStoreOptions & {
+	readonly breakpointsRem?: Partial<DeviceBreakpointsRem>;
 	readonly children: ReactNode;
 };
 
 export function ThemeProvider(props: ThemeProviderProps) {
-	const { children, ...storeOptions } = props;
+	const { children, breakpointsRem, ...storeOptions } = props;
 
 	const store = useMemo(() => createColorSchemeStore(storeOptions), []);
 	const state = useSyncExternalStore(store.subscribe, store.getState, store.getState);
@@ -48,7 +51,9 @@ export function ThemeProvider(props: ThemeProviderProps) {
 
 	return (
 		<ColorSchemeContext.Provider value={colorSchemeValue}>
-			<ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
+			<ThemeContext.Provider value={theme}>
+				<DeviceSizeProvider breakpointsRem={breakpointsRem}>{children}</DeviceSizeProvider>
+			</ThemeContext.Provider>
 		</ColorSchemeContext.Provider>
 	);
 }
