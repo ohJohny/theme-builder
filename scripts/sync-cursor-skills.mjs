@@ -80,12 +80,14 @@ async function syncFromRootDist() {
 
 async function syncAll() {
 	const packagesDir = path.join(repoRoot, 'packages');
-	const names = await readdir(packagesDir);
 	let total = 0;
 
-	for (const name of names) {
-		const pkgDir = path.join(packagesDir, name);
-		total += await syncPackage(pkgDir);
+	if (await exists(packagesDir)) {
+		const names = await readdir(packagesDir);
+		for (const name of names) {
+			const pkgDir = path.join(packagesDir, name);
+			total += await syncPackage(pkgDir);
+		}
 	}
 
 	if (total > 0) {
