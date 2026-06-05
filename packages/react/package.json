@@ -10,18 +10,7 @@
 		"url": "https://github.com/ohJohny/theme-builder.git",
 		"directory": "packages/react"
 	},
-	"files": [
-		"dist",
-		"scripts/sync-cursor-skills.mjs"
-	],
 	"sideEffects": false,
-	"exports": {
-		".": {
-			"types": "../../dist/react/types/index.d.ts",
-			"import": "../../dist/react/index.js"
-		},
-		"./skills/*": "../../dist/react/skills/*"
-	},
 	"scripts": {
 		"build": "vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
 		"typecheck": "tsc -p tsconfig.json --noEmit",

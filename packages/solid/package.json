@@ -10,18 +10,7 @@
 		"url": "https://github.com/ohJohny/theme-builder.git",
 		"directory": "packages/solid"
 	},
-	"files": [
-		"dist",
-		"scripts/sync-cursor-skills.mjs"
-	],
 	"sideEffects": false,
-	"exports": {
-		".": {
-			"types": "../../dist/solid/types/index.d.ts",
-			"import": "../../dist/solid/index.js"
-		},
-		"./skills/*": "../../dist/solid/skills/*"
-	},
 	"scripts": {
 		"build": "vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
 		"typecheck": "tsc -p tsconfig.json --noEmit",

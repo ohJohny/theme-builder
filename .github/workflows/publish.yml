@@ -57,7 +57,7 @@ jobs:
         run: |
           VERSION=$(bun run scripts/bump-versions.ts ${{ steps.bump.outputs.bump }})
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          git add packages/*/package.json
+          git add package.json packages/*/package.json
           git commit -m "chore: release v${VERSION} [skip ci]" --no-verify
           git tag "v${VERSION}"
 

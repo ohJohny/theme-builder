@@ -127,6 +127,6 @@ bun run test
 
 ## Monorepo layout
 
-Published artifact: `@ohJohny/theme-builder` (`packages/theme-builder`).
+Published artifact: `@ohJohny/theme-builder` (repo root).
 
 Workspace-only packages (`packages/core`, `packages/react`, `packages/solid`) are built into `dist/` and bundled by the umbrella package. They are not published separately.

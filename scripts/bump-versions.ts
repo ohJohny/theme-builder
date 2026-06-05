@@ -1,5 +1,5 @@
 /**
- * Bumps version in the publishable umbrella package and workspace packages (lockstep).
+ * Bumps version in the publishable root package and workspace packages (lockstep).
  * Usage: bun run scripts/bump-versions.ts <major|minor|patch>
  */
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -13,9 +13,9 @@ if (!bump || !['major', 'minor', 'patch'].includes(bump)) {
 }
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const packages = ['core', 'react', 'solid', 'theme-builder'] as const;
+const workspacePackages = ['core', 'react', 'solid'] as const;
 
-const versionSourcePath = path.join(root, 'packages', 'theme-builder', 'package.json');
+const versionSourcePath = path.join(root, 'package.json');
 const versionSource = JSON.parse(readFileSync(versionSourcePath, 'utf8')) as { version: string };
 const [major, minor, patch] = versionSource.version.split('.').map(Number);
 
@@ -36,8 +36,12 @@ if (bump === 'major') {
 
 const version = `${nextMajor}.${nextMinor}.${nextPatch}`;
 
-for (const pkg of packages) {
-	const pkgPath = path.join(root, 'packages', pkg, 'package.json');
+const targets = [
+	path.join(root, 'package.json'),
+	...workspacePackages.map((pkg) => path.join(root, 'packages', pkg, 'package.json')),
+];
+
+for (const pkgPath of targets) {
 	const pkgJson = JSON.parse(readFileSync(pkgPath, 'utf8')) as { version: string };
 	pkgJson.version = version;
 	writeFileSync(pkgPath, `${JSON.stringify(pkgJson, null, '\t')}\n`);
