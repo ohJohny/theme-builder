@@ -22,30 +22,13 @@ async function exists(filePath) {
 	}
 }
 
-async function resolveSkillsDir(pkgDir) {
-	const pkgName = path.basename(pkgDir);
-	const candidates = [
-		path.join(repoRoot, 'dist', 'theme-builder', 'skills'),
-		path.join(repoRoot, 'dist', pkgName, 'skills'),
-		path.join(pkgDir, 'dist', 'theme-builder', 'skills'),
-		path.join(pkgDir, 'dist', 'skills'),
-		path.join(pkgDir, 'skills'),
-	];
-	for (const candidate of candidates) {
-		if (await exists(candidate)) {
-			return candidate;
-		}
-	}
-	return null;
-}
-
 async function syncPackage(pkgDir) {
-	const skillsDir = await resolveSkillsDir(pkgDir);
-	if (!skillsDir) {
+	const sourceSkillsDir = path.join(pkgDir, 'skills');
+	if (!(await exists(sourceSkillsDir))) {
 		return 0;
 	}
 
-	const entries = await readdir(skillsDir, { withFileTypes: true });
+	const entries = await readdir(sourceSkillsDir, { withFileTypes: true });
 	let copied = 0;
 
 	for (const entry of entries) {
@@ -53,14 +36,14 @@ async function syncPackage(pkgDir) {
 			continue;
 		}
 
-		const skillFile = path.join(skillsDir, entry.name, 'SKILL.md');
+		const skillFile = path.join(sourceSkillsDir, entry.name, 'SKILL.md');
 		if (!(await exists(skillFile))) {
 			continue;
 		}
 
 		const destDir = path.join(projectRoot, '.cursor', 'skills', entry.name);
 		await mkdir(destDir, { recursive: true });
-		await cp(path.join(skillsDir, entry.name), destDir, { recursive: true, force: true });
+		await cp(path.join(sourceSkillsDir, entry.name), destDir, { recursive: true, force: true });
 		copied += 1;
 	}
 
@@ -96,11 +79,6 @@ async function syncFromRootDist() {
 }
 
 async function syncAll() {
-	const rootCount = await syncFromRootDist();
-	if (rootCount > 0) {
-		return rootCount;
-	}
-
 	const packagesDir = path.join(repoRoot, 'packages');
 	const names = await readdir(packagesDir);
 	let total = 0;
@@ -110,7 +88,11 @@ async function syncAll() {
 		total += await syncPackage(pkgDir);
 	}
 
-	return total;
+	if (total > 0) {
+		return total;
+	}
+
+	return syncFromRootDist();
 }
 
 const target = process.argv[2];

@@ -1,16 +1,22 @@
 ---
 name: ohjohny-theme-builder-react
-description: React ThemeProvider, useTheme, useColorScheme, useDeviceSize, DeviceMatch from @ohJohny/theme-builder/react. Use for design tokens, light/dark mode, and responsive device buckets in React apps.
+description: >-
+  React ThemeProvider, useTheme, useColorScheme, useDeviceSize, DeviceMatch, and useUtilityClasses
+  from @ohJohny/theme-builder/react. Use for design tokens, light/dark mode, responsive device
+  buckets, and utility-class props in React apps.
 ---
 
 # @ohJohny/theme-builder/react
 
+Re-exports common core APIs (`ThemeBuilder`, `RawThemeBuilder`, `resolveUtilityClasses`, etc.) — import from one entry when convenient.
+
 ## Setup
 
 ```tsx
-import { ThemeBuilder, RawThemeBuilder } from '@ohJohny/theme-builder/core';
 import {
   ThemeProvider,
+  ThemeBuilder,
+  RawThemeBuilder,
   useTheme,
   useColorScheme,
   useDeviceSize,
@@ -36,8 +42,8 @@ Default breakpoints match component-0 (48 / 62 / 80 rem → 768 / 992 / 1280 px 
 ## Hooks
 
 - `useTheme()` — proxy-guarded token tree (updates after `extend()`)
-- `useColorScheme()` — `colorScheme`, `changeColorScheme`, `colorSchemeList`
-- `useDeviceSize()` — `{ mobile, tablet, desktop, wide }` mutually exclusive booleans from viewport width
+- `useColorScheme()` — `colorScheme`, `changeColorScheme`, `colorSchemeList`, `labelShort`
+- `useDeviceSize(options?)` — `{ mobile, tablet, desktop, wide }` mutually exclusive booleans; `options.breakpointsRem` overrides provider defaults
 - `DeviceMatch` — renders `children` only when viewport matches `size` prop
 - `useUtilityClasses({ px: 'md', bg: 'surface-main' })` — `{ className, style }`
 - `useColorSchemeTogglePosition(ref)` — view-transition origin CSS vars
@@ -88,7 +94,7 @@ Import or inject theme CSS (`RawThemeBuilder.apply`). Style `[data-theme="dark"]
 
 ## TypeScript extension
 
-Augment `@ohJohny/theme-builder/core` interfaces `ThemeColorOverrides` / `SemanticColorTokenOverrides` in a `.d.ts` file.
+Augment `@ohJohny/theme-builder/core` interfaces `ThemeColorOverrides` / `SemanticColorTokenOverrides` in a `.d.ts` file (see core skill).
 
 ## Peer
 

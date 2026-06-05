@@ -32,16 +32,7 @@ export type SpacingSizeName =
 	| 'giant';
 
 /** Named font-size scale for components (maps to design `text-*` steps). */
-export type FontSizeName =
-	| 'xs'
-	| 'xsplus'
-	| 'sm'
-	| 'md'
-	| 'mdl'
-	| 'lg'
-	| 'xl'
-	| 'xxl'
-	| 'giant';
+export type FontSizeName = 'xs' | 'xsplus' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'giant';
 
 /** Named Lucide / inline icon box scale (`icon-*` utilities). */
 export type IconSizeName = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -171,7 +162,7 @@ export type ThemeSpacing = Readonly<Record<SpacingPrefix, SpacingGroup>>;
 /** `gap-*` utilities from `_spacing.scss` (semantic names). */
 export type GapScale = Readonly<Record<SpacingSizeName, TokenClass>>;
 
-export type FontSizeStep = 12 | 13 | 14 | 16 | 20 | 24 | 32 | 40 | 48;
+export type FontSizeStep = 12 | 13 | 14 | 16 | 18 | 20 | 24 | 32 | 40 | 48;
 export type IconSizeStep = 14 | 16 | 20 | 24 | 32;
 export type FontWeightStep = 300 | 400 | 500 | 600 | 700 | 800;
 export type LineHeightStep = 100 | 125 | 150 | 175 | 200;
@@ -300,7 +291,7 @@ export const SPACING_PREFIX_CSS_PROPERTY: Readonly<Record<SpacingPrefix, string>
 	my: 'margin-block',
 };
 export const FONT_SIZE_STEPS: readonly FontSizeStep[] = [
-	12, 13, 14, 16, 20, 24, 32, 40, 48,
+	12, 13, 14, 16, 18, 20, 24, 32, 40, 48,
 ];
 export const ICON_SIZE_STEPS: readonly IconSizeStep[] = [14, 16, 20, 24, 32];
 export const FONT_WEIGHT_STEPS: readonly FontWeightStep[] = [
@@ -346,7 +337,6 @@ export const FONT_SIZE_NAMES = [
 	'xsplus',
 	'sm',
 	'md',
-	'mdl',
 	'lg',
 	'xl',
 	'xxl',
@@ -384,10 +374,9 @@ export const FONT_SIZE_SCALE: Readonly<Record<FontSizeName, number>> = {
 	xsplus: 13,
 	sm: 14,
 	md: 16,
-	mdl: 20,
-	lg: 24,
-	xl: 32,
-	xxl: 40,
+	lg: 18,
+	xl: 20,
+	xxl: 24,
 	giant: 48,
 };
 

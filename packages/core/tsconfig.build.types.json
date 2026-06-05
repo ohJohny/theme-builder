@@ -10,10 +10,5 @@
 		"noEmit": false
 	},
 	"include": ["src/**/*.ts"],
-	"exclude": [
-		"src/**/*.test.ts",
-		"src/utils/utility-class-map.ts",
-		"src/utils/utility-class-hash.ts",
-		"src/utils/utility-class-catalog.ts"
-	]
+	"exclude": ["src/**/*.test.ts"]
 }

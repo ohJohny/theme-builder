@@ -1,9 +1,14 @@
 ---
 name: ohjohny-theme-builder-core
-description: Framework-agnostic ThemeBuilder, RawThemeBuilder, color-scheme DOM helpers, and createColorSchemeStore from @ohJohny/theme-builder/core. Use for design tokens, CSS variables, and headless light/dark switching.
+description: >-
+  Framework-agnostic ThemeBuilder, RawThemeBuilder, utility classes, and createColorSchemeStore
+  from @ohJohny/theme-builder/core (alias @ohJohny/theme-builder). Use for design tokens, CSS
+  variables, headless light/dark switching, and build-time utility-class maps.
 ---
 
 # @ohJohny/theme-builder/core
+
+`@ohJohny/theme-builder` is a shorthand alias for `/core`.
 
 ## ThemeBuilder singleton
 
@@ -27,6 +32,8 @@ theme.spacing.px.md.value; // var(--space-md)
 
 ```ts
 // theme-augmentation.d.ts
+import '@ohJohny/theme-builder/core';
+
 declare module '@ohJohny/theme-builder/core' {
   interface ThemeColorOverrides { brand: string }
   interface SemanticColorTokenOverrides { 'brand-accent': never }
@@ -39,6 +46,18 @@ declare module '@ohJohny/theme-builder/core' {
 2. Generate: `bun run generate:utility-class-map` (identity) or `bun scripts/generate-utility-class-map.ts --hashed` in `packages/core`.
 3. Runtime: `resolveUtilityClass('px-md')` uses `UTILITY_CLASS_MAP` (built from `UTILITY_CLASS_NAMES` + `UTILITY_CLASS_OVERRIDES`).
 4. Hashed CSS: `rewriteUtilityCss(css, map)`; salt in `UTILITY_CLASS_HASH_SALT`.
+
+Build-time helpers (CSS pipelines, not browser runtime):
+
+```ts
+import {
+  buildUtilityClassMap,
+  rewriteUtilityCss,
+  writeUtilityClassMapFile,
+  collectUtilityClassNames,
+  UTILITY_CLASS_HASH_SALT,
+} from '@ohJohny/theme-builder/core/build-utils';
+```
 
 ## resolveUtilityClasses
 
@@ -60,6 +79,8 @@ import { createColorSchemeStore, applyColorScheme } from '@ohJohny/theme-builder
 const store = createColorSchemeStore({
   presetColorScheme: 'light',
   storage: { type: 'localStorage', key: 'app-theme' },
+  themeMeta: DEFAULT_THEME_META, // optional
+  additionalVariables: { '--foo': 'bar' }, // optional per-scheme extras
 });
 store.changeColorScheme('dark');
 ```
@@ -70,3 +91,4 @@ store.changeColorScheme('dark');
 
 - `updateColorSchemeTogglePosition`, `startColorSchemeViewTransition`
 - `resolveColorPresentation`, `resolveFontPresentation`
+- `isSolidPaintCssValue` — true for flat fills (not gradient/image URLs)

@@ -20,9 +20,9 @@ async function exists(filePath) {
 async function resolveSkillsDir() {
 	const repoRoot = path.resolve(pkgRoot, '../..');
 	const candidates = [
-		path.join(repoRoot, 'dist', 'solid', 'skills'),
-		path.join(pkgRoot, 'dist', 'skills'),
 		path.join(pkgRoot, 'skills'),
+		path.join(pkgRoot, 'dist', 'skills'),
+		path.join(repoRoot, 'dist', 'solid', 'skills'),
 	];
 	for (const candidate of candidates) {
 		if (await exists(candidate)) {

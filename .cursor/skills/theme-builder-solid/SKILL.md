@@ -1,17 +1,23 @@
 ---
 name: ohjohny-theme-builder-solid
-description: Solid ThemeProvider, useTheme, useColorScheme, useDeviceSize, DeviceMatch from @ohJohny/theme-builder/solid. Use for design tokens, light/dark mode, and responsive device buckets in Solid apps.
+description: >-
+  Solid ThemeProvider, useTheme, useColorScheme, useDeviceSize, DeviceMatch, and useUtilityClasses
+  from @ohJohny/theme-builder/solid. Use for design tokens, light/dark mode, responsive device
+  buckets, and utility-class props in Solid apps.
 ---
 
 # @ohJohny/theme-builder/solid
+
+Re-exports common core APIs (`ThemeBuilder`, `RawThemeBuilder`, `resolveUtilityClasses`, etc.) — import from one entry when convenient.
 
 ## Setup
 
 ```tsx
 /** @jsxImportSource solid-js */
-import { ThemeBuilder, RawThemeBuilder } from '@ohJohny/theme-builder/core';
 import {
   ThemeProvider,
+  ThemeBuilder,
+  RawThemeBuilder,
   useTheme,
   useColorScheme,
   useDeviceSize,
@@ -34,13 +40,13 @@ ThemeBuilder.getInstance().extend({ colors: { brand: 'var(--color-brand)' } });
 
 Default breakpoints match component-0 (48 / 62 / 80 rem → 768 / 992 / 1280 px at 16px root): `DEFAULT_DEVICE_BREAKPOINTS_REM`.
 
-## Hooks
+## Hooks (Solid accessors)
 
-- `useTheme()` — token tree from singleton (reactive after `extend()`)
-- `useColorScheme()` — accessors: `colorScheme()`, `changeColorScheme`, `colorSchemeList()`
-- `useDeviceSize()` — accessor `() => { mobile, tablet, desktop, wide }` mutually exclusive booleans from viewport width
+- `useTheme()` — current `Theme` snapshot (reactive after `extend()`)
+- `useColorScheme()` — `colorScheme()`, `changeColorScheme`, `colorSchemeList()`, `labelShort()`
+- `useDeviceSize(options?)` — accessor `() => { mobile, tablet, desktop, wide }`; `options.breakpointsRem` overrides provider defaults
 - `DeviceMatch` — renders `children` only when viewport matches `size` prop
-- `useUtilityClasses(() => ({ px: 'md' }))` — accessor `() => { className, style }`
+- `useUtilityClasses(props)` or `useUtilityClasses(() => props)` — accessor `() => { className, style }`
 - `useColorSchemeTogglePosition(buttonRef)` — view-transition CSS vars
 
 ## Device size example
@@ -73,7 +79,12 @@ function Sidebar() {
 
 ```tsx
 function Box() {
-  const utility = useUtilityClasses({ px: 'md', bg: 'surface-main' });
+  const utility = useUtilityClasses(() => ({
+    px: 'md',
+    py: 'sm',
+    color: 'text-primary',
+    fontSize: 'lg',
+  }));
   return <div class={utility().className} style={utility().style} />;
 }
 ```
@@ -84,7 +95,7 @@ Inject theme CSS via `RawThemeBuilder.apply`. No styles ship with this package.
 
 ## TypeScript extension
 
-Augment `@ohJohny/theme-builder/core` in a consumer `.d.ts` file.
+Augment `@ohJohny/theme-builder/core` in a consumer `.d.ts` file (see core skill).
 
 ## Peer
 

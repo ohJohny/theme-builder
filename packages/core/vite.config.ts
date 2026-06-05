@@ -11,12 +11,15 @@ export default defineConfig({
 		outDir,
 		emptyOutDir: false,
 		lib: {
-			entry: path.resolve(here, 'src/index.ts'),
+			entry: {
+				index: path.resolve(here, 'src/index.ts'),
+				'build-utils': path.resolve(here, 'src/build-utils.ts'),
+			},
 			formats: ['es'],
-			fileName: 'index',
+			fileName: (_format, entryName) => `${entryName}.js`,
 		},
 		rolldownOptions: {
-			external: [],
+			external: (id) => id.startsWith('node:'),
 		},
 	},
 });
