@@ -3,9 +3,9 @@ import { useMemo, type ReactNode } from 'react';
 import {
 	DEFAULT_DEVICE_BREAKPOINTS_REM,
 	mergeBreakpointsRem,
-} from './deviceSizeCore';
+} from '../utils/deviceSizeCore';
 import { DeviceSizeContext } from './DeviceSizeContext';
-import type { DeviceBreakpointsRem } from './types';
+import type { DeviceBreakpointsRem } from '../utils/types';
 
 export type DeviceSizeProviderProps = {
 	readonly breakpointsRem?: Partial<DeviceBreakpointsRem>;

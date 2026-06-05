@@ -1,20 +1,20 @@
-export { ThemeProvider } from './ThemeProvider';
-export type { ThemeProviderProps } from './ThemeProvider';
-export { useTheme, useColorSchemeContext } from './ColorSchemeContext';
-export type { ColorSchemeContextValue } from './ColorSchemeContext';
-export { useColorScheme } from './useColorScheme';
-export { useColorSchemeTogglePosition } from './useColorSchemeTogglePosition';
-export { useUtilityClasses } from './useUtilityClasses';
-export { DeviceSizeProvider } from './deviceSize/DeviceSizeProvider';
-export type { DeviceSizeProviderProps } from './deviceSize/DeviceSizeProvider';
-export { useDeviceSize } from './deviceSize/useDeviceSize';
-export { DEFAULT_DEVICE_BREAKPOINTS_REM } from './deviceSize/deviceSizeCore';
+export { ThemeProvider } from './components/ThemeProvider';
+export type { ThemeProviderProps } from './components/ThemeProvider';
+export { useTheme, useColorSchemeContext } from './components/ColorSchemeContext';
+export type { ColorSchemeContextValue } from './components/ColorSchemeContext';
+export { useColorScheme } from './components/useColorScheme';
+export { useColorSchemeTogglePosition } from './components/useColorSchemeTogglePosition';
+export { useUtilityClasses } from './components/useUtilityClasses';
+export { DeviceSizeProvider } from './components/DeviceSizeProvider';
+export type { DeviceSizeProviderProps } from './components/DeviceSizeProvider';
+export { useDeviceSize } from './components/useDeviceSize';
+export { DEFAULT_DEVICE_BREAKPOINTS_REM } from './utils/deviceSizeCore';
 export type {
 	DeviceSizeName,
 	DeviceMatches,
 	DeviceBreakpointsRem,
 	UseDeviceSizeOptions,
-} from './deviceSize/types';
+} from './utils/types';
 
 export {
 	ThemeBuilder,

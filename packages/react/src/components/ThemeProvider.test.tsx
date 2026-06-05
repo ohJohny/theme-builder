@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ThemeBuilder } from '@ohJohny/theme-builder-core';
 
 import { useTheme } from './ColorSchemeContext';
-import { useDeviceSize } from './deviceSize/useDeviceSize';
+import { useDeviceSize } from './useDeviceSize';
 import { ThemeProvider } from './ThemeProvider';
 import { useColorScheme } from './useColorScheme';
 

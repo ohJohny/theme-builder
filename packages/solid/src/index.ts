@@ -1,11 +1,11 @@
-export { ThemeProvider, type ThemeProviderProps } from './ThemeProvider';
-export { useTheme, getDefaultTheme, ThemeContext } from './useTheme';
-export type { Theme } from './useTheme';
-export { useColorScheme } from './useColorScheme';
-export { useColorSchemeContext } from './ColorSchemeContext';
-export type { ColorSchemeListItem, ColorSchemeContextValue } from './ColorSchemeContext';
-export { useColorSchemeTogglePosition } from './useColorSchemeTogglePosition';
-export { useUtilityClasses } from './useUtilityClasses';
+export { ThemeProvider, type ThemeProviderProps } from './components/ThemeProvider';
+export { useTheme, getDefaultTheme, ThemeContext } from './components/useTheme';
+export type { Theme } from './components/useTheme';
+export { useColorScheme } from './components/useColorScheme';
+export { useColorSchemeContext } from './components/ColorSchemeContext';
+export type { ColorSchemeListItem, ColorSchemeContextValue } from './components/ColorSchemeContext';
+export { useColorSchemeTogglePosition } from './components/useColorSchemeTogglePosition';
+export { useUtilityClasses } from './components/useUtilityClasses';
 
 export {
 	ThemeBuilder,

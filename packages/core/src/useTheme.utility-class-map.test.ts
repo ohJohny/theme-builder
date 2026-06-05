@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { hashUtilityClass } from './helpers/utility-class-hash';
-import { buildUtilityClassMap } from './helpers/utility-class-map';
-import { collectUtilityClassNames } from './helpers/utility-class-catalog';
+import { hashUtilityClass } from './utils/utility-class-hash';
+import { buildUtilityClassMap } from './utils/utility-class-map';
+import { collectUtilityClassNames } from './utils/utility-class-catalog';
 import { ThemeBuilder } from './ThemeBuilder';
 import { resolveUtilityClass, UTILITY_CLASS_MAP_MODE } from './utilityClassMap';
 

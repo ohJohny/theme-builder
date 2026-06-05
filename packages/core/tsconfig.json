@@ -8,8 +8,8 @@
 	"include": ["src/**/*.ts"],
 	"exclude": [
 		"src/**/*.test.ts",
-		"src/helpers/utility-class-map.ts",
-		"src/helpers/utility-class-hash.ts",
-		"src/helpers/utility-class-catalog.ts"
+		"src/utils/utility-class-map.ts",
+		"src/utils/utility-class-hash.ts",
+		"src/utils/utility-class-catalog.ts"
 	]
 }

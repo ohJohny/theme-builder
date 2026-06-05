@@ -6,13 +6,13 @@ import {
 	getRootFontSizePx,
 	mergeBreakpointsRem,
 	remBreakpointsToPx,
-} from './deviceSizeCore';
+} from '../utils/deviceSizeCore';
 import { DeviceSizeContext } from './DeviceSizeContext';
 import {
 	getSharedWindowWidthSnapshot,
 	subscribeSharedWindowWidth,
-} from './subscribeSharedWindowWidth';
-import type { DeviceMatches, UseDeviceSizeOptions } from './types';
+} from '../utils/subscribeSharedWindowWidth';
+import type { DeviceMatches, UseDeviceSizeOptions } from '../utils/types';
 
 /**
  * Reactive device buckets (`mobile` / `tablet` / `desktop` / `wide`).

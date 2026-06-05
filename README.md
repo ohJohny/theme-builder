@@ -42,7 +42,7 @@ function Card() {
 
 ## Utility classes
 
-Canonical class names are derived from token types in `packages/core/src/helpers/utility-class-catalog.ts` (spacing `px-md`, colors `color-text-primary`, typography `text-lg`, etc.).
+Canonical class names are derived from token types in `packages/core/src/utils/utility-class-catalog.ts` (spacing `px-md`, colors `color-text-primary`, typography `text-lg`, etc.).
 
 ### Generate the class map
 
@@ -60,7 +60,7 @@ The committed map lives at `packages/core/src/generated/utility-class-map.ts` an
 - `UTILITY_CLASS_OVERRIDES` — hashed aliases only (empty in identity mode)
 - `UTILITY_CLASS_MAP` — derived lookup
 
-`ThemeBuilder` resolves `.class` fields through `resolveUtilityClass`. For hashed production CSS, run `rewriteUtilityCss` on compiled stylesheets (see `packages/core/src/helpers/utility-class-map.ts`). Bump `UTILITY_CLASS_HASH_SALT` in `utility-class-hash.ts` when intentionally invalidating hashed names.
+`ThemeBuilder` resolves `.class` fields through `resolveUtilityClass`. For hashed production CSS, run `rewriteUtilityCss` on compiled stylesheets (see `packages/core/src/utils/utility-class-map.ts`). Bump `UTILITY_CLASS_HASH_SALT` in `utility-class-hash.ts` when intentionally invalidating hashed names.
 
 ### Add a new utility
 

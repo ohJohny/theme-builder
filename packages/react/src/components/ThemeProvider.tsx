@@ -16,8 +16,8 @@ import {
 	type ColorSchemeContextValue,
 	ThemeContext,
 } from './ColorSchemeContext';
-import { DeviceSizeProvider } from './deviceSize/DeviceSizeProvider';
-import type { DeviceBreakpointsRem } from './deviceSize/types';
+import { DeviceSizeProvider } from './DeviceSizeProvider';
+import type { DeviceBreakpointsRem } from '../utils/types';
 
 export type ThemeProviderProps = ColorSchemeStoreOptions & {
 	readonly breakpointsRem?: Partial<DeviceBreakpointsRem>;

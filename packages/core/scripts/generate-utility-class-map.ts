@@ -2,7 +2,7 @@ import {
 	DEFAULT_UTILITY_CLASS_MAP_PATH,
 	writeUtilityClassMapFile,
 	type UtilityClassMapMode,
-} from '../src/helpers/utility-class-map.ts';
+} from '../src/utils/utility-class-map.ts';
 
 const mode: UtilityClassMapMode = process.argv.includes('--hashed') ? 'hashed' : 'identity';
 

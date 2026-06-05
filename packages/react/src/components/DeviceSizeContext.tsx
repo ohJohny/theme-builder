@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-import type { DeviceBreakpointsRem } from './types';
+import type { DeviceBreakpointsRem } from '../utils/types';
 
 export type DeviceSizeContextValue = {
 	readonly breakpointsRem: DeviceBreakpointsRem;
