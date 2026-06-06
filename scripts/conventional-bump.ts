@@ -22,11 +22,19 @@ const range = lastTag
 const log = git(`log ${range} --pretty=format:%B%x00`);
 
 if (!log) {
-	console.log('patch');
+	console.log('none');
 	process.exit(0);
 }
 
-const messages = log.split('\0').filter(Boolean);
+const messages = log
+	.split('\0')
+	.filter(Boolean)
+	.filter((message) => !(message.split('\n')[0] ?? '').startsWith('Merge '));
+
+if (messages.length === 0) {
+	console.log('none');
+	process.exit(0);
+}
 
 const breakingSubject = /^[a-zA-Z]+(?:\([^)]+\))?!:/;
 const featSubject = /^feat(?:\([^)]+\))?:/;
