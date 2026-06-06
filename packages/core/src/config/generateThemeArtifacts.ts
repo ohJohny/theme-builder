@@ -17,6 +17,8 @@ export type GenerateThemeArtifactsOptions = {
 	readonly defaultScheme?: string;
 	/** Salt for hashed utility class names; defaults to `UTILITY_CLASS_HASH_SALT`. */
 	readonly utilityClassHashSalt?: string;
+	/** Prefix for hashed utility class names; defaults to `UTILITY_CLASS_HASH_PREFIX`. */
+	readonly utilityClassHashPrefix?: string;
 };
 
 function assertOutDir(outDir: string | undefined): string {
@@ -39,7 +41,12 @@ export async function generateThemeArtifacts(
 	const outDir = assertOutDir(options.outDir);
 	const schemes = resolveSchemes(config);
 	const defaultScheme = resolveDefaultScheme(config, options.defaultScheme);
-	const classMap = buildThemeClassMap(config, options.mode, options.utilityClassHashSalt);
+	const classMap = buildThemeClassMap(
+		config,
+		options.mode,
+		options.utilityClassHashSalt,
+		options.utilityClassHashPrefix,
+	);
 
 	let css = buildThemeStylesheet(config, { defaultScheme, schemes });
 	if (options.mode === 'hashed') {

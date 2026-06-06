@@ -144,6 +144,8 @@ export type CreateThemeOptions<C extends ThemeConfigInput> = {
 	readonly defaultScheme?: SchemeName<C>;
 	/** Salt for hashed utility class names; defaults to `UTILITY_CLASS_HASH_SALT`. */
 	readonly utilityClassHashSalt?: string;
+	/** Prefix for hashed utility class names; defaults to `UTILITY_CLASS_HASH_PREFIX`. */
+	readonly utilityClassHashPrefix?: string;
 };
 
 export type CreatedTheme<C extends ThemeConfigInput> = {

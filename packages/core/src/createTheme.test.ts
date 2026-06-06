@@ -19,7 +19,7 @@ describe('createTheme', () => {
 
 	it('builds hashed class names', () => {
 		const created = createTheme(testThemeConfig, { mode: 'hashed' });
-		expect(created.theme.spacing.px.md.class).toMatch(/^c0-/);
+		expect(created.theme.spacing.px.md.class).toMatch(/^cl-/);
 	});
 });
 

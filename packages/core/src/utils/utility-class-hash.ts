@@ -1,6 +1,9 @@
 /** Default salt — override via `utilityClassHashSalt` when hashing must be scoped to a consumer. */
 export const UTILITY_CLASS_HASH_SALT = 'theme-builder-utility';
 
+/** Default hashed class prefix — override via `utilityClassHashPrefix` when needed. */
+export const UTILITY_CLASS_HASH_PREFIX = 'cl';
+
 /** SHA-256 hex digest (browser-safe, no Node built-ins). */
 function sha256Hex(input: string): string {
 	const msg = new TextEncoder().encode(input);
@@ -81,11 +84,12 @@ function rightRotate(value: number, amount: number): number {
 	return (value >>> amount) | (value << (32 - amount));
 }
 
-/** Deterministic short hash for a canonical utility class → `c0-<hex>`. */
+/** Deterministic short hash for a canonical utility class → `<prefix>-<hex>`. */
 export function hashUtilityClass(
 	canonical: string,
 	salt: string = UTILITY_CLASS_HASH_SALT,
+	prefix: string = UTILITY_CLASS_HASH_PREFIX,
 ): string {
 	const digest = sha256Hex(`${salt}\0${canonical}`);
-	return `c0-${digest.slice(0, 6)}`;
+	return `${prefix}-${digest.slice(0, 6)}`;
 }

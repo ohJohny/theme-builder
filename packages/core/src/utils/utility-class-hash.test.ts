@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
-import { hashUtilityClass, UTILITY_CLASS_HASH_SALT } from './utility-class-hash';
+import {
+	hashUtilityClass,
+	UTILITY_CLASS_HASH_PREFIX,
+	UTILITY_CLASS_HASH_SALT,
+} from './utility-class-hash';
 
 describe('hashUtilityClass', () => {
-	it('returns c0-prefixed deterministic hashes', () => {
+	it('returns cl-prefixed deterministic hashes', () => {
 		expect(hashUtilityClass('px-md')).toBe(hashUtilityClass('px-md'));
-		expect(hashUtilityClass('px-md')).toMatch(/^c0-[a-f0-9]{6}$/);
+		expect(hashUtilityClass('px-md')).toMatch(/^cl-[a-f0-9]{6}$/);
 	});
 
 	it('produces different hashes for different canonical names', () => {
@@ -16,9 +20,21 @@ describe('hashUtilityClass', () => {
 		expect(hashUtilityClass('px-md')).toBe(hashUtilityClass('px-md', UTILITY_CLASS_HASH_SALT));
 	});
 
+	it('uses UTILITY_CLASS_HASH_PREFIX by default', () => {
+		expect(hashUtilityClass('px-md')).toBe(
+			hashUtilityClass('px-md', UTILITY_CLASS_HASH_SALT, UTILITY_CLASS_HASH_PREFIX),
+		);
+	});
+
 	it('accepts a custom salt', () => {
 		const custom = hashUtilityClass('px-md', 'my-lib');
-		expect(custom).toMatch(/^c0-[a-f0-9]{6}$/);
+		expect(custom).toMatch(/^cl-[a-f0-9]{6}$/);
+		expect(custom).not.toBe(hashUtilityClass('px-md'));
+	});
+
+	it('accepts a custom prefix', () => {
+		const custom = hashUtilityClass('px-md', UTILITY_CLASS_HASH_SALT, 'tb');
+		expect(custom).toMatch(/^tb-[a-f0-9]{6}$/);
 		expect(custom).not.toBe(hashUtilityClass('px-md'));
 	});
 });

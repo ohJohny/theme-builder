@@ -6,11 +6,14 @@ export function buildUtilityClassMap(
 	mode: UtilityClassMapMode,
 	catalog: readonly string[],
 	utilityClassHashSalt?: string,
+	utilityClassHashPrefix?: string,
 ): Readonly<Record<string, string>> {
 	const map: Record<string, string> = {};
 	for (const canonical of catalog) {
 		map[canonical] =
-			mode === 'identity' ? canonical : hashUtilityClass(canonical, utilityClassHashSalt);
+			mode === 'identity'
+				? canonical
+				: hashUtilityClass(canonical, utilityClassHashSalt, utilityClassHashPrefix);
 	}
 	return map;
 }

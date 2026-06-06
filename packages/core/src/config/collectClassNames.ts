@@ -91,7 +91,8 @@ export function buildThemeClassMap(
 	config: ThemeConfigInput,
 	mode: 'identity' | 'hashed',
 	utilityClassHashSalt?: string,
+	utilityClassHashPrefix?: string,
 ): Readonly<Record<string, string>> {
 	const catalog = collectClassNames(config);
-	return buildUtilityClassMap(mode, catalog, utilityClassHashSalt);
+	return buildUtilityClassMap(mode, catalog, utilityClassHashSalt, utilityClassHashPrefix);
 }
