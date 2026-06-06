@@ -466,55 +466,46 @@ export type LineHeightInputValue = LineHeightStep | number | string;
 
 export type ShadowInputValue = ShadowSizeName | (string & {});
 
-export function resolveSpacingSizeName(
-	value: SpacingInputValue,
-): SpacingSizeName | undefined {
+function resolveScaleName<TName extends string, TStep extends number>(
+	value: string | number,
+	isName: (candidate: string) => candidate is TName,
+	stepToName: Partial<Record<TStep, TName>>,
+): TName | undefined {
 	if (typeof value === 'string') {
-		if (isSpacingSizeName(value)) {
+		if (isName(value)) {
 			return value;
 		}
 		const n = Number(value);
 		if (Number.isFinite(n) && Number.isInteger(n)) {
-			return SPACING_STEP_TO_NAME[n as SpacingStep];
+			return stepToName[n as TStep];
 		}
 		return undefined;
 	}
-	if (typeof value === 'number' && Number.isInteger(value)) {
-		return SPACING_STEP_TO_NAME[value as SpacingStep];
+	if (Number.isInteger(value)) {
+		return stepToName[value as TStep];
+	}
+	return undefined;
+}
+
+export function resolveSpacingSizeName(
+	value: SpacingInputValue,
+): SpacingSizeName | undefined {
+	if (typeof value === 'string' || typeof value === 'number') {
+		return resolveScaleName(value, isSpacingSizeName, SPACING_STEP_TO_NAME);
 	}
 	return undefined;
 }
 
 export function resolveFontSizeName(value: FontSizeInputValue): FontSizeName | undefined {
-	if (typeof value === 'string') {
-		if (isFontSizeName(value)) {
-			return value;
-		}
-		const n = Number(value);
-		if (Number.isFinite(n) && Number.isInteger(n)) {
-			return FONT_SIZE_STEP_TO_NAME[n as FontSizeStep];
-		}
-		return undefined;
-	}
-	if (typeof value === 'number' && Number.isInteger(value)) {
-		return FONT_SIZE_STEP_TO_NAME[value as FontSizeStep];
+	if (typeof value === 'string' || typeof value === 'number') {
+		return resolveScaleName(value, isFontSizeName, FONT_SIZE_STEP_TO_NAME);
 	}
 	return undefined;
 }
 
 export function resolveIconSizeName(value: IconSizeInputValue): IconSizeName | undefined {
-	if (typeof value === 'string') {
-		if (isIconSizeName(value)) {
-			return value;
-		}
-		const n = Number(value);
-		if (Number.isFinite(n) && Number.isInteger(n)) {
-			return ICON_SIZE_STEP_TO_NAME[n as IconSizeStep];
-		}
-		return undefined;
-	}
-	if (typeof value === 'number' && Number.isInteger(value)) {
-		return ICON_SIZE_STEP_TO_NAME[value as IconSizeStep];
+	if (typeof value === 'string' || typeof value === 'number') {
+		return resolveScaleName(value, isIconSizeName, ICON_SIZE_STEP_TO_NAME);
 	}
 	return undefined;
 }

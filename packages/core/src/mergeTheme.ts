@@ -1,16 +1,11 @@
 import type { ColorTokenPair, IconSizeToken, Theme, TokenClass } from './types/theme.js';
+import { isPlainObject } from './utils/isPlainObject';
 
 export type DeepPartial<T> = T extends object
 	? { readonly [P in keyof T]?: DeepPartial<T[P]> }
 	: T;
 
 export type ThemeExtension = DeepPartial<Theme>;
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-	if (value === null || typeof value !== 'object') return false;
-	const proto = Object.getPrototypeOf(value);
-	return proto === Object.prototype || proto === null;
-}
 
 function isTokenClass(value: unknown): value is TokenClass {
 	return (

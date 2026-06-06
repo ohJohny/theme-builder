@@ -1,4 +1,25 @@
 import {
+	colorUtilityClasses,
+	colorVarRef,
+	displayUtilityClass,
+	fontFamilyUtilityClass,
+	fontFamilyVarRef,
+	fontSizeUtilityClass,
+	fontSizeVarRef,
+	fontWeightUtilityClass,
+	fontWeightVarRef,
+	gapUtilityClass,
+	iconUtilityClass,
+	iconVarRef,
+	lineHeightUtilityClass,
+	lineHeightVarRef,
+	shadowUtilityClass,
+	shadowVarRef,
+	spaceVarRef,
+	spacingUtilityClass,
+} from './utils/theme-token-spec';
+
+import {
 	SPACING_PREFIXES,
 	type ColorTokenPair,
 	type FontWeightStep,
@@ -14,10 +35,11 @@ function tokenClass(canonicalClass: string, cssVar: string): TokenClass {
 }
 
 function colorTokenPair(name: string): ColorTokenPair {
-	const cssVar = `var(--color-${name})`;
+	const { foreground, background } = colorUtilityClasses(name);
+	const cssVar = colorVarRef(name);
 	return {
-		foreground: tokenClass(`color-${name}`, cssVar),
-		background: tokenClass(`bg-${name}`, cssVar),
+		foreground: tokenClass(foreground, cssVar),
+		background: tokenClass(background, cssVar),
 	};
 }
 
@@ -32,8 +54,11 @@ function parseIconPx(value: string): number | undefined {
 }
 
 function iconToken(name: string, rawValue: string): IconSizeToken {
-	const cssVar = `var(--icon-size-${name})`;
-	return { class: `icon-${name}`, value: cssVar, px: parseIconPx(rawValue) ?? 16 };
+	return {
+		class: iconUtilityClass(name),
+		value: iconVarRef(name),
+		px: parseIconPx(rawValue) ?? 16,
+	};
 }
 
 /** Builds a `ThemeExtension` from raw JSON token definitions (no DOM). */
@@ -44,7 +69,7 @@ export function rawThemeConfigToExtension(config: RawThemeConfig): ThemeExtensio
 		const colors: Record<string, string> = {};
 		const semanticTokens: Record<string, ColorTokenPair> = {};
 		for (const name of Object.keys(config.colors)) {
-			colors[name] = `var(--color-${name})`;
+			colors[name] = colorVarRef(name);
 			semanticTokens[name] = colorTokenPair(name);
 		}
 		extension.colors = colors;
@@ -58,7 +83,7 @@ export function rawThemeConfigToExtension(config: RawThemeConfig): ThemeExtensio
 		for (const prefix of SPACING_PREFIXES) {
 			const group: Record<string, TokenClass> = {};
 			for (const name of Object.keys(config.spacing)) {
-				group[name] = tokenClass(`${prefix}-${name}`, `var(--space-${name})`);
+				group[name] = tokenClass(spacingUtilityClass(prefix, name), spaceVarRef(name));
 			}
 			spacing[prefix] = group;
 		}
@@ -68,7 +93,7 @@ export function rawThemeConfigToExtension(config: RawThemeConfig): ThemeExtensio
 	if (config.gap) {
 		const gap: Record<string, TokenClass> = {};
 		for (const name of Object.keys(config.gap)) {
-			gap[name] = tokenClass(`gap-${name}`, `var(--space-${name})`);
+			gap[name] = tokenClass(gapUtilityClass(name), spaceVarRef(name));
 		}
 		extension.gap = gap;
 	}
@@ -78,7 +103,7 @@ export function rawThemeConfigToExtension(config: RawThemeConfig): ThemeExtensio
 		if (config.fonts.size) {
 			const size: Record<string, TokenClass> = {};
 			for (const name of Object.keys(config.fonts.size)) {
-				size[name] = tokenClass(`text-${name}`, `var(--font-size-${name})`);
+				size[name] = tokenClass(fontSizeUtilityClass(name), fontSizeVarRef(name));
 			}
 			fonts.size = size;
 		}
@@ -86,21 +111,24 @@ export function rawThemeConfigToExtension(config: RawThemeConfig): ThemeExtensio
 			const weight = {} as Partial<Record<FontWeightStep, TokenClass>>;
 			for (const name of Object.keys(config.fonts.weight)) {
 				const step = Number(name) as FontWeightStep;
-				weight[step] = tokenClass(`font-weight-${name}`, `var(--font-weight-${name})`);
+				weight[step] = tokenClass(fontWeightUtilityClass(name), fontWeightVarRef(name));
 			}
 			fonts.weight = weight;
 		}
 		if (config.fonts.lineHeight) {
 			const lineHeight = {} as Record<string, TokenClass>;
 			for (const name of Object.keys(config.fonts.lineHeight)) {
-				lineHeight[name] = tokenClass(`lh-${name}`, `var(--lh-${name})`);
+				lineHeight[name] = tokenClass(
+					lineHeightUtilityClass(name),
+					lineHeightVarRef(name),
+				);
 			}
 			fonts.lineHeight = lineHeight;
 		}
 		if (config.fonts.family) {
 			const family: Record<string, TokenClass> = {};
 			for (const name of Object.keys(config.fonts.family)) {
-				family[name] = tokenClass(`font-${name}`, `var(--font-family-${name})`);
+				family[name] = tokenClass(fontFamilyUtilityClass(name), fontFamilyVarRef(name));
 			}
 			fonts.family = family;
 		}
@@ -112,7 +140,7 @@ export function rawThemeConfigToExtension(config: RawThemeConfig): ThemeExtensio
 	if (config.shadow) {
 		const shadow: Record<string, TokenClass> = {};
 		for (const name of Object.keys(config.shadow)) {
-			shadow[name] = tokenClass(`shadow-${name}`, `var(--shadow-${name})`);
+			shadow[name] = tokenClass(shadowUtilityClass(name), shadowVarRef(name));
 		}
 		extension.shadow = shadow;
 	}
@@ -128,7 +156,7 @@ export function rawThemeConfigToExtension(config: RawThemeConfig): ThemeExtensio
 	if (config.display) {
 		const display: Record<string, TokenClass> = {};
 		for (const [name, keyword] of Object.entries(config.display)) {
-			display[name] = tokenClass(`d-${name}`, keyword);
+			display[name] = tokenClass(displayUtilityClass(name), keyword);
 		}
 		extension.display = display;
 	}

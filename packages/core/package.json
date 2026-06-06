@@ -12,9 +12,10 @@
 	},
 	"sideEffects": false,
 	"scripts": {
-		"build": "vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
+		"build": "bun scripts/generate-utility-class-map.ts --hashed && vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"lint": "tsc -p tsconfig.json --noEmit",
+		"pretest": "bun scripts/generate-utility-class-map.ts",
 		"test": "vitest run --config vitest.config.ts",
 		"generate:utility-class-map": "bun scripts/generate-utility-class-map.ts",
 		"postinstall": "node scripts/sync-cursor-skills.mjs"

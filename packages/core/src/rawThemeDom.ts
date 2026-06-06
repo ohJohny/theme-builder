@@ -1,4 +1,34 @@
 import {
+	colorBackgroundClass,
+	colorForegroundClass,
+	colorVarName,
+	colorVarRef,
+	displayUtilityClass,
+	fontFamilyUtilityClass,
+	fontFamilyVarName,
+	fontFamilyVarRef,
+	fontSizeUtilityClass,
+	fontSizeVarName,
+	fontSizeVarRef,
+	fontWeightUtilityClass,
+	fontWeightVarName,
+	fontWeightVarRef,
+	gapUtilityClass,
+	iconUtilityClass,
+	iconVarName,
+	iconVarRef,
+	lineHeightUtilityClass,
+	lineHeightVarName,
+	lineHeightVarRef,
+	shadowUtilityClass,
+	shadowVarName,
+	shadowVarRef,
+	spaceVarName,
+	spaceVarRef,
+	spacingUtilityClass,
+} from './utils/theme-token-spec';
+
+import {
 	SPACING_PREFIXES,
 	SPACING_PREFIX_CSS_PROPERTY,
 	type SpacingPrefix,
@@ -15,55 +45,52 @@ export function buildRawThemeVariables(config: RawThemeConfig): Record<string, s
 
 	if (config.colors) {
 		for (const [name, value] of Object.entries(config.colors)) {
-			variables[`--color-${name}`] = value;
+			variables[colorVarName(name)] = value;
 		}
 	}
 
-	const spaceSources = [
-		config.spacing,
-		config.gap,
-	] as const;
+	const spaceSources = [config.spacing, config.gap] as const;
 
 	for (const source of spaceSources) {
 		if (!source) continue;
 		for (const [name, value] of Object.entries(source)) {
-			variables[`--space-${name}`] = value;
+			variables[spaceVarName(name)] = value;
 		}
 	}
 
 	if (config.fonts?.size) {
 		for (const [name, value] of Object.entries(config.fonts.size)) {
-			variables[`--font-size-${name}`] = value;
+			variables[fontSizeVarName(name)] = value;
 		}
 	}
 
 	if (config.fonts?.weight) {
 		for (const [name, value] of Object.entries(config.fonts.weight)) {
-			variables[`--font-weight-${name}`] = value;
+			variables[fontWeightVarName(name)] = value;
 		}
 	}
 
 	if (config.fonts?.lineHeight) {
 		for (const [name, value] of Object.entries(config.fonts.lineHeight)) {
-			variables[`--lh-${name}`] = value;
+			variables[lineHeightVarName(name)] = value;
 		}
 	}
 
 	if (config.fonts?.family) {
 		for (const [name, value] of Object.entries(config.fonts.family)) {
-			variables[`--font-family-${name}`] = value;
+			variables[fontFamilyVarName(name)] = value;
 		}
 	}
 
 	if (config.shadow) {
 		for (const [name, value] of Object.entries(config.shadow)) {
-			variables[`--shadow-${name}`] = value;
+			variables[shadowVarName(name)] = value;
 		}
 	}
 
 	if (config.icon) {
 		for (const [name, value] of Object.entries(config.icon)) {
-			variables[`--icon-size-${name}`] = value;
+			variables[iconVarName(name)] = value;
 		}
 	}
 
@@ -75,18 +102,18 @@ export function buildRawThemeStylesheet(config: RawThemeConfig): string {
 
 	if (config.colors) {
 		for (const name of Object.keys(config.colors)) {
-			const varRef = `var(--color-${name})`;
-			rules.push(`.color-${name}{color:${varRef}}`);
-			rules.push(`.bg-${name}{background-color:${varRef}}`);
+			const varRef = colorVarRef(name);
+			rules.push(`.${colorForegroundClass(name)}{color:${varRef}}`);
+			rules.push(`.${colorBackgroundClass(name)}{background-color:${varRef}}`);
 		}
 	}
 
 	if (config.spacing) {
 		for (const name of Object.keys(config.spacing)) {
-			const varRef = `var(--space-${name})`;
+			const varRef = spaceVarRef(name);
 			for (const prefix of SPACING_PREFIXES) {
 				rules.push(
-					`.${prefix}-${name}{${spacingDeclarationsForPrefix(prefix, varRef)}}`,
+					`.${spacingUtilityClass(prefix, name)}{${spacingDeclarationsForPrefix(prefix, varRef)}}`,
 				);
 			}
 		}
@@ -94,51 +121,61 @@ export function buildRawThemeStylesheet(config: RawThemeConfig): string {
 
 	if (config.gap) {
 		for (const name of Object.keys(config.gap)) {
-			rules.push(`.gap-${name}{gap:var(--space-${name})}`);
+			rules.push(`.${gapUtilityClass(name)}{gap:${spaceVarRef(name)}}`);
 		}
 	}
 
 	if (config.fonts?.size) {
 		for (const name of Object.keys(config.fonts.size)) {
-			rules.push(`.text-${name}{font-size:var(--font-size-${name})}`);
+			rules.push(
+				`.${fontSizeUtilityClass(name)}{font-size:${fontSizeVarRef(name)}}`,
+			);
 		}
 	}
 
 	if (config.fonts?.weight) {
 		for (const name of Object.keys(config.fonts.weight)) {
-			rules.push(`.font-weight-${name}{font-weight:var(--font-weight-${name})}`);
+			rules.push(
+				`.${fontWeightUtilityClass(name)}{font-weight:${fontWeightVarRef(name)}}`,
+			);
 		}
 	}
 
 	if (config.fonts?.lineHeight) {
 		for (const name of Object.keys(config.fonts.lineHeight)) {
-			rules.push(`.lh-${name}{line-height:var(--lh-${name})}`);
+			rules.push(
+				`.${lineHeightUtilityClass(name)}{line-height:${lineHeightVarRef(name)}}`,
+			);
 		}
 	}
 
 	if (config.fonts?.family) {
 		for (const name of Object.keys(config.fonts.family)) {
-			rules.push(`.font-${name}{font-family:var(--font-family-${name})}`);
+			rules.push(
+				`.${fontFamilyUtilityClass(name)}{font-family:${fontFamilyVarRef(name)}}`,
+			);
 		}
 	}
 
 	if (config.shadow) {
 		for (const name of Object.keys(config.shadow)) {
-			rules.push(`.shadow-${name}{box-shadow:var(--shadow-${name})}`);
+			rules.push(
+				`.${shadowUtilityClass(name)}{box-shadow:${shadowVarRef(name)}}`,
+			);
 		}
 	}
 
 	if (config.icon) {
 		for (const name of Object.keys(config.icon)) {
 			rules.push(
-				`.icon-${name}{width:var(--icon-size-${name});height:var(--icon-size-${name})}`,
+				`.${iconUtilityClass(name)}{width:${iconVarRef(name)};height:${iconVarRef(name)}}`,
 			);
 		}
 	}
 
 	if (config.display) {
 		for (const [name, keyword] of Object.entries(config.display)) {
-			rules.push(`.d-${name}{display:${keyword}}`);
+			rules.push(`.${displayUtilityClass(name)}{display:${keyword}}`);
 		}
 	}
 

@@ -5,6 +5,8 @@ export type RawThemeFontsConfig = {
 	readonly family?: Readonly<Record<string, string>>;
 };
 
+import { isPlainObject } from './utils/isPlainObject';
+
 export type RawThemeConfig = {
 	readonly colors?: Readonly<Record<string, string>>;
 	readonly spacing?: Readonly<Record<string, string>>;
@@ -16,17 +18,13 @@ export type RawThemeConfig = {
 	readonly display?: Readonly<Record<string, string>>;
 };
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return value !== null && typeof value === 'object' && !Array.isArray(value);
-}
-
 function isStringRecord(value: unknown): value is Record<string, string> {
-	if (!isRecord(value)) return false;
+	if (!isPlainObject(value)) return false;
 	return Object.values(value).every((entry) => typeof entry === 'string');
 }
 
 function isRawThemeFontsConfig(value: unknown): value is RawThemeFontsConfig {
-	if (!isRecord(value)) return false;
+	if (!isPlainObject(value)) return false;
 	if (value.size !== undefined && !isStringRecord(value.size)) return false;
 	if (value.weight !== undefined && !isStringRecord(value.weight)) return false;
 	if (value.lineHeight !== undefined && !isStringRecord(value.lineHeight)) return false;
@@ -35,7 +33,7 @@ function isRawThemeFontsConfig(value: unknown): value is RawThemeFontsConfig {
 }
 
 export function isRawThemeConfig(value: unknown): value is RawThemeConfig {
-	if (!isRecord(value)) return false;
+	if (!isPlainObject(value)) return false;
 	if (value.colors !== undefined && !isStringRecord(value.colors)) return false;
 	if (value.spacing !== undefined && !isStringRecord(value.spacing)) return false;
 	if (value.gap !== undefined && !isStringRecord(value.gap)) return false;

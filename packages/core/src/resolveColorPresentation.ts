@@ -1,19 +1,11 @@
-import type { JSX } from 'solid-js';
-
-import type { Theme } from './types/theme.js';
-
+import { isSolidPaintCssValue } from './isSolidPaintCssValue';
 import { lookupColorTokenPresentation, resolvePaletteColor } from './resolvePaletteColor';
+import type { UtilityPresentation } from './types/presentation';
+import type { Theme } from './types/theme.js';
 
 export type ColorPresentationRole = 'foreground' | 'background';
 
-export type ColorPresentation = {
-    readonly class: string;
-    readonly inline: JSX.CSSProperties;
-};
-
-function isGradientOrImage(value: string): boolean {
-    return /gradient\s*\(/i.test(value) || /\burl\s*\(/i.test(value);
-}
+export type ColorPresentation = UtilityPresentation;
 
 export function resolveColorPresentation(
     theme: Theme,
@@ -31,7 +23,7 @@ export function resolveColorPresentation(
     }
 
     const resolved = resolvePaletteColor(theme, input);
-    if (role === 'background' && isGradientOrImage(resolved)) {
+    if (role === 'background' && !isSolidPaintCssValue(resolved)) {
         return { class: '', inline: { background: resolved } };
     }
 

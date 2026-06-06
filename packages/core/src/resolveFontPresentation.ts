@@ -1,5 +1,6 @@
 import type { JSX } from 'solid-js';
 
+import type { UtilityPresentation } from './types/presentation';
 import type {
     DisplayKeyword,
     FontSizeInputValue,
@@ -17,7 +18,7 @@ import {
 export function resolveFontPresentation(
     theme: Theme,
     value: FontSizeInputValue | undefined,
-): { readonly class: string; readonly inline: JSX.CSSProperties } {
+): UtilityPresentation {
     if (value === undefined) {
         return { class: '', inline: {} };
     }
@@ -34,7 +35,7 @@ export function resolveFontPresentation(
 export function resolveFontWeightPresentation(
     theme: Theme,
     value: FontWeightStep | undefined,
-): { readonly class: string; readonly inline: JSX.CSSProperties } {
+): UtilityPresentation {
     if (value === undefined) {
         return { class: '', inline: {} };
     }
@@ -48,7 +49,7 @@ export function resolveFontWeightPresentation(
 export function resolveLineHeightPresentation(
     theme: Theme,
     value: LineHeightInputValue | undefined,
-): { readonly class: string; readonly inline: JSX.CSSProperties } {
+): UtilityPresentation {
     if (value === undefined) {
         return { class: '', inline: {} };
     }

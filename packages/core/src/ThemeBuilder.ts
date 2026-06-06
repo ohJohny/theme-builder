@@ -1,5 +1,26 @@
 import { mergeTheme, type ThemeExtension } from './mergeTheme';
 import { resolveUtilityClass } from './utilityClassMap';
+import { isPlainObject } from './utils/isPlainObject';
+import {
+	colorUtilityClasses,
+	colorVarRef,
+	fontFamilyVarRef,
+	fontSizeVarRef,
+	fontWeightVarRef,
+	gapUtilityClass,
+	iconVarRef,
+	lineHeightVarRef,
+	shadowVarRef,
+	spaceVarRef,
+	spacingUtilityClass,
+	displayUtilityClass,
+	fontFamilyUtilityClass,
+	fontSizeUtilityClass,
+	fontWeightUtilityClass,
+	iconUtilityClass,
+	lineHeightUtilityClass,
+	shadowUtilityClass,
+} from './utils/theme-token-spec';
 
 import type {
 	BaseColorTokenName,
@@ -44,14 +65,16 @@ import {
 } from './types/theme.js';
 
 function buildColorTokenPair(token: string): ColorTokenPair {
+	const { foreground, background } = colorUtilityClasses(token);
+	const value = colorVarRef(token);
 	return {
 		foreground: {
-			class: resolveUtilityClass(`color-${token}`),
-			value: `var(--color-${token})`,
+			class: resolveUtilityClass(foreground),
+			value,
 		},
 		background: {
-			class: resolveUtilityClass(`bg-${token}`),
-			value: `var(--color-${token})`,
+			class: resolveUtilityClass(background),
+			value,
 		},
 	};
 }
@@ -83,8 +106,8 @@ function buildSpacingGroup(prefix: SpacingPrefix): SpacingGroup {
 	const group = {} as Record<SpacingSizeName, TokenClass>;
 	for (const name of SPACING_SIZE_NAMES) {
 		group[name] = {
-			class: resolveUtilityClass(`${prefix}-${name}`),
-			value: `var(--space-${name})`,
+			class: resolveUtilityClass(spacingUtilityClass(prefix, name)),
+			value: spaceVarRef(name),
 		};
 	}
 	return group;
@@ -94,8 +117,8 @@ function buildGap(): GapScale {
 	const gap = {} as Record<SpacingSizeName, TokenClass>;
 	for (const name of SPACING_SIZE_NAMES) {
 		gap[name] = {
-			class: resolveUtilityClass(`gap-${name}`),
-			value: `var(--space-${name})`,
+			class: resolveUtilityClass(gapUtilityClass(name)),
+			value: spaceVarRef(name),
 		};
 	}
 	return gap;
@@ -105,32 +128,32 @@ function buildFonts(): ThemeFonts {
 	const family = {} as Record<FontFamilyName, TokenClass>;
 	for (const name of FONT_FAMILY_NAMES) {
 		family[name] = {
-			class: resolveUtilityClass(`font-${name}`),
-			value: `var(--font-family-${name})`,
+			class: resolveUtilityClass(fontFamilyUtilityClass(name)),
+			value: fontFamilyVarRef(name),
 		};
 	}
 
 	const size = {} as Record<FontSizeName, TokenClass>;
 	for (const name of FONT_SIZE_NAMES) {
 		size[name] = {
-			class: resolveUtilityClass(`text-${name}`),
-			value: `var(--font-size-${name})`,
+			class: resolveUtilityClass(fontSizeUtilityClass(name)),
+			value: fontSizeVarRef(name),
 		};
 	}
 
 	const weight = {} as Record<FontWeightStep, TokenClass>;
 	for (const step of FONT_WEIGHT_STEPS) {
 		weight[step] = {
-			class: resolveUtilityClass(`font-weight-${step}`),
-			value: `var(--font-weight-${step})`,
+			class: resolveUtilityClass(fontWeightUtilityClass(step)),
+			value: fontWeightVarRef(step),
 		};
 	}
 
 	const lineHeight = {} as Record<LineHeightStep, TokenClass>;
 	for (const step of LINE_HEIGHT_STEPS) {
 		lineHeight[step] = {
-			class: resolveUtilityClass(`lh-${step}`),
-			value: `var(--lh-${step})`,
+			class: resolveUtilityClass(lineHeightUtilityClass(step)),
+			value: lineHeightVarRef(step),
 		};
 	}
 
@@ -139,8 +162,8 @@ function buildFonts(): ThemeFonts {
 
 function buildColors(): ThemeColors {
 	return {
-		white: 'var(--color-white)',
-		black: 'var(--color-black)',
+		white: colorVarRef('white'),
+		black: colorVarRef('black'),
 	};
 }
 
@@ -156,7 +179,7 @@ function buildDisplay(): ThemeDisplay {
 	const display = {} as Record<DisplayKeyword, TokenClass>;
 	for (const key of DISPLAY_KEYWORDS) {
 		display[key] = {
-			class: resolveUtilityClass(`d-${key}`),
+			class: resolveUtilityClass(displayUtilityClass(key)),
 			value: key,
 		};
 	}
@@ -167,8 +190,8 @@ function buildShadow(): ShadowScale {
 	const shadow = {} as Record<ShadowSizeName, TokenClass>;
 	for (const name of SHADOW_SIZE_NAMES) {
 		shadow[name] = {
-			class: resolveUtilityClass(`shadow-${name}`),
-			value: `var(--shadow-${name})`,
+			class: resolveUtilityClass(shadowUtilityClass(name)),
+			value: shadowVarRef(name),
 		};
 	}
 	return shadow;
@@ -178,8 +201,8 @@ function buildIconSizes(): IconSizeScale {
 	const icon = {} as Record<IconSizeName, IconSizeToken>;
 	for (const name of ICON_SIZE_NAMES) {
 		icon[name] = {
-			class: resolveUtilityClass(`icon-${name}`),
-			value: `var(--icon-size-${name})`,
+			class: resolveUtilityClass(iconUtilityClass(name)),
+			value: iconVarRef(name),
 			px: ICON_SIZE_SCALE[name],
 		};
 	}
@@ -202,12 +225,6 @@ const ALLOWED_MISSING_KEYS = new Set<string>([
 	'$$typeof',
 	Symbol.toPrimitive.toString(),
 ]);
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-	if (value === null || typeof value !== 'object') return false;
-	const proto = Object.getPrototypeOf(value);
-	return proto === Object.prototype || proto === null;
-}
 
 function wrapInProxy<T>(value: T, path: string): T {
 	if (!isPlainObject(value)) return value;

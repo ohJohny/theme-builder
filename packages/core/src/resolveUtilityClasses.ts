@@ -8,6 +8,7 @@ import {
 	resolveLineHeightPresentation,
 } from './resolveFontPresentation';
 import { ThemeBuilder } from './ThemeBuilder';
+import type { UtilityPresentation } from './types/presentation';
 import type {
 	DisplayKeyword,
 	FontFamilyName,
@@ -21,29 +22,13 @@ import type {
 	Theme,
 } from './types/theme.js';
 import {
+	SPACING_PREFIXES,
 	isShadowSizeName,
 	resolveIconSizeName,
 	resolveSpacingSizeName,
 	spacingPrefixToStyle,
 	spacingValueToCssLength,
 } from './types/theme.js';
-
-const SPACING_PREFIXES_LIST: readonly SpacingPrefix[] = [
-	'p',
-	'pt',
-	'pb',
-	'pl',
-	'pr',
-	'px',
-	'py',
-	'm',
-	'mt',
-	'mb',
-	'ml',
-	'mr',
-	'mx',
-	'my',
-];
 
 export type UtilityProps = {
 	readonly className?: string;
@@ -69,7 +54,7 @@ export type UtilityClassesResult = {
 function mergePresentation(
 	classes: string[],
 	inline: JSX.CSSProperties,
-	part: { readonly class: string; readonly inline: JSX.CSSProperties },
+	part: UtilityPresentation,
 ): void {
 	if (part.class) {
 		classes.push(part.class);
@@ -81,7 +66,7 @@ function resolveSpacingProp(
 	theme: Theme,
 	prefix: SpacingPrefix,
 	value: SpacingInputValue,
-): { readonly class: string; readonly inline: JSX.CSSProperties } {
+): UtilityPresentation {
 	const name = resolveSpacingSizeName(value);
 	if (name !== undefined) {
 		return { class: theme.spacing[prefix][name].class, inline: {} };
@@ -99,7 +84,7 @@ function resolveSpacingProp(
 function resolveGapProp(
 	theme: Theme,
 	value: SpacingInputValue,
-): { readonly class: string; readonly inline: JSX.CSSProperties } {
+): UtilityPresentation {
 	const name = resolveSpacingSizeName(value);
 	if (name !== undefined) {
 		return { class: theme.gap[name].class, inline: {} };
@@ -116,14 +101,14 @@ function resolveGapProp(
 function resolveFontFamilyProp(
 	theme: Theme,
 	value: FontFamilyName,
-): { readonly class: string; readonly inline: JSX.CSSProperties } {
+): UtilityPresentation {
 	return { class: theme.fonts.family[value].class, inline: {} };
 }
 
 function resolveShadowProp(
 	theme: Theme,
 	value: ShadowInputValue,
-): { readonly class: string; readonly inline: JSX.CSSProperties } {
+): UtilityPresentation {
 	if (typeof value === 'string' && isShadowSizeName(value)) {
 		return { class: theme.shadow[value].class, inline: {} };
 	}
@@ -136,7 +121,7 @@ function resolveShadowProp(
 function resolveIconProp(
 	theme: Theme,
 	value: IconSizeInputValue,
-): { readonly class: string; readonly inline: JSX.CSSProperties } {
+): UtilityPresentation {
 	const name = resolveIconSizeName(value);
 	if (name !== undefined) {
 		return { class: theme.icon[name].class, inline: {} };
@@ -147,6 +132,42 @@ function resolveIconProp(
 	}
 	return { class: '', inline: {} };
 }
+
+type PresentationResolver = (
+	theme: Theme,
+	props: UtilityProps,
+) => UtilityPresentation | undefined;
+
+const PROP_RESOLVERS: readonly PresentationResolver[] = [
+	(theme, props) =>
+		props.gap !== undefined ? resolveGapProp(theme, props.gap) : undefined,
+	(theme, props) =>
+		props.color !== undefined
+			? resolveColorPresentation(theme, props.color, 'foreground')
+			: undefined,
+	(theme, props) =>
+		props.bg !== undefined
+			? resolveColorPresentation(theme, props.bg, 'background')
+			: undefined,
+	(theme, props) =>
+		props.font !== undefined ? resolveFontFamilyProp(theme, props.font) : undefined,
+	(theme, props) =>
+		props.fontSize !== undefined
+			? resolveFontPresentation(theme, props.fontSize)
+			: undefined,
+	(theme, props) =>
+		props.fontWeight !== undefined
+			? resolveFontWeightPresentation(theme, props.fontWeight as FontWeightStep)
+			: undefined,
+	(theme, props) =>
+		props.lineHeight !== undefined
+			? resolveLineHeightPresentation(theme, props.lineHeight)
+			: undefined,
+	(theme, props) =>
+		props.shadow !== undefined ? resolveShadowProp(theme, props.shadow) : undefined,
+	(theme, props) =>
+		props.icon !== undefined ? resolveIconProp(theme, props.icon) : undefined,
+];
 
 /**
  * Resolves JSX-style utility props to `className` + inline `style`.
@@ -163,47 +184,18 @@ export function resolveUtilityClasses(
 		classes.push(props.className);
 	}
 
-	for (const prefix of SPACING_PREFIXES_LIST) {
+	for (const prefix of SPACING_PREFIXES) {
 		const value = props[prefix];
 		if (value !== undefined) {
 			mergePresentation(classes, inline, resolveSpacingProp(theme, prefix, value));
 		}
 	}
 
-	if (props.gap !== undefined) {
-		mergePresentation(classes, inline, resolveGapProp(theme, props.gap));
-	}
-
-	if (props.color !== undefined) {
-		mergePresentation(
-			classes,
-			inline,
-			resolveColorPresentation(theme, props.color, 'foreground'),
-		);
-	}
-
-	if (props.bg !== undefined) {
-		mergePresentation(classes, inline, resolveColorPresentation(theme, props.bg, 'background'));
-	}
-
-	if (props.font !== undefined) {
-		mergePresentation(classes, inline, resolveFontFamilyProp(theme, props.font));
-	}
-
-	if (props.fontSize !== undefined) {
-		mergePresentation(classes, inline, resolveFontPresentation(theme, props.fontSize));
-	}
-
-	if (props.fontWeight !== undefined) {
-		mergePresentation(
-			classes,
-			inline,
-			resolveFontWeightPresentation(theme, props.fontWeight as FontWeightStep),
-		);
-	}
-
-	if (props.lineHeight !== undefined) {
-		mergePresentation(classes, inline, resolveLineHeightPresentation(theme, props.lineHeight));
+	for (const resolve of PROP_RESOLVERS) {
+		const presentation = resolve(theme, props);
+		if (presentation !== undefined) {
+			mergePresentation(classes, inline, presentation);
+		}
 	}
 
 	if (props.display !== undefined) {
@@ -211,14 +203,6 @@ export function resolveUtilityClasses(
 		if (displayClass) {
 			classes.push(displayClass);
 		}
-	}
-
-	if (props.shadow !== undefined) {
-		mergePresentation(classes, inline, resolveShadowProp(theme, props.shadow));
-	}
-
-	if (props.icon !== undefined) {
-		mergePresentation(classes, inline, resolveIconProp(theme, props.icon));
 	}
 
 	return {

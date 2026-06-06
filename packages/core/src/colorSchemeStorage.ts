@@ -4,19 +4,56 @@ import { isColorSchemeId } from './colorScheme.types';
 /** Shared key for Storybook toolbar + `StoryThemeProvider`. */
 export const STORY_COLOR_SCHEME_STORAGE_KEY = 'story-theme';
 
+type StorageAdapter = {
+	readonly read: (key: string) => string | null;
+	readonly write: (key: string, value: string) => void;
+	readonly remove: (key: string) => void;
+};
+
+function escapeCookieName(name: string): string {
+	return name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+const localStorageAdapter: StorageAdapter = {
+	read(key) {
+		return window.localStorage.getItem(key);
+	},
+	write(key, value) {
+		window.localStorage.setItem(key, value);
+	},
+	remove(key) {
+		window.localStorage.removeItem(key);
+	},
+};
+
+const cookieAdapter: StorageAdapter = {
+	read(key) {
+		const match = document.cookie.match(
+			new RegExp(`(?:^|; )${escapeCookieName(key)}=([^;]*)`),
+		);
+		return match ? decodeURIComponent(match[1]) : null;
+	},
+	write(key, value) {
+		document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=31536000; SameSite=Lax`;
+	},
+	remove(key) {
+		document.cookie = `${key}=; path=/; max-age=0; SameSite=Lax`;
+	},
+};
+
+const STORAGE_ADAPTERS: Record<ThemeStorageConfig['type'], StorageAdapter> = {
+	localStorage: localStorageAdapter,
+	cookie: cookieAdapter,
+};
+
+function getAdapter(type: ThemeStorageConfig['type']): StorageAdapter {
+	return STORAGE_ADAPTERS[type];
+}
+
 export function readStoredColorScheme(config: ThemeStorageConfig): ColorSchemeId | null {
 	if (typeof window === 'undefined') return null;
 
-	let raw: string | null;
-	if (config.type === 'localStorage') {
-		raw = window.localStorage.getItem(config.key);
-	} else {
-		const match = document.cookie.match(
-			new RegExp(`(?:^|; )${escapeCookieName(config.key)}=([^;]*)`),
-		);
-		raw = match ? decodeURIComponent(match[1]) : null;
-	}
-
+	const raw = getAdapter(config.type).read(config.key);
 	return raw && isColorSchemeId(raw) ? raw : null;
 }
 
@@ -26,12 +63,7 @@ export function writeStoredColorScheme(
 ): void {
 	if (typeof window === 'undefined') return;
 
-	if (config.type === 'localStorage') {
-		window.localStorage.setItem(config.key, colorScheme);
-		return;
-	}
-
-	document.cookie = `${config.key}=${encodeURIComponent(colorScheme)}; path=/; max-age=31536000; SameSite=Lax`;
+	getAdapter(config.type).write(config.key, colorScheme);
 }
 
 /** Persists to both localStorage and a cookie (same key) for Storybook / app parity. */
@@ -46,10 +78,6 @@ export function writePersistedColorScheme(
 export function clearPersistedColorScheme(key: string): void {
 	if (typeof window === 'undefined') return;
 
-	window.localStorage.removeItem(key);
-	document.cookie = `${key}=; path=/; max-age=0; SameSite=Lax`;
-}
-
-function escapeCookieName(name: string): string {
-	return name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	localStorageAdapter.remove(key);
+	cookieAdapter.remove(key);
 }

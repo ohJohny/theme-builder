@@ -1,6 +1,4 @@
-function normalizeVariableName(key: string): string {
-	return key.startsWith('--') ? key : `--${key}`;
-}
+import { normalizeVariableName } from './utils/css-variables';
 
 export function resolveThemeVariableTarget(
 	target?: HTMLElement | Document,
