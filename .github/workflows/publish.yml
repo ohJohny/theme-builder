@@ -6,35 +6,14 @@ on:
       - main
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    if: >-
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      !startsWith(github.event.head_commit.message, 'chore: release')
-    outputs:
-      publish: ${{ steps.changes.outputs.publish }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2.2.0
-        with:
-          bun-version: 1.3.9
-
-      - name: Check for releasable changes
-        id: changes
-        run: echo "publish=$(bun run scripts/has-releasable-changes.ts)" >> "$GITHUB_OUTPUT"
-
   publish:
-    needs: check
-    if: needs.check.outputs.publish == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
+    if: >-
+      !contains(github.event.head_commit.message, '[skip ci]') &&
+      !startsWith(github.event.head_commit.message, 'chore: release')
 
     steps:
       # OH_JOHNY_NPM_TOKEN must include contents: write (push commits + v* tags), not only packages: write
@@ -75,7 +54,6 @@ jobs:
 
       - name: Bump version and tag
         id: version
-        if: steps.bump.outputs.bump != 'none'
         run: |
           VERSION=$(bun run scripts/bump-versions.ts ${{ steps.bump.outputs.bump }})
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
@@ -84,7 +62,6 @@ jobs:
           git tag "v${VERSION}"
 
       - name: Push version commit and tag
-        if: steps.bump.outputs.bump != 'none'
         run: |
           git push origin main
           git push origin "v${{ steps.version.outputs.version }}"
