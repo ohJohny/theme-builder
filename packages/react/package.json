@@ -1,7 +1,7 @@
 {
 	"name": "@ohJohny/theme-builder-react",
 	"private": true,
-	"version": "0.1.16",
+	"version": "0.1.17",
 	"description": "React ThemeProvider, useTheme, and useColorScheme",
 	"type": "module",
 	"license": "MIT",
