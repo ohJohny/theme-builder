@@ -90,7 +90,8 @@ export function collectClassNames(config: ThemeConfigInput): readonly string[] {
 export function buildThemeClassMap(
 	config: ThemeConfigInput,
 	mode: 'identity' | 'hashed',
+	utilityClassHashSalt?: string,
 ): Readonly<Record<string, string>> {
 	const catalog = collectClassNames(config);
-	return buildUtilityClassMap(mode, catalog);
+	return buildUtilityClassMap(mode, catalog, utilityClassHashSalt);
 }

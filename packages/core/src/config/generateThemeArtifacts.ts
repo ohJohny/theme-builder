@@ -15,6 +15,8 @@ export type GenerateThemeArtifactsOptions = {
 	readonly mode: UtilityClassMapMode;
 	readonly outDir: string;
 	readonly defaultScheme?: string;
+	/** Salt for hashed utility class names; defaults to `UTILITY_CLASS_HASH_SALT`. */
+	readonly utilityClassHashSalt?: string;
 };
 
 function assertOutDir(outDir: string | undefined): string {
@@ -37,7 +39,7 @@ export async function generateThemeArtifacts(
 	const outDir = assertOutDir(options.outDir);
 	const schemes = resolveSchemes(config);
 	const defaultScheme = resolveDefaultScheme(config, options.defaultScheme);
-	const classMap = buildThemeClassMap(config, options.mode);
+	const classMap = buildThemeClassMap(config, options.mode, options.utilityClassHashSalt);
 
 	let css = buildThemeStylesheet(config, { defaultScheme, schemes });
 	if (options.mode === 'hashed') {

@@ -3,8 +3,8 @@ name: ohjohny-theme-builder-react
 description: >-
   React ThemeProvider, useTheme, useColorScheme, useDeviceSize, DeviceMatch, and useUtilityClasses
   from @ohJohny/theme-builder/react. Use for utility-class props, className/style from theme tokens,
-  resolveBoxPresentation, prepareHostPresentation, classes?.root, and ThemeSlotClasses in
-  @ohJohny/component-0. Lib internals use presentation resolvers, not useUtilityClasses.
+  resolveBoxPresentation, prepareHostPresentation, classes?.root, and ThemeSlotClasses when building
+  or consuming a layout component library. Lib internals use presentation resolvers, not useUtilityClasses.
 ---
 
 # @ohJohny/theme-builder/react
@@ -16,8 +16,8 @@ Re-exports core APIs (`createTheme`, `resolveUtilityClasses`, color-scheme helpe
 | Context | Approach |
 | ------- | -------- |
 | Consumer custom markup (plain element) | `useUtilityClasses({ px: 'md', … })` |
-| Consumer using `@ohJohny/component-0` | Layout props on `<Box>` / `<Flex>` / `<Text>` |
-| **component-0 `lib-react` internals** | `resolveBoxPresentation` or `prepareHostPresentation` + `useTheme()` |
+| Consumer with layout hosts (`Box`, `Flex`, `Text`, …) | Layout props on those hosts |
+| **Design system lib internals** | `resolveBoxPresentation` or `prepareHostPresentation` + `useTheme()` |
 | One-off typography class in lib code | `resolveBoxPresentation(theme, { fontSize: 'sm' }).class` |
 
 **Negative rule:** do **not** call `useUtilityClasses` inside `src/lib-react/**`. The design system owns presentation merging there.
@@ -51,7 +51,7 @@ export const { ThemeProvider, useTheme, useUtilityClasses, useColorScheme } =
 
 Also exports: `useDeviceSize`, `DeviceMatch`, `useColorSchemeTogglePosition`, `resolveUtilityClasses`.
 
-Default breakpoints (component-0 aligned): `DEFAULT_DEVICE_BREAKPOINTS_REM` — 48 / 62 / 80 rem.
+Default breakpoints: `DEFAULT_DEVICE_BREAKPOINTS_REM` — 48 / 62 / 80 rem.
 
 ## Hooks
 
@@ -80,10 +80,10 @@ function PaddedSection({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Prefer `@ohJohny/component-0` layout hosts when available:
+Prefer layout hosts from your component library when available:
 
 ```tsx
-import { Box } from '@ohJohny/component-0/react/components/Box';
+import { Box } from '@your-ui/layout';
 
 function PaddedSection({ children }: { children: React.ReactNode }) {
   return (
@@ -94,9 +94,9 @@ function PaddedSection({ children }: { children: React.ReactNode }) {
 }
 ```
 
-## @ohJohny/component-0 integration
+## Layout component integration
 
-`@ohJohny/component-0` extends utility resolution with `resolveBoxPresentation` and `prepareHostPresentation` (not exported from theme-builder). Use those in `lib-react`; use `useUtilityClasses` only in consumer app markup without a layout host.
+A layout/component library built on theme-builder typically extends utility resolution with `resolveBoxPresentation` and `prepareHostPresentation` (not exported from theme-builder). Use those in design-system internals; use `useUtilityClasses` only in consumer app markup without a layout host.
 
 ### Class merge order
 
@@ -113,7 +113,7 @@ import {
   resolveBoxPresentation,
   splitBoxLayoutProps,
   type BoxLayoutStyleProps,
-} from '@ohJohny/component-0/react/components/Box';
+} from '@your-ui/layout';
 
 const theme = useTheme();
 const { layout, passThroughProps } = splitBoxLayoutProps(rest);
@@ -128,8 +128,8 @@ const presentation = resolveBoxPresentation(theme, layout as BoxLayoutStyleProps
 ```tsx
 import { useMemo } from 'react';
 import { useTheme } from '@ohJohny/theme-builder/react';
-import { prepareHostPresentation } from '@ohJohny/component-0/react/components/Box/componentVars';
-import { cx } from '@ohJohny/component-0/utils';
+import { prepareHostPresentation } from '@your-ui/layout/presentation';
+import { cx } from '@your-ui/utils';
 
 const hostPresentation = useMemo(
   () =>
@@ -147,7 +147,7 @@ const hostPresentation = useMemo(
 const labelClass = resolveBoxPresentation(theme, { fontSize: 'sm', fontWeight: 500 }).class;
 ```
 
-See component-0 `package` and `components` skills for `prepareHostPresentation` API and host patterns.
+See your layout library's docs for `prepareHostPresentation` API and host patterns.
 
 ## Device size
 

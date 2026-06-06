@@ -23,7 +23,7 @@ export function createTheme<const C extends ThemeConfigInput>(
 		config,
 		options.defaultScheme as string | undefined,
 	);
-	const classMap = buildThemeClassMap(config, mode);
+	const classMap = buildThemeClassMap(config, mode, options.utilityClassHashSalt);
 	const theme = buildThemeFromConfig(config, classMap);
 
 	if (options.inject) {

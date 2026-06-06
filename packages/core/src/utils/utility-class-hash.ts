@@ -1,5 +1,5 @@
-/** Stable salt — bump when intentionally invalidating published hashed class names. */
-export const UTILITY_CLASS_HASH_SALT = 'component-0-utility-v1';
+/** Default salt — override via `utilityClassHashSalt` when hashing must be scoped to a consumer. */
+export const UTILITY_CLASS_HASH_SALT = 'theme-builder-utility';
 
 /** SHA-256 hex digest (browser-safe, no Node built-ins). */
 function sha256Hex(input: string): string {
@@ -82,7 +82,10 @@ function rightRotate(value: number, amount: number): number {
 }
 
 /** Deterministic short hash for a canonical utility class → `c0-<hex>`. */
-export function hashUtilityClass(canonical: string): string {
-	const digest = sha256Hex(`${UTILITY_CLASS_HASH_SALT}\0${canonical}`);
+export function hashUtilityClass(
+	canonical: string,
+	salt: string = UTILITY_CLASS_HASH_SALT,
+): string {
+	const digest = sha256Hex(`${salt}\0${canonical}`);
 	return `c0-${digest.slice(0, 6)}`;
 }

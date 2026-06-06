@@ -11,6 +11,7 @@ export interface WriteUtilityClassMapOptions {
 	readonly mode: UtilityClassMapMode;
 	readonly outPath: string;
 	readonly catalog?: readonly string[];
+	readonly utilityClassHashSalt?: string;
 }
 
 export async function writeUtilityClassMapFile(
@@ -20,7 +21,7 @@ export async function writeUtilityClassMapFile(
 		throw new Error('[writeUtilityClassMapFile] catalog is required');
 	}
 	const catalog = options.catalog;
-	const map = buildUtilityClassMap(options.mode, catalog);
+	const map = buildUtilityClassMap(options.mode, catalog, options.utilityClassHashSalt);
 	await mkdir(path.dirname(options.outPath), { recursive: true });
 	await writeFile(
 		options.outPath,

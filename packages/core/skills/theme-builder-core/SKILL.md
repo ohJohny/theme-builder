@@ -81,4 +81,4 @@ const { className, style } = resolveUtilityClasses(
 
 Spacing tokens drive padding (`p-*`), margin (`m-*`), and flex/grid gap (`gap-*`) utilities from a single `spacing` config scale.
 
-`@ohJohny/component-0` extends this with `resolveBoxPresentation` and `prepareHostPresentation` in its lib internals (not exported from theme-builder). See the `theme-builder-react` skill — **@ohJohny/component-0 integration** — for when to use resolvers vs `useUtilityClasses`.
+A consumer layout library typically extends this with `resolveBoxPresentation` and `prepareHostPresentation` in its lib internals (not exported from theme-builder). See the `theme-builder-react` skill — **Layout component integration** — for when to use resolvers vs `useUtilityClasses`.

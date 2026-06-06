@@ -120,12 +120,3 @@ bun run dev:playground
 
 See `examples/playground` for a full demo with 3 schemes and runtime CSS injection.
 
-## component-0 migration
-
-See [`docs/component-0-migration/README.md`](docs/component-0-migration/README.md) for a step-by-step migration from the old singleton + SCSS setup.
-
-## Breaking changes (v0.2+)
-
-- Removed: `ThemeBuilder`, `RawThemeBuilder`, hardcoded token unions, committed `utility-class-map.ts`
-- New: `defineThemeConfig`, `createTheme`, `createThemeContext`, `generateThemeArtifacts`
-- `createColorSchemeStore` now requires `schemes: readonly string[]`

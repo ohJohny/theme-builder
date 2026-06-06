@@ -142,6 +142,8 @@ export type CreateThemeOptions<C extends ThemeConfigInput> = {
 	readonly mode?: UtilityClassMapMode;
 	readonly inject?: boolean;
 	readonly defaultScheme?: SchemeName<C>;
+	/** Salt for hashed utility class names; defaults to `UTILITY_CLASS_HASH_SALT`. */
+	readonly utilityClassHashSalt?: string;
 };
 
 export type CreatedTheme<C extends ThemeConfigInput> = {

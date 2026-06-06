@@ -8,7 +8,7 @@ export {
 	type UtilityClassMapMode,
 } from './utils/utility-class-map.js';
 export { collectClassNames, buildThemeClassMap } from './config/collectClassNames.js';
-export { UTILITY_CLASS_HASH_SALT } from './utils/utility-class-hash.js';
+export { UTILITY_CLASS_HASH_SALT, hashUtilityClass } from './utils/utility-class-hash.js';
 export {
 	generateThemeArtifacts,
 	type GenerateThemeArtifactsOptions,
