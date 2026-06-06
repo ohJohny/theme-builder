@@ -1,11 +1,9 @@
-import { createContext, type Accessor } from 'solid-js';
+import { createContext } from 'solid-js';
 
-import type { DeviceBreakpointsRem } from '../utils/types';
+import type { DeviceBreakpoints } from '../utils/types';
 
 export type DeviceSizeContextValue = {
-	readonly breakpointsRem: DeviceBreakpointsRem;
+	readonly breakpoints: DeviceBreakpoints;
 };
 
-export const DeviceSizeContext = createContext<Accessor<DeviceSizeContextValue> | undefined>(
-	undefined,
-);
+export const DeviceSizeContext = createContext<() => DeviceSizeContextValue>();

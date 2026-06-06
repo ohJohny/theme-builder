@@ -1,10 +1,15 @@
-import type { DeviceBreakpointsPx, DeviceBreakpointsRem, DeviceMatches } from './types';
+import { remLengthToPx } from '@ohJohny/theme-builder-core';
 
-export const DEFAULT_DEVICE_BREAKPOINTS_REM: DeviceBreakpointsRem = {
-	tabletMinRem: 48,
-	desktopMinRem: 62,
-	wideMinRem: 80,
+import type { DeviceBreakpoints, DeviceBreakpointsPx, DeviceMatches } from './types';
+
+export const DEFAULT_DEVICE_BREAKPOINTS: DeviceBreakpoints = {
+	tabletMin: 48,
+	desktopMin: 62,
+	wideMin: 80,
 };
+
+/** @deprecated Use {@link DEFAULT_DEVICE_BREAKPOINTS} */
+export const DEFAULT_DEVICE_BREAKPOINTS_REM = DEFAULT_DEVICE_BREAKPOINTS;
 
 export function getRootFontSizePx(): number {
 	if (typeof document === 'undefined') return 16;
@@ -13,15 +18,23 @@ export function getRootFontSizePx(): number {
 	return Number.isFinite(n) && n > 0 ? n : 16;
 }
 
-export function remBreakpointsToPx(
-	breakpointsRem: DeviceBreakpointsRem,
+export function breakpointsToPx(
+	breakpoints: DeviceBreakpoints,
 	rootFontPx: number,
 ): DeviceBreakpointsPx {
 	return {
-		tabletMin: breakpointsRem.tabletMinRem * rootFontPx,
-		desktopMin: breakpointsRem.desktopMinRem * rootFontPx,
-		wideMin: breakpointsRem.wideMinRem * rootFontPx,
+		tabletMin: remLengthToPx(breakpoints.tabletMin, rootFontPx),
+		desktopMin: remLengthToPx(breakpoints.desktopMin, rootFontPx),
+		wideMin: remLengthToPx(breakpoints.wideMin, rootFontPx),
 	};
+}
+
+/** @deprecated Use {@link breakpointsToPx} */
+export function remBreakpointsToPx(
+	breakpoints: DeviceBreakpoints,
+	rootFontPx: number,
+): DeviceBreakpointsPx {
+	return breakpointsToPx(breakpoints, rootFontPx);
 }
 
 /** Mutually exclusive bands: mobile, tablet, desktop, wide (by ascending width). */
@@ -34,14 +47,22 @@ export function computeMatches(widthPx: number, t: DeviceBreakpointsPx): DeviceM
 	};
 }
 
-export function mergeBreakpointsRem(
-	base: DeviceBreakpointsRem,
-	partial?: Partial<DeviceBreakpointsRem>,
-): DeviceBreakpointsRem {
+export function mergeBreakpoints(
+	base: DeviceBreakpoints,
+	partial?: Partial<DeviceBreakpoints>,
+): DeviceBreakpoints {
 	if (!partial) return base;
 	return {
-		tabletMinRem: partial.tabletMinRem ?? base.tabletMinRem,
-		desktopMinRem: partial.desktopMinRem ?? base.desktopMinRem,
-		wideMinRem: partial.wideMinRem ?? base.wideMinRem,
+		tabletMin: partial.tabletMin ?? base.tabletMin,
+		desktopMin: partial.desktopMin ?? base.desktopMin,
+		wideMin: partial.wideMin ?? base.wideMin,
 	};
+}
+
+/** @deprecated Use {@link mergeBreakpoints} */
+export function mergeBreakpointsRem(
+	base: DeviceBreakpoints,
+	partial?: Partial<DeviceBreakpoints>,
+): DeviceBreakpoints {
+	return mergeBreakpoints(base, partial);
 }

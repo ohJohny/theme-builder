@@ -1,8 +1,9 @@
 import type { BreakpointValue, ThemeConfigInput } from './types';
+import { formatRemCss } from '../utils/remLength.js';
 
 function formatMediaQuery(value: BreakpointValue): string {
-	const min = 'min' in value && value.min !== undefined ? value.min : undefined;
-	const max = 'max' in value && value.max !== undefined ? value.max : undefined;
+	const min = 'min' in value && value.min !== undefined ? formatRemCss(value.min) : undefined;
+	const max = 'max' in value && value.max !== undefined ? formatRemCss(value.max) : undefined;
 
 	if (min !== undefined && max !== undefined) {
 		return `@media (min-width: ${min}) and (max-width: ${max})`;

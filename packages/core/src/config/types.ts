@@ -4,11 +4,12 @@ import type {
 	SpacingPrefix,
 	TokenClass,
 } from '../types/theme.js';
+import type { RemLength } from '../utils/remLength.js';
 
 export type BreakpointValue =
-	| { readonly min: string; readonly max?: never }
-	| { readonly max: string; readonly min?: never }
-	| { readonly min: string; readonly max: string };
+	| { readonly min: RemLength; readonly max?: never }
+	| { readonly max: RemLength; readonly min?: never }
+	| { readonly min: RemLength; readonly max: RemLength };
 
 export type ColorValue = string | Readonly<Record<string, string>>;
 
@@ -26,6 +27,8 @@ export interface ThemeColorsConfigInput {
 
 export interface ThemeConfigInput {
 	readonly schemes?: readonly string[];
+	/** Root `font-size` on `:root` — the px reference for rem (e.g. `'16px'`). */
+	readonly remBase?: string;
 	readonly colors?: ThemeColorsConfigInput;
 	readonly spacing?: Readonly<Record<string, string>>;
 	readonly fonts?: ThemeFontsConfigInput;

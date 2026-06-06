@@ -24,6 +24,14 @@ describe('createTheme', () => {
 });
 
 describe('buildThemeStylesheet scheme blocks', () => {
+	it('sets root font-size from remBase', () => {
+		const css = buildThemeStylesheet(testThemeConfig, {
+			defaultScheme: 'light',
+			schemes: ['light', 'dark'],
+		});
+		expect(css).toMatch(/:root\{[^}]*font-size:16px/);
+	});
+
 	it('emits :root and per-scheme blocks for 3 schemes', () => {
 		const config = {
 			...testThemeConfig,
@@ -50,16 +58,16 @@ describe('buildBreakpointsScss', () => {
 	it('emits mixins for min/max/both', () => {
 		const scss = buildBreakpointsScss({
 			breakpoints: {
-				mobile: { max: '767px' },
-				tablet: { min: '768px', max: '1023px' },
-				desktop: { min: '1024px' },
+				mobile: { max: '47.9375rem' },
+				tablet: { min: '48rem', max: '63.9375rem' },
+				desktop: { min: '64rem' },
 			},
 		});
-		expect(scss).toContain('@mixin mobile { @media (max-width: 767px) { @content; } }');
+		expect(scss).toContain('@mixin mobile { @media (max-width: 47.9375rem) { @content; } }');
 		expect(scss).toContain(
-			'@mixin tablet { @media (min-width: 768px) and (max-width: 1023px) { @content; } }',
+			'@mixin tablet { @media (min-width: 48rem) and (max-width: 63.9375rem) { @content; } }',
 		);
-		expect(scss).toContain('@mixin desktop { @media (min-width: 1024px) { @content; } }');
+		expect(scss).toContain('@mixin desktop { @media (min-width: 64rem) { @content; } }');
 	});
 
 	it('returns undefined when breakpoints absent', () => {

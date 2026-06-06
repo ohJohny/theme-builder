@@ -11,6 +11,7 @@ export const testThemeConfig = defineThemeConfig({
 			'surface-main': { light: '#f5f5f5', dark: '#111' },
 		},
 	},
+	remBase: '16px',
 	spacing: { sm: '8px', md: '16px' },
 	fonts: {
 		family: { sans: 'sans-serif' },

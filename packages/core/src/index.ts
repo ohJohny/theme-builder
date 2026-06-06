@@ -97,3 +97,10 @@ export type {
 	ColorTokenPair,
 } from './types/theme.js';
 export { SPACING_PREFIXES, spacingPrefixToStyle, spacingValueToCssLength } from './types/theme.js';
+export {
+	formatRemCss,
+	isRemLength,
+	parseRemValue,
+	remLengthToPx,
+} from './utils/remLength.js';
+export type { RemLength } from './utils/remLength.js';

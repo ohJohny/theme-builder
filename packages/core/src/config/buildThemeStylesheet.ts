@@ -48,11 +48,26 @@ function isSchemeVaryingColor(value: ColorValue): value is Readonly<Record<strin
 	return isPlainObject(value);
 }
 
-function formatBlock(selector: string, variables: Record<string, string>): string {
-	const entries = Object.entries(variables);
+function formatBlock(
+	selector: string,
+	variables: Record<string, string>,
+	properties: Record<string, string> = {},
+): string {
+	const entries = [
+		...Object.entries(properties),
+		...Object.entries(variables),
+	];
 	if (entries.length === 0) return '';
 	const body = entries.map(([name, value]) => `\t${name}:${value};`).join('\n');
 	return `${selector}{\n${body}\n}`;
+}
+
+function collectRootProperties(config: ThemeConfigInput): Record<string, string> {
+	const properties: Record<string, string> = {};
+	if (config.remBase !== undefined) {
+		properties['font-size'] = config.remBase;
+	}
+	return properties;
 }
 
 function collectInvariantVariables(config: ThemeConfigInput): Record<string, string> {
@@ -226,12 +241,17 @@ export function buildThemeStylesheet(
 	const blocks: string[] = [];
 	const invariant = collectInvariantVariables(config);
 	const defaultSchemeVars = collectSchemeVariables(config, options.defaultScheme);
+	const rootProperties = collectRootProperties(config);
 
 	blocks.push(
-		formatBlock(':root', {
-			...invariant,
-			...defaultSchemeVars,
-		}),
+		formatBlock(
+			':root',
+			{
+				...invariant,
+				...defaultSchemeVars,
+			},
+			rootProperties,
+		),
 	);
 
 	for (const scheme of options.schemes) {

@@ -1,10 +1,16 @@
+import type { RemLength } from '@ohJohny/theme-builder-core';
+
 export type DeviceSizeName = 'mobile' | 'tablet' | 'desktop' | 'wide';
 
-export type DeviceBreakpointsRem = {
-	readonly tabletMinRem: number;
-	readonly desktopMinRem: number;
-	readonly wideMinRem: number;
+/** Min-width thresholds for tablet / desktop / wide bands (rem). */
+export type DeviceBreakpoints = {
+	readonly tabletMin: RemLength;
+	readonly desktopMin: RemLength;
+	readonly wideMin: RemLength;
 };
+
+/** @deprecated Use {@link DeviceBreakpoints} — keys are now `tabletMin`, `desktopMin`, `wideMin`. */
+export type DeviceBreakpointsRem = DeviceBreakpoints;
 
 export type DeviceMatches = Record<DeviceSizeName, boolean>;
 
@@ -15,5 +21,7 @@ export type DeviceBreakpointsPx = {
 };
 
 export type UseDeviceSizeOptions = {
-	readonly breakpointsRem?: Partial<DeviceBreakpointsRem>;
+	readonly breakpoints?: Partial<DeviceBreakpoints>;
+	/** @deprecated Use {@link UseDeviceSizeOptions.breakpoints} */
+	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
 };

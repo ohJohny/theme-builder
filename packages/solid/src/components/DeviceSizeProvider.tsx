@@ -2,14 +2,16 @@
 import { createMemo, mergeProps, type ParentComponent } from 'solid-js';
 
 import {
-	DEFAULT_DEVICE_BREAKPOINTS_REM,
-	mergeBreakpointsRem,
+	DEFAULT_DEVICE_BREAKPOINTS,
+	mergeBreakpoints,
 } from '../utils/deviceSizeCore';
 import { DeviceSizeContext } from './DeviceSizeContext';
-import type { DeviceBreakpointsRem } from '../utils/types';
+import type { DeviceBreakpoints } from '../utils/types';
 
 export type DeviceSizeProviderProps = {
-	readonly breakpointsRem?: Partial<DeviceBreakpointsRem>;
+	readonly breakpoints?: Partial<DeviceBreakpoints>;
+	/** @deprecated Use {@link DeviceSizeProviderProps.breakpoints} */
+	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
 };
 
 /**
@@ -20,14 +22,15 @@ export type DeviceSizeProviderProps = {
 export const DeviceSizeProvider: ParentComponent<DeviceSizeProviderProps> = (props) => {
 	const merged = mergeProps(
 		{
-			breakpointsRem: {} as Partial<DeviceBreakpointsRem>,
+			breakpoints: {} as Partial<DeviceBreakpoints>,
+			breakpointsRem: {} as Partial<DeviceBreakpoints>,
 		},
 		props,
 	);
 	const value = createMemo(() => ({
-		breakpointsRem: mergeBreakpointsRem(
-			DEFAULT_DEVICE_BREAKPOINTS_REM,
-			merged.breakpointsRem,
+		breakpoints: mergeBreakpoints(
+			mergeBreakpoints(DEFAULT_DEVICE_BREAKPOINTS, merged.breakpointsRem),
+			merged.breakpoints,
 		),
 	}));
 	return (

@@ -1,4 +1,5 @@
 import { isPlainObject } from '../utils/isPlainObject';
+import { isRemLength } from '../utils/remLength.js';
 import type { BreakpointValue, ThemeConfigInput } from './types';
 
 function isStringRecord(value: unknown): value is Record<string, string> {
@@ -16,8 +17,8 @@ function isBreakpointValue(value: unknown): value is BreakpointValue {
 	if (!isPlainObject(value)) return false;
 	const min = value.min;
 	const max = value.max;
-	if (min !== undefined && typeof min !== 'string') return false;
-	if (max !== undefined && typeof max !== 'string') return false;
+	if (min !== undefined && !isRemLength(min)) return false;
+	if (max !== undefined && !isRemLength(max)) return false;
 	if (min === undefined && max === undefined) return false;
 	return true;
 }
@@ -51,6 +52,10 @@ export function validateThemeConfig(config: ThemeConfigInput): void {
 				}
 			}
 		}
+	}
+
+	if (config.remBase !== undefined && typeof config.remBase !== 'string') {
+		throw new TypeError('[defineThemeConfig] remBase must be a string');
 	}
 
 	if (config.spacing !== undefined && !isStringRecord(config.spacing)) {

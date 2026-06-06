@@ -13,13 +13,19 @@ export { useDeviceSize } from './components/useDeviceSize';
 export type { UseDeviceSizeResult } from './components/useDeviceSize';
 export { DeviceMatch } from './components/DeviceMatch';
 export type { DeviceMatchProps } from './components/DeviceMatch';
-export { DEFAULT_DEVICE_BREAKPOINTS_REM } from './utils/deviceSizeCore';
+export {
+	DEFAULT_DEVICE_BREAKPOINTS,
+	DEFAULT_DEVICE_BREAKPOINTS_REM,
+} from './utils/deviceSizeCore';
 export type {
 	DeviceSizeName,
 	DeviceMatches,
+	DeviceBreakpoints,
 	DeviceBreakpointsRem,
 	UseDeviceSizeOptions,
 } from './utils/types';
+export type { RemLength } from '@ohJohny/theme-builder-core';
+export { remLengthToPx, formatRemCss, parseRemValue, isRemLength } from '@ohJohny/theme-builder-core';
 
 export {
 	defineThemeConfig,

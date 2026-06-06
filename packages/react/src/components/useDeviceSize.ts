@@ -1,11 +1,11 @@
 import { useContext, useMemo, useSyncExternalStore } from 'react';
 
 import {
+	breakpointsToPx,
 	computeMatches,
-	DEFAULT_DEVICE_BREAKPOINTS_REM,
+	DEFAULT_DEVICE_BREAKPOINTS,
 	getRootFontSizePx,
-	mergeBreakpointsRem,
-	remBreakpointsToPx,
+	mergeBreakpoints,
 } from '../utils/deviceSizeCore';
 import { DeviceSizeContext } from './DeviceSizeContext';
 import {
@@ -18,7 +18,7 @@ import type { DeviceMatches, UseDeviceSizeOptions } from '../utils/types';
  * Reactive device buckets (`mobile` / `tablet` / `desktop` / `wide`).
  *
  * Driven by a **shared ref-counted** `window` `resize` subscription.
- * Optional {@link DeviceSizeProvider} supplies default `breakpointsRem`; call-site
+ * Optional {@link DeviceSizeProvider} supplies default `breakpoints`; call-site
  * `options` override context.
  */
 export function useDeviceSize(options?: UseDeviceSizeOptions): DeviceMatches {
@@ -30,13 +30,16 @@ export function useDeviceSize(options?: UseDeviceSizeOptions): DeviceMatches {
 		getSharedWindowWidthSnapshot,
 	);
 
-	const breakpointsRem = useMemo(() => {
-		const base = ctx?.breakpointsRem ?? DEFAULT_DEVICE_BREAKPOINTS_REM;
-		return mergeBreakpointsRem(base, options?.breakpointsRem);
-	}, [ctx, options?.breakpointsRem]);
+	const breakpoints = useMemo(() => {
+		const base = ctx?.breakpoints ?? DEFAULT_DEVICE_BREAKPOINTS;
+		return mergeBreakpoints(
+			mergeBreakpoints(base, options?.breakpointsRem),
+			options?.breakpoints,
+		);
+	}, [ctx, options?.breakpoints, options?.breakpointsRem]);
 
 	return useMemo(() => {
-		const px = remBreakpointsToPx(breakpointsRem, getRootFontSizePx());
+		const px = breakpointsToPx(breakpoints, getRootFontSizePx());
 		return computeMatches(width, px);
-	}, [width, breakpointsRem]);
+	}, [width, breakpoints]);
 }

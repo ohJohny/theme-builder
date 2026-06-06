@@ -2,11 +2,11 @@ import type { Accessor } from 'solid-js';
 import { createMemo, onCleanup, useContext } from 'solid-js';
 
 import {
+	breakpointsToPx,
 	computeMatches,
-	DEFAULT_DEVICE_BREAKPOINTS_REM,
+	DEFAULT_DEVICE_BREAKPOINTS,
 	getRootFontSizePx,
-	mergeBreakpointsRem,
-	remBreakpointsToPx,
+	mergeBreakpoints,
 } from '../utils/deviceSizeCore';
 import { subscribeSharedWindowWidth } from '../utils/subscribeSharedWindowWidth';
 import type { DeviceMatches, UseDeviceSizeOptions } from '../utils/types';
@@ -20,7 +20,7 @@ export type UseDeviceSizeResult = Accessor<DeviceMatches>;
  * Driven by a **shared ref-counted** `window` `resize` subscription shared with
  * {@link DeviceMatch}. Subscription runs **synchronously** when the hook is
  * evaluated so the first paint matches the current viewport. Optional
- * {@link DeviceSizeProvider} supplies default `breakpointsRem`; call-site
+ * {@link DeviceSizeProvider} supplies default `breakpoints`; call-site
  * `options` override context.
  */
 export function useDeviceSize(options?: UseDeviceSizeOptions): UseDeviceSizeResult {
@@ -29,13 +29,16 @@ export function useDeviceSize(options?: UseDeviceSizeOptions): UseDeviceSizeResu
 	const [width, release] = subscribeSharedWindowWidth();
 	onCleanup(release);
 
-	const breakpointsRem = createMemo(() => {
-		const base = ctx?.().breakpointsRem ?? DEFAULT_DEVICE_BREAKPOINTS_REM;
-		return mergeBreakpointsRem(base, options?.breakpointsRem);
+	const breakpoints = createMemo(() => {
+		const base = ctx?.().breakpoints ?? DEFAULT_DEVICE_BREAKPOINTS;
+		return mergeBreakpoints(
+			mergeBreakpoints(base, options?.breakpointsRem),
+			options?.breakpoints,
+		);
 	});
 
 	const matches = createMemo(() => {
-		const px = remBreakpointsToPx(breakpointsRem(), getRootFontSizePx());
+		const px = breakpointsToPx(breakpoints(), getRootFontSizePx());
 		return computeMatches(width(), px);
 	});
 

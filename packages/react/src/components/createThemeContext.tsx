@@ -23,19 +23,21 @@ import {
 } from './ColorSchemeContext';
 import { useColorScheme } from './useColorScheme';
 import { DeviceSizeProvider } from './DeviceSizeProvider';
-import type { DeviceBreakpointsRem } from '../utils/types';
+import type { DeviceBreakpoints } from '../utils/types';
 
 export type ThemeProviderProps<C extends ThemeConfigInput> = Omit<
 	ColorSchemeStoreOptions,
 	'schemes'
 > & {
 	readonly theme: CreatedTheme<C>;
-	readonly breakpointsRem?: Partial<DeviceBreakpointsRem>;
+	readonly breakpoints?: Partial<DeviceBreakpoints>;
+	/** @deprecated Use {@link ThemeProviderProps.breakpoints} */
+	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
 	readonly children: ReactNode;
 };
 
 export function ThemeProvider<C extends ThemeConfigInput>(props: ThemeProviderProps<C>) {
-	const { children, breakpointsRem, theme, ...storeOptions } = props;
+	const { children, breakpoints, breakpointsRem, theme, ...storeOptions } = props;
 
 	const store = useMemo(
 		() =>
@@ -64,7 +66,9 @@ export function ThemeProvider<C extends ThemeConfigInput>(props: ThemeProviderPr
 	return (
 		<ColorSchemeContext.Provider value={colorSchemeValue}>
 			<ThemeContext.Provider value={theme.theme}>
-				<DeviceSizeProvider breakpointsRem={breakpointsRem}>{children}</DeviceSizeProvider>
+				<DeviceSizeProvider breakpoints={breakpoints} breakpointsRem={breakpointsRem}>
+					{children}
+				</DeviceSizeProvider>
 			</ThemeContext.Provider>
 		</ColorSchemeContext.Provider>
 	);

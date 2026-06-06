@@ -1,14 +1,16 @@
 import { useMemo, type ReactNode } from 'react';
 
 import {
-	DEFAULT_DEVICE_BREAKPOINTS_REM,
-	mergeBreakpointsRem,
+	DEFAULT_DEVICE_BREAKPOINTS,
+	mergeBreakpoints,
 } from '../utils/deviceSizeCore';
 import { DeviceSizeContext } from './DeviceSizeContext';
-import type { DeviceBreakpointsRem } from '../utils/types';
+import type { DeviceBreakpoints } from '../utils/types';
 
 export type DeviceSizeProviderProps = {
-	readonly breakpointsRem?: Partial<DeviceBreakpointsRem>;
+	readonly breakpoints?: Partial<DeviceBreakpoints>;
+	/** @deprecated Use {@link DeviceSizeProviderProps.breakpoints} */
+	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
 	readonly children: ReactNode;
 };
 
@@ -18,16 +20,16 @@ export type DeviceSizeProviderProps = {
  * subscription used by that hook.
  */
 export function DeviceSizeProvider(props: DeviceSizeProviderProps) {
-	const { breakpointsRem, children } = props;
+	const { breakpoints, breakpointsRem, children } = props;
 
 	const value = useMemo(
 		() => ({
-			breakpointsRem: mergeBreakpointsRem(
-				DEFAULT_DEVICE_BREAKPOINTS_REM,
-				breakpointsRem,
+			breakpoints: mergeBreakpoints(
+				mergeBreakpoints(DEFAULT_DEVICE_BREAKPOINTS, breakpointsRem),
+				breakpoints,
 			),
 		}),
-		[breakpointsRem],
+		[breakpoints, breakpointsRem],
 	);
 
 	return (
