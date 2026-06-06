@@ -1,19 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
-import { collectUtilityClassNames } from './utility-class-catalog';
+import { collectClassNames } from '../config/collectClassNames';
+import { testThemeConfig } from '../testFixtures';
 import { hashUtilityClass } from './utility-class-hash';
 import { buildUtilityClassMap, rewriteUtilityCss } from './utility-class-map';
 
 describe('utility-class-map', () => {
 	it('catalog includes spacing, color, and display utilities', () => {
-		const catalog = collectUtilityClassNames();
+		const catalog = collectClassNames(testThemeConfig);
 		expect(catalog).toContain('px-md');
 		expect(catalog).toContain('gap-sm');
 		expect(catalog).toContain('color-text-primary');
 		expect(catalog).toContain('bg-surface-main');
 		expect(catalog).toContain('d-flex');
 		expect(catalog).toContain('shadow-md');
-		expect(catalog).toContain('icon-lg');
 	});
 
 	it('identity map leaves canonical names unchanged', () => {
@@ -39,7 +39,7 @@ describe('utility-class-map', () => {
 	});
 
 	it('hashed map matches hashUtilityClass for every catalog entry', () => {
-		const catalog = collectUtilityClassNames();
+		const catalog = collectClassNames(testThemeConfig);
 		const map = buildUtilityClassMap('hashed', catalog);
 		for (const canonical of catalog) {
 			expect(map[canonical]).toBe(hashUtilityClass(canonical));

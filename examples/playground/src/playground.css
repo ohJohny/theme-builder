@@ -11,37 +11,6 @@ body {
 	color: var(--color-text-primary, #111);
 }
 
-:root,
-[data-theme='light'] {
-	--color-white: #ffffff;
-	--color-black: #0f0f0f;
-	--color-text-primary: #111827;
-	--color-text-secondary: #4b5563;
-	--color-text-tertiary: #9ca3af;
-	--color-surface-main: #f9fafb;
-	--color-surface-container: #ffffff;
-	--color-surface-sidebar: #f3f4f6;
-	--color-border-default: #e5e7eb;
-	--color-body-default: #f3f4f6;
-	--color-action-primary-default: #2563eb;
-	--color-action-primary-hover: #1d4ed8;
-}
-
-[data-theme='dark'] {
-	--color-white: #ffffff;
-	--color-black: #0f0f0f;
-	--color-text-primary: #f3f4f6;
-	--color-text-secondary: #d1d5db;
-	--color-text-tertiary: #9ca3af;
-	--color-surface-main: #111827;
-	--color-surface-container: #1f2937;
-	--color-surface-sidebar: #374151;
-	--color-border-default: #4b5563;
-	--color-body-default: #1f2937;
-	--color-action-primary-default: #3b82f6;
-	--color-action-primary-hover: #2563eb;
-}
-
 .playground {
 	max-width: 1100px;
 	margin: 0 auto;
@@ -64,15 +33,46 @@ body {
 	flex: 1 1 100%;
 }
 
-.playground-header input {
-	flex: 1 1 200px;
-	padding: 0.5rem 0.75rem;
-	border: 1px solid var(--color-border-default, #e5e7eb);
-	border-radius: 6px;
-	font: inherit;
+.theme-config-label {
+	flex: 1 1 100%;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--color-text-secondary, #4b5563);
 }
 
-.playground-header button {
+.theme-config-editor {
+	width: 100%;
+	min-height: 16rem;
+	padding: 0.75rem;
+	border: 1px solid var(--color-border-default, #e5e7eb);
+	border-radius: 8px;
+	font: 0.8125rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	background: var(--color-surface-container, #fff);
+	color: var(--color-text-primary, #111);
+	resize: vertical;
+	tab-size: 2;
+}
+
+.theme-config-error {
+	flex: 1 1 100%;
+	margin: 0;
+	padding: 0.5rem 0.75rem;
+	border-radius: 6px;
+	font-size: 0.8125rem;
+	color: #991b1b;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+}
+
+.playground-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	align-items: center;
+	margin-bottom: 2rem;
+}
+
+.playground-toolbar button {
 	padding: 0.5rem 1rem;
 	border: none;
 	border-radius: 6px;
@@ -136,6 +136,13 @@ section.playground-section h2 {
 
 .typography-sample {
 	white-space: nowrap;
+}
+
+.icon-chip-preview {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
 }
 
 .device-matches-json {

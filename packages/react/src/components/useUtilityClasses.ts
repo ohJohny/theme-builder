@@ -1,5 +1,7 @@
 import {
 	resolveUtilityClasses,
+	type CreatedTheme,
+	type ThemeConfigInput,
 	type UtilityClassesResult,
 	type UtilityProps,
 } from '@ohJohny/theme-builder-core';
@@ -7,8 +9,11 @@ import {
 import { useTheme } from './ColorSchemeContext';
 
 /** Resolves utility props using the current theme from ThemeProvider. */
-export function useUtilityClasses(props: UtilityProps): UtilityClassesResult {
-	const theme = useTheme();
+export function useUtilityClasses<C extends ThemeConfigInput>(
+	props: UtilityProps<C>,
+	created?: CreatedTheme<C>,
+): UtilityClassesResult {
+	const theme = created?.theme ?? useTheme<C>();
 	return resolveUtilityClasses(props, theme);
 }
 

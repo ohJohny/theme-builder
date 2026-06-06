@@ -1,22 +1,46 @@
-export { ThemeBuilder, buildThemeRaw } from './ThemeBuilder';
-export { mergeTheme, type DeepPartial, type ThemeExtension } from './mergeTheme';
-export { RawThemeBuilder, type RawThemeApplyOptions, type RawThemeTarget } from './RawThemeBuilder';
 export {
-	parseRawThemeConfig,
-	isRawThemeConfig,
-	type RawThemeConfig,
-	type RawThemeFontsConfig,
-} from './rawThemeConfig';
-export { rawThemeConfigToExtension } from './rawThemeToExtension';
+	defineThemeConfig,
+	createTheme,
+	buildThemeStylesheet,
+	buildBreakpointsScss,
+	collectClassNames,
+	buildThemeClassMap,
+	injectThemeStyles,
+	removeInjectedThemeStyles,
+	resolveUtilityClassFromMap,
+	resolveSchemes,
+	resolveDefaultScheme,
+} from './config';
+export type {
+	BreakpointValue,
+	ColorValue,
+	CreateThemeOptions,
+	CreatedTheme,
+	SchemeName,
+	ThemeConfigInput,
+	ThemeColorsConfigInput,
+	ThemeFontsConfigInput,
+	UtilityProps,
+	UtilityClassMapMode,
+	SpacingInputValue,
+	FontSizeInputValue,
+	IconSizeInputValue,
+	LineHeightInputValue,
+	ShadowInputValue,
+	ColorName,
+	SpacingName,
+	GapName,
+	BaseColorName,
+	SemanticColorName,
+	FontFamilyName,
+	FontSizeName,
+	FontWeightName,
+	LineHeightName,
+	ShadowName,
+	IconSizeName,
+	DisplayName,
+} from './config';
 export { applyThemeVariables, resolveThemeVariableTarget } from './applyThemeVariables';
-export {
-	resolveUtilityClass,
-	UTILITY_CLASS_MAP,
-	UTILITY_CLASS_MAP_MODE,
-	UTILITY_CLASS_NAMES,
-	UTILITY_CLASS_OVERRIDES,
-} from './utilityClassMap';
-export type { UtilityClassMapMode } from './utilityClassMap';
 export { lookupColorTokenPresentation, resolvePaletteColor } from './resolvePaletteColor';
 export { resolveColorPresentation } from './resolveColorPresentation';
 export {
@@ -28,7 +52,6 @@ export {
 export {
 	resolveUtilityClasses,
 	type UtilityClassesResult,
-	type UtilityProps,
 } from './resolveUtilityClasses';
 export { resolveContrastColor } from './resolveContrastColor';
 export { isSolidPaintCssValue } from './isSolidPaintCssValue';
@@ -38,7 +61,13 @@ export type {
 	ThemeMetaItem,
 	ThemeStorageConfig,
 } from './colorScheme.types';
-export { DEFAULT_THEME_META, COLOR_SCHEME_IDS, isColorSchemeId } from './colorScheme.types';
+export {
+	DEFAULT_THEME_META,
+	DEFAULT_SCHEMES,
+	isColorSchemeId,
+	isKnownScheme,
+	deriveThemeMeta,
+} from './colorScheme.types';
 export { applyColorScheme } from './applyColorScheme';
 export {
 	clearPersistedColorScheme,
@@ -60,83 +89,11 @@ export type {
 	ColorSchemeListItem,
 } from './store/createColorSchemeStore';
 
-export type { Theme } from './types/theme.js';
 export type {
-	BaseColorTokenName,
-	ColorTokenName,
-	ColorTokenPair,
-	ComponentSizeName,
-	DisplayKeyword,
-	FontFamilyName,
-	FontSizeInputValue,
-	FontSizeName,
-	FontSizeStep,
-	FontWeightStep,
-	GapScale,
-	IconSizeInputValue,
-	IconSizeName,
-	IconSizeStep,
-	IconSizeToken,
-	LineHeightInputValue,
-	LineHeightStep,
-	SemanticColorTokenName,
-	SemanticColorTokenOverrides,
-	ShadowInputValue,
-	ShadowSizeName,
-	SpacingGroup,
-	SpacingInputValue,
+	Theme,
 	SpacingPrefix,
-	SpacingSizeName,
-	SpacingStep,
-	ThemeBaseColorUtilities,
-	ThemeColorOverrides,
-	ThemeColorUtilities,
-	ThemeColors,
-	ThemeDisplay,
-	ThemeFonts,
-	ThemeSemanticColorUtilities,
-	ThemeSpacing,
 	TokenClass,
+	IconSizeToken,
+	ColorTokenPair,
 } from './types/theme.js';
-export {
-	BASE_COLOR_TOKEN_NAMES,
-	DISPLAY_KEYWORDS,
-	FONT_FAMILY_NAMES,
-	FONT_SIZE_NAMES,
-	FONT_SIZE_SCALE,
-	FONT_SIZE_STEPS,
-	FONT_WEIGHT_STEPS,
-	ICON_SIZE_NAMES,
-	ICON_SIZE_SCALE,
-	ICON_SIZE_STEPS,
-	isBaseColorTokenName,
-	isColorTokenName,
-	isFontSizeName,
-	isFontSizeStep,
-	isIconSizeName,
-	isIconSizeStep,
-	isSemanticColorTokenName,
-	isShadowSizeName,
-	isSpacingSizeName,
-	isSpacingStep,
-	LINE_HEIGHT_STEPS,
-	SEMANTIC_COLOR_TOKEN_NAMES,
-	SHADOW_SCALE,
-	SHADOW_SIZE_NAMES,
-	SPACING_PREFIXES,
-	SPACING_SCALE,
-	SPACING_SIZE_NAMES,
-	SPACING_STEPS,
-	resolveColorCssVar,
-	resolveFontSizeCssVar,
-	resolveFontSizeName,
-	resolveFontSizeStepToken,
-	resolveIconSizeCssVar,
-	resolveIconSizeName,
-	resolveShadowCssVar,
-	resolveSpacingCssVar,
-	resolveSpacingSizeName,
-	resolveSpacingStepToken,
-	spacingPrefixToStyle,
-	spacingValueToCssLength,
-} from './types/theme.js';
+export { SPACING_PREFIXES, spacingPrefixToStyle, spacingValueToCssLength } from './types/theme.js';

@@ -1,23 +1,22 @@
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { ThemeBuilder } from '@ohJohny/theme-builder-core';
-
 import { ThemeProvider } from './ThemeProvider';
 import { useUtilityClasses } from './useUtilityClasses';
+import { reactTestTheme } from '../testFixtures';
 
 import type { ReactNode } from 'react';
 
 function wrapper({ children }: { children: ReactNode }) {
 	return (
-		<ThemeProvider presetColorScheme="light" applyColorSchemeOnMount={false}>
+		<ThemeProvider theme={reactTestTheme} presetColorScheme="light" applyColorSchemeOnMount={false}>
 			{children}
 		</ThemeProvider>
 	);
 }
 
 describe('useUtilityClasses', () => {
-	const theme = ThemeBuilder.getInstance().getTheme();
+	const theme = reactTestTheme.theme;
 
 	it('throws when used outside ThemeProvider', () => {
 		expect(() => renderHook(() => useUtilityClasses({ px: 'md' }))).toThrow(ReferenceError);

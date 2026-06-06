@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 
 import { createColorSchemeStore, type ColorSchemeId } from '@ohJohny/theme-builder-core';
 
-import type { ColorSchemeStoreState, Theme } from '@ohJohny/theme-builder-core';
+import type { ColorSchemeStoreState, Theme, ThemeConfigInput } from '@ohJohny/theme-builder-core';
 
 export type ColorSchemeContextValue = ReturnType<typeof createColorSchemeStore> & {
 	readonly state: ColorSchemeStoreState;
@@ -18,14 +18,14 @@ export function useColorSchemeContext(): ColorSchemeContextValue {
 	return context;
 }
 
-export const ThemeContext = createContext<Theme | null>(null);
+export const ThemeContext = createContext<Theme<ThemeConfigInput> | null>(null);
 
-export function useTheme(): Theme {
+export function useTheme<C extends ThemeConfigInput = ThemeConfigInput>(): Theme<C> {
 	const theme = useContext(ThemeContext);
 	if (!theme) {
 		throw new ReferenceError('[useTheme] must be used within a ThemeProvider');
 	}
-	return theme;
+	return theme as Theme<C>;
 }
 
 export type { ColorSchemeId, ThemeMetaItem, ThemeStorageConfig } from '@ohJohny/theme-builder-core';

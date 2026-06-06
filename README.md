@@ -1,6 +1,6 @@
 # @ohJohny/theme-builder
 
-Framework-agnostic design-token runtime with React and Solid providers.
+Framework-agnostic, config-first design tokens with React and Solid providers.
 
 ## Install
 
@@ -14,100 +14,103 @@ Peer dependencies: `react` + `react-dom` for `/react`, `solid-js` for `/solid`.
 
 | Import | Description |
 |--------|-------------|
-| `@ohJohny/theme-builder/core` | `ThemeBuilder`, `RawThemeBuilder`, utility classes, color-scheme DOM helpers |
-| `@ohJohny/theme-builder/react` | `ThemeProvider`, `useTheme`, `useColorScheme`, `useUtilityClasses`, `useDeviceSize` |
+| `@ohJohny/theme-builder/core` | `defineThemeConfig`, `createTheme`, utility resolution, color-scheme store |
+| `@ohJohny/theme-builder/core/build-utils` | `generateThemeArtifacts`, `buildThemeStylesheet`, `rewriteUtilityCss` |
+| `@ohJohny/theme-builder/react` | `createThemeContext`, `ThemeProvider`, hooks |
 | `@ohJohny/theme-builder/solid` | Same surface for Solid |
 
-`@ohJohny/theme-builder` is a shorthand alias for `/core`.
+## Quick start
 
-## Quick start (React)
+### 1. Define your theme (BYO — no shipped preset)
 
-```tsx
-import {
-  ThemeProvider,
-  useTheme,
-  useUtilityClasses,
-} from '@ohJohny/theme-builder/react';
-import {
-  ThemeBuilder,
-  RawThemeBuilder,
-} from '@ohJohny/theme-builder/core';
+```ts
+// src/theme/theme.config.ts
+import { defineThemeConfig } from '@ohJohny/theme-builder/core';
 
-// Inject CSS variables + utility rules (this package does not ship CSS)
-RawThemeBuilder.getInstance().apply(demoThemeConfig);
+export const themeConfig = defineThemeConfig({
+  schemes: ['light', 'dark'] as const,
+  colors: {
+    base: { white: '#fff', black: '#000' },
+    semantic: {
+      'text-primary': { light: '#111', dark: '#eee' },
+      'surface-main': { light: '#f9fafb', dark: '#111827' },
+    },
+  },
+  spacing: { sm: '8px', md: '16px' },
+  fonts: {
+    family: { sans: 'Inter, sans-serif' },
+    size: { sm: '14px', md: '16px' },
+    weight: { '400': '400', '600': '600' },
+    lineHeight: { '150': '1.5' },
+  },
+  shadow: { md: '0 2px 8px rgba(0,0,0,.12)' },
+  icon: { sm: '16px' },
+  display: { flex: 'flex', block: 'block' },
+  breakpoints: {
+    mobile: { max: '767px' },
+    desktop: { min: '1024px' },
+  },
+});
+```
 
-ThemeBuilder.getInstance().extend({
-  colors: { brand: 'var(--color-brand)' },
+### 2. Create typed context (React)
+
+```ts
+// src/theme/index.ts
+import { createTheme } from '@ohJohny/theme-builder/core';
+import { createThemeContext } from '@ohJohny/theme-builder/react';
+import { themeConfig } from './theme.config';
+
+const created = createTheme(themeConfig, {
+  mode: import.meta.env.PROD ? 'hashed' : 'identity',
+  inject: import.meta.env.DEV,
+  defaultScheme: 'light',
 });
 
-<ThemeProvider presetColorScheme="light" storage={{ type: 'localStorage', key: 'theme' }}>
-  <App />
-</ThemeProvider>
+export const { ThemeProvider, useTheme, useUtilityClasses, useColorScheme } =
+  createThemeContext(created);
 ```
+
+### 3. Generate CSS for production
+
+```ts
+// scripts/build-theme.ts
+import { generateThemeArtifacts } from '@ohJohny/theme-builder/core/build-utils';
+import { themeConfig } from '../src/theme/theme.config';
+
+const outDir = process.env.THEME_OUT_DIR ?? process.argv[2];
+if (!outDir) throw new Error('pass outDir via argv or THEME_OUT_DIR');
+
+await generateThemeArtifacts(themeConfig, {
+  mode: 'hashed',
+  outDir,
+  defaultScheme: 'light',
+});
+```
+
+```json
+"scripts": {
+  "build:theme": "bun scripts/build-theme.ts src/generated",
+  "prebuild": "bun run build:theme"
+}
+```
+
+Outputs: `theme.css`, `utility-class-map.json`, `_breakpoints.scss` (when breakpoints are set). `outDir` is **required** — the tool has no default.
+
+### 4. Use in components
 
 ```tsx
 function Card() {
-  const { className, style } = useUtilityClasses({ px: 'md', py: 'sm', bg: 'surface-main' });
-  return <div className={className} style={style}>…</div>;
+  const { className, style } = useUtilityClasses({ px: 'md', bg: 'surface-main' });
+  return <div className={className} style={style} />;
 }
 ```
 
-## Utility classes
+Token names autocomplete from your config. Arbitrary values (`px="13px"`) fall back to inline CSS.
 
-Canonical class names are derived from token types in `packages/core/src/utils/utility-class-catalog.ts` (spacing `px-md`, colors `color-text-primary`, typography `text-lg`, etc.).
+## Named color schemes
 
-### Generate the class map
-
-```bash
-# Identity mode (class names match SCSS): px-md → px-md
-bun run generate:utility-class-map
-
-# Hashed mode (production obfuscation): px-md → c0-a1b2c3
-cd packages/core && bun scripts/generate-utility-class-map.ts --hashed
-```
-
-The committed map lives at `packages/core/src/generated/utility-class-map.ts` and exports:
-
-- `UTILITY_CLASS_NAMES` — catalog (single source, no duplicate key/value pairs)
-- `UTILITY_CLASS_OVERRIDES` — hashed aliases only (empty in identity mode)
-- `UTILITY_CLASS_MAP` — derived lookup
-
-`ThemeBuilder` resolves `.class` fields through `resolveUtilityClass`. For hashed production CSS, run `rewriteUtilityCss` on compiled stylesheets (see `packages/core/src/utils/utility-class-map.ts`). Bump `UTILITY_CLASS_HASH_SALT` in `utility-class-hash.ts` when intentionally invalidating hashed names.
-
-### Add a new utility
-
-1. Extend token constants in `packages/core/src/types/theme.ts` and/or `utility-class-catalog.ts`.
-2. Regenerate: `bun run generate:utility-class-map`.
-3. Mirror rules in your app SCSS or use `RawThemeBuilder.apply()` for runtime CSS.
-
-## TypeScript: extend theme in a consumer repo
-
-```ts
-// theme-augmentation.d.ts
-import '@ohJohny/theme-builder/core';
-
-declare module '@ohJohny/theme-builder/core' {
-  interface ThemeColorOverrides {
-    brand: string;
-    'brand-muted': string;
-  }
-  interface SemanticColorTokenOverrides {
-    'brand-accent': never;
-  }
-}
-```
-
-After `ThemeBuilder.getInstance().extend({ colors: { brand: 'var(--color-brand)' } })`, `useTheme().colors.brand` is typed. `ThemeBuilder.subscribe()` notifies React/Solid providers when the tree changes.
-
-## Agent skills
-
-Skills install to `.cursor/skills/` on `bun install` (monorepo root) and when consumers install `@ohJohny/theme-builder` (`postinstall` uses `INIT_CWD`).
-
-Canonical sources: `packages/*/skills/`. Sync copies: `.cursor/skills/`.
-
-```bash
-bun run sync:cursor-skills
-```
+Declare `schemes: ['light', 'dark', 'sepia']` and use per-scheme color objects. Generated CSS emits `[data-theme="<name>"]` blocks. `changeColorScheme()` with no argument cycles round-robin through all schemes.
 
 ## Playground
 
@@ -115,18 +118,14 @@ bun run sync:cursor-skills
 bun run dev:playground
 ```
 
-Interactive token showcase at `examples/playground/` (Vite + React).
+See `examples/playground` for a full demo with 3 schemes and runtime CSS injection.
 
-## Build
+## component-0 migration
 
-```bash
-bun install
-bun run build
-bun run test
-```
+See [`docs/component-0-migration/README.md`](docs/component-0-migration/README.md) for a step-by-step migration from the old singleton + SCSS setup.
 
-## Monorepo layout
+## Breaking changes (v0.2+)
 
-Published artifact: `@ohJohny/theme-builder` (repo root).
-
-Workspace-only packages (`packages/core`, `packages/react`, `packages/solid`) are built into `dist/` and bundled by the umbrella package. They are not published separately.
+- Removed: `ThemeBuilder`, `RawThemeBuilder`, hardcoded token unions, committed `utility-class-map.ts`
+- New: `defineThemeConfig`, `createTheme`, `createThemeContext`, `generateThemeArtifacts`
+- `createColorSchemeStore` now requires `schemes: readonly string[]`

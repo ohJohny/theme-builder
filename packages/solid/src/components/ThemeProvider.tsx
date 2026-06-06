@@ -2,41 +2,42 @@
 import {
 	createMemo,
 	createSignal,
-	mergeProps,
 	onCleanup,
 	onMount,
 	splitProps,
-	type ParentComponent,
+	type JSX,
 } from 'solid-js';
 
 import {
 	createColorSchemeStore,
-	ThemeBuilder,
-	type ColorSchemeId,
-	type ColorSchemeListItem,
 	type ColorSchemeStoreOptions,
+	type CreatedTheme,
+	type ThemeConfigInput,
 } from '@ohJohny/theme-builder-core';
 
 import { ColorSchemeContext } from './ColorSchemeContext';
 import { DeviceSizeProvider } from './DeviceSizeProvider';
-import { getDefaultTheme, ThemeContext } from './useTheme';
+import { ThemeContext } from './useTheme';
 import type { DeviceBreakpointsRem } from '../utils/types';
 
-export type ThemeProviderProps = ColorSchemeStoreOptions & {
+export type ThemeProviderProps<C extends ThemeConfigInput> = Omit<
+	ColorSchemeStoreOptions,
+	'schemes'
+> & {
+	readonly theme: CreatedTheme<C>;
 	readonly breakpointsRem?: Partial<DeviceBreakpointsRem>;
 };
 
-export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
-	const merged = mergeProps(
-		{
-			presetColorScheme: 'light' as const,
-			applyColorSchemeOnMount: true,
-		},
-		props,
-	);
+export function ThemeProvider<C extends ThemeConfigInput>(
+	props: ThemeProviderProps<C> & { children?: JSX.Element },
+) {
+	const [local, storeOptions] = splitProps(props, ['children', 'breakpointsRem', 'theme']);
 
-	const [local, storeOptions] = splitProps(merged, ['children', 'breakpointsRem']);
-	const store = createColorSchemeStore(storeOptions);
+	const store = createColorSchemeStore({
+		...storeOptions,
+		schemes: local.theme.schemes,
+		presetColorScheme: storeOptions.presetColorScheme ?? local.theme.defaultScheme,
+	});
 	const [snapshot, setSnapshot] = createSignal(store.getState());
 
 	onMount(() => {
@@ -48,7 +49,7 @@ export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
 	});
 
 	const colorScheme = () => snapshot().colorScheme;
-	const colorSchemeList = createMemo<readonly ColorSchemeListItem[]>(() => snapshot().colorSchemeList);
+	const colorSchemeList = createMemo(() => snapshot().colorSchemeList);
 	const labelShort = createMemo(() => snapshot().labelShort);
 
 	const colorSchemeValue = {
@@ -58,25 +59,15 @@ export const ThemeProvider: ParentComponent<ThemeProviderProps> = (props) => {
 		changeColorScheme: store.changeColorScheme,
 	};
 
-	const [themeVersion, setThemeVersion] = createSignal(0);
-	onMount(() => {
-		const unsubTheme = ThemeBuilder.getInstance().subscribe(() =>
-			setThemeVersion((v) => v + 1),
-		);
-		onCleanup(() => unsubTheme());
-	});
-	const resolvedTheme = createMemo(() => {
-		themeVersion();
-		return getDefaultTheme();
-	});
+	const themeAccessor = () => local.theme.theme;
 
 	return (
 		<ColorSchemeContext.Provider value={colorSchemeValue}>
-			<ThemeContext.Provider value={resolvedTheme}>
+			<ThemeContext.Provider value={themeAccessor}>
 				<DeviceSizeProvider breakpointsRem={local.breakpointsRem}>
 					{local.children}
 				</DeviceSizeProvider>
 			</ThemeContext.Provider>
 		</ColorSchemeContext.Provider>
 	);
-};
+}

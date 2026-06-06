@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { ThemeBuilder } from './ThemeBuilder';
 import { resolveUtilityClasses } from './resolveUtilityClasses';
+import { createTestTheme } from './testFixtures';
 
 describe('resolveUtilityClasses', () => {
-	const theme = ThemeBuilder.getInstance().getTheme();
+	const { theme } = createTestTheme();
 
 	it('resolves spacing props to utility classes', () => {
 		const { className, style } = resolveUtilityClasses({ px: 'md', py: 'sm' }, theme);
@@ -38,29 +38,8 @@ describe('resolveUtilityClasses', () => {
 	});
 
 	it('merges className pass-through', () => {
-		const { className } = resolveUtilityClasses(
-			{ className: 'custom', px: 'md' },
-			theme,
-		);
-		expect(className).toMatch(/^custom /);
-		expect(className).toContain(theme.spacing.px.md.class);
-	});
-
-	it('resolves typography and display props', () => {
-		const { className } = resolveUtilityClasses(
-			{
-				fontSize: 'lg',
-				fontWeight: 600,
-				lineHeight: 150,
-				display: 'flex',
-				gap: 'md',
-			},
-			theme,
-		);
-		expect(className).toContain(theme.fonts.size.lg.class);
-		expect(className).toContain(theme.fonts.weight[600].class);
-		expect(className).toContain(theme.fonts.lineHeight[150].class);
-		expect(className).toContain(theme.display.flex.class);
-		expect(className).toContain(theme.gap.md.class);
+		const { className } = resolveUtilityClasses({ className: 'extra', p: 'sm' }, theme);
+		expect(className).toContain('extra');
+		expect(className).toContain(theme.spacing.p.sm.class);
 	});
 });

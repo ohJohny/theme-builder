@@ -1,14 +1,14 @@
 import { isSolidPaintCssValue } from './isSolidPaintCssValue';
 import { lookupColorTokenPresentation, resolvePaletteColor } from './resolvePaletteColor';
 import type { UtilityPresentation } from './types/presentation';
-import type { Theme } from './types/theme.js';
+import type { Theme, ThemeConfigInput } from './types/theme.js';
 
 export type ColorPresentationRole = 'foreground' | 'background';
 
 export type ColorPresentation = UtilityPresentation;
 
 export function resolveColorPresentation(
-    theme: Theme,
+	theme: Theme<ThemeConfigInput>,
     input: string | undefined,
     role: ColorPresentationRole,
 ): ColorPresentation {

@@ -1,20 +1,17 @@
+/** @jsxImportSource solid-js */
 import { createContext, useContext, type Accessor, type Context } from 'solid-js';
 
-import { ThemeBuilder, type Theme } from '@ohJohny/theme-builder-core';
+import type { Theme, ThemeConfigInput } from '@ohJohny/theme-builder-core';
 
-export function getDefaultTheme(): Theme {
-	return ThemeBuilder.getInstance().getTheme();
-}
+export const ThemeContext: Context<Accessor<Theme<ThemeConfigInput>> | undefined> =
+	createContext<Accessor<Theme<ThemeConfigInput>> | undefined>();
 
-export const ThemeContext: Context<Accessor<Theme> | undefined> =
-	createContext<Accessor<Theme> | undefined>();
-
-export function useTheme(): Theme {
+export function useTheme<C extends ThemeConfigInput = ThemeConfigInput>(): Theme<C> {
 	const themeAccessor = useContext(ThemeContext);
 	if (themeAccessor === undefined) {
 		throw new ReferenceError('[useTheme] must be used within a ThemeProvider');
 	}
-	return themeAccessor();
+	return themeAccessor() as Theme<C>;
 }
 
 export type { Theme } from '@ohJohny/theme-builder-core';

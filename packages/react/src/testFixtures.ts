@@ -1,0 +1,24 @@
+import { createTheme, defineThemeConfig } from '@ohJohny/theme-builder-core';
+
+export const reactTestThemeConfig = defineThemeConfig({
+	schemes: ['light', 'dark'] as const,
+	colors: {
+		base: { white: '#fff', black: '#000' },
+		semantic: {
+			'text-primary': { light: '#111', dark: '#eee' },
+			'surface-main': { light: '#f5f5f5', dark: '#111' },
+		},
+	},
+	spacing: { sm: '8px', md: '16px' },
+	fonts: {
+		family: { sans: 'sans-serif' },
+		size: { sm: '14px', md: '16px' },
+		weight: { '400': '400', '600': '600' },
+		lineHeight: { '150': '1.5' },
+	},
+	shadow: { md: '0 2px 4px rgba(0,0,0,.1)' },
+	icon: { sm: '16px' },
+	display: { flex: 'flex', block: 'block' },
+});
+
+export const reactTestTheme = createTheme(reactTestThemeConfig, { mode: 'identity' });

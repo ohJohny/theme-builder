@@ -1,4 +1,4 @@
-import type { Theme } from './types/theme.js';
+import type { Theme, ThemeConfigInput } from './types/theme.js';
 
 import { resolvePaletteColor } from './resolvePaletteColor';
 
@@ -61,7 +61,7 @@ function luminanceFromCssColor(color: string): number | null {
 
 /** Picks a readable foreground `color-mix` for text/icons on `bgInput`. */
 export function resolveContrastColor(
-	theme: Theme,
+	theme: Theme<ThemeConfigInput>,
 	bgInput: string,
 	resolvedBg?: string,
 ): string {

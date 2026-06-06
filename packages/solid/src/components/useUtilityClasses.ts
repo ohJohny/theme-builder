@@ -1,20 +1,19 @@
-import { createMemo } from 'solid-js';
-
 import {
 	resolveUtilityClasses,
+	type CreatedTheme,
+	type ThemeConfigInput,
 	type UtilityClassesResult,
 	type UtilityProps,
 } from '@ohJohny/theme-builder-core';
 
 import { useTheme } from './useTheme';
 
-/** Resolves utility props; returns a memoized accessor for className + style. */
-export function useUtilityClasses(props: UtilityProps | (() => UtilityProps)): () => UtilityClassesResult {
-	const theme = useTheme();
-	return createMemo(() => {
-		const resolved = typeof props === 'function' ? props() : props;
-		return resolveUtilityClasses(resolved, theme);
-	});
+export function useUtilityClasses<C extends ThemeConfigInput>(
+	props: UtilityProps<C>,
+	created?: CreatedTheme<C>,
+): UtilityClassesResult {
+	const theme = created?.theme ?? useTheme<C>();
+	return resolveUtilityClasses(props, theme);
 }
 
 export type { UtilityClassesResult, UtilityProps } from '@ohJohny/theme-builder-core';

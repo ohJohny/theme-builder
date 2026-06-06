@@ -1,14 +1,10 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-
-import { collectUtilityClassNames } from './utility-class-catalog';
 import { hashUtilityClass } from './utility-class-hash';
 
 export type UtilityClassMapMode = 'identity' | 'hashed';
 
 export function buildUtilityClassMap(
 	mode: UtilityClassMapMode,
-	catalog: readonly string[] = collectUtilityClassNames(),
+	catalog: readonly string[],
 ): Readonly<Record<string, string>> {
 	const map: Record<string, string> = {};
 	for (const canonical of catalog) {
@@ -90,28 +86,3 @@ export function formatUtilityClassMapModule(
 
 	return `/** Auto-generated — do not edit. Mode: ${mode} */\nexport const UTILITY_CLASS_MAP_MODE = ${JSON.stringify(mode)} as const;\n\nexport const UTILITY_CLASS_NAMES = [\n${namesBlock}\n] as const;\n\n${overridesBlock}\n\n${mapBuild}\n`;
 }
-
-export interface WriteUtilityClassMapOptions {
-	readonly mode: UtilityClassMapMode;
-	readonly outPath: string;
-	readonly catalog?: readonly string[];
-}
-
-export async function writeUtilityClassMapFile(
-	options: WriteUtilityClassMapOptions,
-): Promise<Readonly<Record<string, string>>> {
-	const catalog = options.catalog ?? collectUtilityClassNames();
-	const map = buildUtilityClassMap(options.mode, catalog);
-	await mkdir(path.dirname(options.outPath), { recursive: true });
-	await writeFile(
-		options.outPath,
-		formatUtilityClassMapModule(map, options.mode, catalog),
-		'utf-8',
-	);
-	return map;
-}
-
-export const DEFAULT_UTILITY_CLASS_MAP_PATH = path.resolve(
-	import.meta.dirname,
-	'../generated/utility-class-map.ts',
-);

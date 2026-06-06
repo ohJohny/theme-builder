@@ -1,8 +1,9 @@
 import { applyColorScheme } from '../applyColorScheme';
 import { applyAdditionalVariables } from '../applyAdditionalVariables';
 import {
-	DEFAULT_THEME_META,
-	isColorSchemeId,
+	DEFAULT_SCHEMES,
+	deriveThemeMeta,
+	isKnownScheme,
 	type ColorSchemeId,
 	type ThemeMetaItem,
 	type ThemeStorageConfig,
@@ -23,6 +24,7 @@ export type ColorSchemeStoreState = {
 };
 
 export type ColorSchemeStoreOptions = {
+	readonly schemes: readonly string[];
 	readonly themeMeta?: readonly ThemeMetaItem[];
 	readonly presetColorScheme?: ColorSchemeId;
 	readonly storage?: ThemeStorageConfig;
@@ -38,17 +40,26 @@ export type ColorSchemeStore = {
 };
 
 function resolveInitialColorScheme(
+	schemes: readonly string[],
 	preset: ColorSchemeId,
 	storage?: ThemeStorageConfig,
 ): ColorSchemeId {
 	const stored = storage ? readStoredColorScheme(storage) : null;
-	if (stored) return stored;
-	return preset;
+	if (stored && isKnownScheme(stored, schemes)) return stored;
+	if (isKnownScheme(preset, schemes)) return preset;
+	return schemes[0] ?? DEFAULT_SCHEMES[0];
 }
 
-export function createColorSchemeStore(options: ColorSchemeStoreOptions = {}): ColorSchemeStore {
-	const themeMeta = options.themeMeta ?? DEFAULT_THEME_META;
-	const preset = options.presetColorScheme ?? 'light';
+function nextSchemeInCycle(schemes: readonly string[], current: ColorSchemeId): ColorSchemeId {
+	const index = schemes.indexOf(current);
+	if (index === -1 || schemes.length === 0) return schemes[0] ?? current;
+	return schemes[(index + 1) % schemes.length] ?? current;
+}
+
+export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorSchemeStore {
+	const schemes = options.schemes.length > 0 ? options.schemes : DEFAULT_SCHEMES;
+	const themeMeta = options.themeMeta ?? deriveThemeMeta(schemes);
+	const preset = options.presetColorScheme ?? schemes[0] ?? DEFAULT_SCHEMES[0];
 	const applyOnMount = options.applyColorSchemeOnMount ?? true;
 
 	const listeners = new Set<() => void>();
@@ -58,7 +69,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions = {}): C
 		}
 	};
 
-	let colorScheme: ColorSchemeId = 'light';
+	let colorScheme: ColorSchemeId = schemes[0] ?? DEFAULT_SCHEMES[0];
 	let appliedVariableKeys: string[] = [];
 	let cachedState: ColorSchemeStoreState | null = null;
 
@@ -77,9 +88,6 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions = {}): C
 		return active?.labelShort ?? colorScheme;
 	};
 
-	// Cache the snapshot so `getState` returns a stable reference between
-	// changes. `useSyncExternalStore` compares snapshots with `Object.is`, so
-	// returning a fresh object on every call triggers an infinite render loop.
 	const invalidateState = () => {
 		cachedState = null;
 	};
@@ -97,7 +105,9 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions = {}): C
 	};
 
 	const changeColorScheme = (next?: ColorSchemeId) => {
-		const resolved = next ?? (colorScheme === 'light' ? 'dark' : 'light');
+		const resolved =
+			next !== undefined ? next : nextSchemeInCycle(schemes, colorScheme);
+		if (!isKnownScheme(resolved, schemes)) return;
 		if (resolved === colorScheme) return;
 		colorScheme = resolved;
 		invalidateState();
@@ -111,7 +121,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions = {}): C
 	let storageListener: ((event: StorageEvent) => void) | undefined;
 
 	const mount = () => {
-		const initialScheme = resolveInitialColorScheme(preset, options.storage);
+		const initialScheme = resolveInitialColorScheme(schemes, preset, options.storage);
 		colorScheme = initialScheme;
 		invalidateState();
 		applyVariables();
@@ -129,7 +139,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions = {}): C
 		storageListener = (event: StorageEvent) => {
 			if (event.key !== options.storage?.key) return;
 			const next = event.newValue;
-			if (next && isColorSchemeId(next) && next !== colorScheme) {
+			if (next && isKnownScheme(next, schemes) && next !== colorScheme) {
 				colorScheme = next;
 				invalidateState();
 				applyColorScheme(next);

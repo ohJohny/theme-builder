@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ThemeProvider } from './ThemeProvider';
 import { useColorSchemeTogglePosition } from './useColorSchemeTogglePosition';
+import { reactTestTheme } from '../testFixtures';
 
 function ToggleButton() {
 	const ref = useRef<HTMLButtonElement>(null);
@@ -39,7 +40,7 @@ describe('useColorSchemeTogglePosition', () => {
 		vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue(rect);
 
 		render(
-			<ThemeProvider presetColorScheme="light" applyColorSchemeOnMount={false}>
+			<ThemeProvider theme={reactTestTheme} presetColorScheme="light" applyColorSchemeOnMount={false}>
 				<ToggleButton />
 			</ThemeProvider>,
 		);
@@ -57,7 +58,7 @@ describe('useColorSchemeTogglePosition', () => {
 		}
 
 		render(
-			<ThemeProvider presetColorScheme="light" applyColorSchemeOnMount={false}>
+			<ThemeProvider theme={reactTestTheme} presetColorScheme="light" applyColorSchemeOnMount={false}>
 				<NoRef />
 			</ThemeProvider>,
 		);

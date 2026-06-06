@@ -51,7 +51,7 @@
 		"test": "bun run --filter '@ohJohny/*' test",
 		"typecheck": "bun run --filter @ohJohny/theme-builder-core typecheck && bun run --filter @ohJohny/theme-builder-core build && bun run --filter '@ohJohny/theme-builder-react' --filter '@ohJohny/theme-builder-solid' typecheck",
 		"precommit": "bun run typecheck && bun run test",
-		"generate:utility-class-map": "bun run --filter @ohJohny/theme-builder-core generate:utility-class-map",
+		"generate:utility-class-map": "echo 'removed: use generateThemeArtifacts from build-utils'",
 		"sync:cursor-skills": "node scripts/sync-cursor-skills.mjs",
 		"dev:playground": "bun run --filter theme-builder-playground dev",
 		"postinstall": "node scripts/sync-cursor-skills.mjs",

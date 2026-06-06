@@ -1,0 +1,13 @@
+import { createTheme } from '@ohJohny/theme-builder/core';
+import { createThemeContext } from '@ohJohny/theme-builder/react';
+import { themeConfig } from './theme.config';
+
+const mode = import.meta.env.PROD ? 'hashed' : 'identity';
+const created = createTheme(themeConfig, {
+  mode,
+  inject: import.meta.env.DEV,
+  defaultScheme: 'light',
+});
+
+export const { ThemeProvider, useTheme, useUtilityClasses, useColorScheme } =
+  createThemeContext(created);

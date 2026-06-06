@@ -1,22 +1,21 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { ThemeBuilder } from '@ohJohny/theme-builder-core';
-
 import { useTheme } from './ColorSchemeContext';
 import { useDeviceSize } from './useDeviceSize';
-import { ThemeProvider } from './ThemeProvider';
+import { ThemeProvider, type ThemeProviderProps } from './ThemeProvider';
 import { useColorScheme } from './useColorScheme';
+import { reactTestTheme } from '../testFixtures';
 
 import type { ReactNode } from 'react';
-import type { ThemeProviderProps } from './ThemeProvider';
 
 const STORAGE_KEY = 'theme-builder-react-test';
 
-function createWrapper(options: Omit<ThemeProviderProps, 'children'> = {}) {
+function createWrapper(options: Omit<ThemeProviderProps<typeof reactTestTheme.config>, 'children' | 'theme'> = {}) {
 	return function Wrapper({ children }: { children: ReactNode }) {
 		return (
 			<ThemeProvider
+				theme={reactTestTheme}
 				presetColorScheme="light"
 				applyColorSchemeOnMount={false}
 				{...options}
@@ -33,28 +32,9 @@ describe('ThemeProvider / useTheme', () => {
 		expect(() => renderHook(() => useTheme())).toThrow(/ThemeProvider/);
 	});
 
-	it('provides the ThemeBuilder theme', () => {
-		const expected = ThemeBuilder.getInstance().getTheme();
+	it('provides the created theme', () => {
 		const { result } = renderHook(() => useTheme(), { wrapper: createWrapper() });
-		expect(result.current).toBe(expected);
-	});
-
-	it('re-renders when ThemeBuilder.extend updates the theme', () => {
-		const { result } = renderHook(() => useTheme(), { wrapper: createWrapper() });
-		const before = result.current.spacing.px.md.class;
-
-		act(() => {
-			ThemeBuilder.getInstance().extend({
-				spacing: {
-					px: {
-						md: { class: 'tb-test-px-md', value: '99px' },
-					},
-				},
-			});
-		});
-
-		expect(result.current.spacing.px.md.class).toBe('tb-test-px-md');
-		expect(result.current.spacing.px.md.class).not.toBe(before);
+		expect(result.current).toBe(reactTestTheme.theme);
 	});
 });
 

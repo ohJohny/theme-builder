@@ -1,5 +1,6 @@
 export { ThemeProvider } from './components/ThemeProvider';
 export type { ThemeProviderProps } from './components/ThemeProvider';
+export { createThemeContext } from './components/createThemeContext';
 export { useTheme, useColorSchemeContext } from './components/ColorSchemeContext';
 export type { ColorSchemeContextValue } from './components/ColorSchemeContext';
 export { useColorScheme } from './components/useColorScheme';
@@ -19,30 +20,26 @@ export type {
 } from './utils/types';
 
 export {
-	ThemeBuilder,
-	RawThemeBuilder,
-	buildThemeRaw,
-	mergeTheme,
+	defineThemeConfig,
+	createTheme,
 	applyColorScheme,
 	createColorSchemeStore,
-	resolveUtilityClass,
 	resolveUtilityClasses,
-	UTILITY_CLASS_MAP,
-	UTILITY_CLASS_NAMES,
 	DEFAULT_THEME_META,
+	DEFAULT_SCHEMES,
 	startColorSchemeViewTransition,
 	updateColorSchemeTogglePosition,
 } from '@ohJohny/theme-builder-core';
 
 export type {
 	Theme,
+	CreatedTheme,
+	ThemeConfigInput,
+	SchemeName,
 	ColorSchemeId,
 	ThemeMetaItem,
 	ThemeStorageConfig,
-	ThemeExtension,
-	DeepPartial,
 	UtilityProps,
 	UtilityClassesResult,
-	ThemeColorOverrides,
-	SemanticColorTokenOverrides,
+	CreateThemeOptions,
 } from '@ohJohny/theme-builder-core';

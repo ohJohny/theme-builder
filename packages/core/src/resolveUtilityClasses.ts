@@ -7,44 +7,19 @@ import {
 	resolveFontWeightPresentation,
 	resolveLineHeightPresentation,
 } from './resolveFontPresentation';
-import { ThemeBuilder } from './ThemeBuilder';
-import type { UtilityPresentation } from './types/presentation';
-import type {
-	DisplayKeyword,
-	FontFamilyName,
-	FontSizeInputValue,
-	FontWeightStep,
-	IconSizeInputValue,
-	LineHeightInputValue,
-	ShadowInputValue,
-	SpacingInputValue,
-	SpacingPrefix,
-	Theme,
-} from './types/theme.js';
 import {
-	SPACING_PREFIXES,
-	isShadowSizeName,
+	resolveFontFamilyName,
+	resolveFontSizeName,
 	resolveIconSizeName,
-	resolveSpacingSizeName,
-	spacingPrefixToStyle,
-	spacingValueToCssLength,
-} from './types/theme.js';
+	resolveShadowName,
+	resolveSpacingName,
+} from './config/themeResolvers';
+import type { UtilityPresentation } from './types/presentation';
+import type { SpacingPrefix, Theme, ThemeConfigInput } from './types/theme.js';
+import { SPACING_PREFIXES, spacingPrefixToStyle, spacingValueToCssLength } from './types/theme.js';
+import type { UtilityProps as ConfigUtilityProps } from './config/types';
 
-export type UtilityProps = {
-	readonly className?: string;
-	readonly color?: string;
-	readonly bg?: string;
-	readonly gap?: SpacingInputValue;
-	readonly font?: FontFamilyName;
-	readonly fontSize?: FontSizeInputValue;
-	readonly fontWeight?: FontWeightStep | number;
-	readonly lineHeight?: LineHeightInputValue;
-	readonly display?: DisplayKeyword;
-	readonly shadow?: ShadowInputValue;
-	readonly icon?: IconSizeInputValue;
-} & {
-	readonly [K in SpacingPrefix]?: SpacingInputValue;
-};
+export type UtilityProps<C extends ThemeConfigInput = ThemeConfigInput> = ConfigUtilityProps<C>;
 
 export type UtilityClassesResult = {
 	readonly className: string;
@@ -63,11 +38,11 @@ function mergePresentation(
 }
 
 function resolveSpacingProp(
-	theme: Theme,
+	theme: Theme<ThemeConfigInput>,
 	prefix: SpacingPrefix,
-	value: SpacingInputValue,
+	value: string | number,
 ): UtilityPresentation {
-	const name = resolveSpacingSizeName(value);
+	const name = resolveSpacingName(theme, value);
 	if (name !== undefined) {
 		return { class: theme.spacing[prefix][name].class, inline: {} };
 	}
@@ -82,10 +57,10 @@ function resolveSpacingProp(
 }
 
 function resolveGapProp(
-	theme: Theme,
-	value: SpacingInputValue,
+	theme: Theme<ThemeConfigInput>,
+	value: string | number,
 ): UtilityPresentation {
-	const name = resolveSpacingSizeName(value);
+	const name = resolveSpacingName(theme, value);
 	if (name !== undefined) {
 		return { class: theme.gap[name].class, inline: {} };
 	}
@@ -99,30 +74,32 @@ function resolveGapProp(
 }
 
 function resolveFontFamilyProp(
-	theme: Theme,
-	value: FontFamilyName,
+	theme: Theme<ThemeConfigInput>,
+	value: string,
 ): UtilityPresentation {
-	return { class: theme.fonts.family[value].class, inline: {} };
+	const name = resolveFontFamilyName(theme, value);
+	if (name === undefined) {
+		return { class: '', inline: {} };
+	}
+	return { class: theme.fonts.family[name].class, inline: {} };
 }
 
 function resolveShadowProp(
-	theme: Theme,
-	value: ShadowInputValue,
+	theme: Theme<ThemeConfigInput>,
+	value: string,
 ): UtilityPresentation {
-	if (typeof value === 'string' && isShadowSizeName(value)) {
-		return { class: theme.shadow[value].class, inline: {} };
+	const name = resolveShadowName(theme, value);
+	if (name !== undefined) {
+		return { class: theme.shadow[name].class, inline: {} };
 	}
-	if (typeof value === 'string') {
-		return { class: '', inline: { 'box-shadow': value } as JSX.CSSProperties };
-	}
-	return { class: '', inline: {} };
+	return { class: '', inline: { 'box-shadow': value } as JSX.CSSProperties };
 }
 
 function resolveIconProp(
-	theme: Theme,
-	value: IconSizeInputValue,
+	theme: Theme<ThemeConfigInput>,
+	value: string | number,
 ): UtilityPresentation {
-	const name = resolveIconSizeName(value);
+	const name = resolveIconSizeName(theme, value);
 	if (name !== undefined) {
 		return { class: theme.icon[name].class, inline: {} };
 	}
@@ -134,7 +111,7 @@ function resolveIconProp(
 }
 
 type PresentationResolver = (
-	theme: Theme,
+	theme: Theme<ThemeConfigInput>,
 	props: UtilityProps,
 ) => UtilityPresentation | undefined;
 
@@ -157,7 +134,7 @@ const PROP_RESOLVERS: readonly PresentationResolver[] = [
 			: undefined,
 	(theme, props) =>
 		props.fontWeight !== undefined
-			? resolveFontWeightPresentation(theme, props.fontWeight as FontWeightStep)
+			? resolveFontWeightPresentation(theme, props.fontWeight)
 			: undefined,
 	(theme, props) =>
 		props.lineHeight !== undefined
@@ -169,13 +146,9 @@ const PROP_RESOLVERS: readonly PresentationResolver[] = [
 		props.icon !== undefined ? resolveIconProp(theme, props.icon) : undefined,
 ];
 
-/**
- * Resolves JSX-style utility props to `className` + inline `style`.
- * Known tokens map to utility classes; arbitrary values fall back to inline CSS.
- */
-export function resolveUtilityClasses(
-	props: UtilityProps,
-	theme: Theme = ThemeBuilder.getInstance().getTheme(),
+export function resolveUtilityClasses<C extends ThemeConfigInput>(
+	props: UtilityProps<C>,
+	theme: Theme<C>,
 ): UtilityClassesResult {
 	const classes: string[] = [];
 	const inline: JSX.CSSProperties = {};
@@ -187,19 +160,23 @@ export function resolveUtilityClasses(
 	for (const prefix of SPACING_PREFIXES) {
 		const value = props[prefix];
 		if (value !== undefined) {
-			mergePresentation(classes, inline, resolveSpacingProp(theme, prefix, value));
+			mergePresentation(
+				classes,
+				inline,
+				resolveSpacingProp(theme as Theme<ThemeConfigInput>, prefix, value),
+			);
 		}
 	}
 
 	for (const resolve of PROP_RESOLVERS) {
-		const presentation = resolve(theme, props);
+		const presentation = resolve(theme as Theme<ThemeConfigInput>, props);
 		if (presentation !== undefined) {
 			mergePresentation(classes, inline, presentation);
 		}
 	}
 
 	if (props.display !== undefined) {
-		const displayClass = resolveDisplayClass(theme, props.display);
+		const displayClass = resolveDisplayClass(theme as Theme<ThemeConfigInput>, props.display);
 		if (displayClass) {
 			classes.push(displayClass);
 		}

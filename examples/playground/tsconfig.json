@@ -2,7 +2,12 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"noEmit": true,
-		"jsx": "react-jsx"
+		"jsx": "react-jsx",
+		"paths": {
+			"@ohJohny/theme-builder/core": ["../../packages/core/src/index.ts"],
+			"@ohJohny/theme-builder/react": ["../../packages/react/src/index.ts"],
+			"@ohJohny/theme-builder-core": ["../../packages/core/src/index.ts"]
+		}
 	},
 	"include": ["src"]
 }

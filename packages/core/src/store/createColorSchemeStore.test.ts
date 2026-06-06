@@ -4,6 +4,7 @@ import { applyColorScheme } from '../applyColorScheme';
 import { createColorSchemeStore } from './createColorSchemeStore';
 
 describe('createColorSchemeStore', () => {
+	const schemes = ['light', 'dark'] as const;
 	beforeEach(() => {
 		localStorage.clear();
 		document.documentElement.removeAttribute('data-theme');
@@ -15,7 +16,7 @@ describe('createColorSchemeStore', () => {
 	});
 
 	it('returns a stable getState reference between consecutive calls', () => {
-		const store = createColorSchemeStore({ applyColorSchemeOnMount: false });
+		const store = createColorSchemeStore({ schemes, applyColorSchemeOnMount: false });
 		const first = store.getState();
 		const second = store.getState();
 		expect(Object.is(first, second)).toBe(true);
@@ -23,6 +24,7 @@ describe('createColorSchemeStore', () => {
 
 	it('changeColorScheme updates snapshot and applies data-theme', () => {
 		const store = createColorSchemeStore({
+			schemes,
 			presetColorScheme: 'light',
 			applyColorSchemeOnMount: true,
 		});
@@ -41,6 +43,7 @@ describe('createColorSchemeStore', () => {
 		localStorage.setItem('tb-store-test', 'dark');
 
 		const store = createColorSchemeStore({
+			schemes,
 			presetColorScheme: 'light',
 			storage: { type: 'localStorage', key: 'tb-store-test' },
 			applyColorSchemeOnMount: false,
@@ -50,7 +53,7 @@ describe('createColorSchemeStore', () => {
 	});
 
 	it('dispose clears listeners so subscribers stop receiving updates', () => {
-		const store = createColorSchemeStore({ applyColorSchemeOnMount: false });
+		const store = createColorSchemeStore({ schemes, applyColorSchemeOnMount: false });
 		let calls = 0;
 		const unsubscribe = store.subscribe(() => {
 			calls += 1;

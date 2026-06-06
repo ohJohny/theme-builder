@@ -1,94 +1,72 @@
----
-name: ohjohny-theme-builder-core
-description: >-
-  Framework-agnostic ThemeBuilder, RawThemeBuilder, utility classes, and createColorSchemeStore
-  from @ohJohny/theme-builder/core (alias @ohJohny/theme-builder). Use for design tokens, CSS
-  variables, headless light/dark switching, and build-time utility-class maps.
----
-
 # @ohJohny/theme-builder/core
 
 `@ohJohny/theme-builder` is a shorthand alias for `/core`.
 
-## ThemeBuilder singleton
+## Config-first setup
 
 ```ts
-import { ThemeBuilder, RawThemeBuilder } from '@ohJohny/theme-builder/core';
+import { defineThemeConfig, createTheme } from '@ohJohny/theme-builder/core';
 
-RawThemeBuilder.getInstance().apply({ colors: { 'text-primary': '#111' } });
-
-ThemeBuilder.getInstance().extend({
-  colors: { brand: 'var(--color-brand)' },
+export const themeConfig = defineThemeConfig({
+  schemes: ['light', 'dark', 'sepia'] as const,
+  colors: {
+    base: { white: '#fff', black: '#000' },
+    semantic: {
+      'text-primary': { light: '#111', dark: '#eee', sepia: '#333' },
+    },
+  },
+  spacing: { sm: '8px', md: '16px' },
+  fonts: {
+    family: { sans: 'Inter, sans-serif' },
+    size: { sm: '14px', md: '16px' },
+    weight: { '400': '400', '600': '600' },
+    lineHeight: { '150': '1.5' },
+  },
+  shadow: { md: '0 2px 8px rgba(0,0,0,.12)' },
+  icon: { sm: '16px' },
+  display: { flex: 'flex', block: 'block' },
+  breakpoints: {
+    mobile: { max: '767px' },
+    tablet: { min: '768px', max: '1023px' },
+    desktop: { min: '1024px' },
+  },
 });
 
-const theme = ThemeBuilder.getInstance().getTheme();
-theme.spacing.px.md.class; // resolved utility class (identity or hashed)
-theme.spacing.px.md.value; // var(--space-md)
-```
-
-`ThemeBuilder.subscribe()` fires after `extend()`. Pair with framework providers for live updates.
-
-## TypeScript extension (consumer repo)
-
-```ts
-// theme-augmentation.d.ts
-import '@ohJohny/theme-builder/core';
-
-declare module '@ohJohny/theme-builder/core' {
-  interface ThemeColorOverrides { brand: string }
-  interface SemanticColorTokenOverrides { 'brand-accent': never }
-}
-```
-
-## Utility classes
-
-1. Catalog: `collectUtilityClassNames()` in `utility-class-catalog.ts` (from token constants).
-2. Generate: `bun run generate:utility-class-map` (identity) or `bun scripts/generate-utility-class-map.ts --hashed` in `packages/core`.
-3. Runtime: `resolveUtilityClass('px-md')` uses `UTILITY_CLASS_MAP` (built from `UTILITY_CLASS_NAMES` + `UTILITY_CLASS_OVERRIDES`).
-4. Hashed CSS: `rewriteUtilityCss(css, map)`; salt in `UTILITY_CLASS_HASH_SALT`.
-
-Build-time helpers (CSS pipelines, not browser runtime):
-
-```ts
-import {
-  buildUtilityClassMap,
-  rewriteUtilityCss,
-  writeUtilityClassMapFile,
-  collectUtilityClassNames,
-  UTILITY_CLASS_HASH_SALT,
-} from '@ohJohny/theme-builder/core/build-utils';
-```
-
-## resolveUtilityClasses
-
-```ts
-import { resolveUtilityClasses } from '@ohJohny/theme-builder/core';
-
-const { className, style } = resolveUtilityClasses(
-  { px: 'md', color: 'text-primary', bg: '#fff' },
-  theme,
-);
-// px/md → utility class; raw bg → inline style
-```
-
-## Color scheme (headless)
-
-```ts
-import { createColorSchemeStore, applyColorScheme } from '@ohJohny/theme-builder/core';
-
-const store = createColorSchemeStore({
-  presetColorScheme: 'light',
-  storage: { type: 'localStorage', key: 'app-theme' },
-  themeMeta: DEFAULT_THEME_META, // optional
-  additionalVariables: { '--foo': 'bar' }, // optional per-scheme extras
+const created = createTheme(themeConfig, {
+  mode: 'identity',       // or 'hashed' in production
+  inject: true,           // dev: inject CSS at runtime
+  defaultScheme: 'light',
 });
-store.changeColorScheme('dark');
+
+// created.theme — typed token tree
+// created.schemes — for ThemeProvider / color-scheme store
 ```
 
-`applyColorScheme` sets `data-theme` on `:root`. Pair with your app's CSS (not shipped here).
+Never annotate the config variable with `ThemeConfigInput` — use `defineThemeConfig({...})` so literal keys are inferred for autocomplete.
 
-## Other utilities
+## Build-time artifacts
 
-- `updateColorSchemeTogglePosition`, `startColorSchemeViewTransition`
-- `resolveColorPresentation`, `resolveFontPresentation`
-- `isSolidPaintCssValue` — true for flat fills (not gradient/image URLs)
+```ts
+import { generateThemeArtifacts } from '@ohJohny/theme-builder/core/build-utils';
+
+await generateThemeArtifacts(themeConfig, {
+  mode: 'hashed',
+  outDir: 'src/generated',   // required — no default
+  defaultScheme: 'light',
+});
+// writes: theme.css, utility-class-map.json, _breakpoints.scss (when breakpoints set)
+```
+
+Helpers: `buildThemeStylesheet`, `buildBreakpointsScss`, `rewriteUtilityCss`, `collectClassNames`.
+
+## Color schemes
+
+- Scheme-varying colors use `{ light, dark, ... }` objects in config.
+- CSS emits `:root` (invariant + default scheme) and `[data-theme="<name>"]` blocks.
+- `createColorSchemeStore({ schemes })` cycles round-robin when `changeColorScheme()` is called with no argument.
+
+## Utility props
+
+`resolveUtilityClasses(props, created.theme)` maps known tokens to classes; arbitrary values fall back to inline CSS.
+
+Spacing tokens drive padding (`p-*`), margin (`m-*`), and flex/grid gap (`gap-*`) utilities from a single `spacing` config scale.

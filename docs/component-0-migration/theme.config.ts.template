@@ -1,0 +1,28 @@
+import { defineThemeConfig } from '@ohJohny/theme-builder/core';
+
+export const themeConfig = defineThemeConfig({
+  schemes: ['light', 'dark'] as const,
+  colors: {
+    base: { white: '#ffffff', black: '#0f0f0f' },
+    semantic: {
+      'text-primary': { light: '#111827', dark: '#f3f4f6' },
+      'surface-main': { light: '#f9fafb', dark: '#111827' },
+      // ...all semantic tokens from former SCSS
+    },
+  },
+  spacing: { xs: '8px', sm: '12px', md: '16px', lg: '24px' /* ... */ },
+  fonts: {
+    family: { sans: 'Inter, sans-serif' },
+    size: { sm: '14px', md: '16px' },
+    weight: { '400': '400', '600': '600' },
+    lineHeight: { '150': '1.5' },
+  },
+  shadow: { md: '0 2px 8px rgba(0,0,0,.12)' },
+  icon: { sm: '16px', md: '20px' },
+  display: { flex: 'flex', grid: 'grid' },
+  breakpoints: {
+    mobile: { max: '767px' },
+    tablet: { min: '768px', max: '1023px' },
+    desktop: { min: '1024px' },
+  },
+});
