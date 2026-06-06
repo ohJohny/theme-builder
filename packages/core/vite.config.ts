@@ -14,12 +14,13 @@ export default defineConfig({
 			entry: {
 				index: path.resolve(here, 'src/index.ts'),
 				'build-utils': path.resolve(here, 'src/build-utils.ts'),
+				'cli/index': path.resolve(here, 'src/cli/index.ts'),
 			},
 			formats: ['es'],
 			fileName: (_format, entryName) => `${entryName}.js`,
 		},
 		rolldownOptions: {
-			external: (id) => id.startsWith('node:'),
+			external: (id) => id.startsWith('node:') || id === 'tsx' || id.startsWith('tsx/'),
 		},
 	},
 });

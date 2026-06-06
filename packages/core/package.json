@@ -1,7 +1,7 @@
 {
 	"name": "@ohJohny/theme-builder-core",
 	"private": true,
-	"version": "0.1.18",
+	"version": "0.1.19",
 	"description": "Framework-agnostic design-token runtime and color-scheme store",
 	"type": "module",
 	"license": "MIT",
@@ -12,11 +12,14 @@
 	},
 	"sideEffects": false,
 	"scripts": {
-		"build": "vite build && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
+		"build": "vite build && vite build --config vite.config.cli.ts && tsc -p tsconfig.build.types.json && node scripts/copy-skills.mjs",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"lint": "tsc -p tsconfig.json --noEmit",
 		"test": "vitest run --config vitest.config.ts",
 		"postinstall": "node scripts/sync-cursor-skills.mjs"
+	},
+	"dependencies": {
+		"tsx": "^4.19.4"
 	},
 	"devDependencies": {
 		"@types/node": "25.9.1",

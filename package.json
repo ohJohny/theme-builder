@@ -1,6 +1,6 @@
 {
 	"name": "@ohJohny/theme-builder",
-	"version": "0.1.18",
+	"version": "0.1.19",
 	"description": "Framework-agnostic design tokens with React and Solid providers",
 	"type": "module",
 	"license": "MIT",
@@ -17,6 +17,12 @@
 		"scripts/sync-cursor-skills.mjs"
 	],
 	"sideEffects": false,
+	"bin": {
+		"theme-builder": "./dist/core/cli/generate.js"
+	},
+	"dependencies": {
+		"tsx": "^4.19.4"
+	},
 	"exports": {
 		".": {
 			"types": "./dist/core/types/index.d.ts",
@@ -29,6 +35,10 @@
 		"./core/build-utils": {
 			"types": "./dist/core/types/build-utils.d.ts",
 			"import": "./dist/core/build-utils.js"
+		},
+		"./core/cli": {
+			"types": "./dist/core/types/cli/index.d.ts",
+			"import": "./dist/core/cli/index.js"
 		},
 		"./react": {
 			"types": "./dist/react/types/index.d.ts",
