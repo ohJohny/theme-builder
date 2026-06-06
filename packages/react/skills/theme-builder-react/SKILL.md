@@ -1,6 +1,30 @@
+---
+name: ohjohny-theme-builder-react
+description: >-
+  React ThemeProvider, useTheme, useColorScheme, useDeviceSize, DeviceMatch, and useUtilityClasses
+  from @ohJohny/theme-builder/react. Use for utility-class props, className/style from theme tokens,
+  resolveBoxPresentation, prepareHostPresentation, classes?.root, and ThemeSlotClasses in
+  @ohJohny/component-0. Lib internals use presentation resolvers, not useUtilityClasses.
+---
+
 # @ohJohny/theme-builder/react
 
-## Typed app context
+Re-exports core APIs (`createTheme`, `resolveUtilityClasses`, color-scheme helpers, etc.) — import from one entry when convenient.
+
+## When to use
+
+| Context | Approach |
+| ------- | -------- |
+| Consumer custom markup (plain element) | `useUtilityClasses({ px: 'md', … })` |
+| Consumer using `@ohJohny/component-0` | Layout props on `<Box>` / `<Flex>` / `<Text>` |
+| **component-0 `lib-react` internals** | `resolveBoxPresentation` or `prepareHostPresentation` + `useTheme()` |
+| One-off typography class in lib code | `resolveBoxPresentation(theme, { fontSize: 'sm' }).class` |
+
+**Negative rule:** do **not** call `useUtilityClasses` inside `src/lib-react/**`. The design system owns presentation merging there.
+
+Load this skill when editing `className`, `classes?.root`, `useTheme()` for presentation, or theme utility class output.
+
+## Typed app context (recommended)
 
 ```tsx
 import { createTheme } from '@ohJohny/theme-builder/core';
@@ -17,14 +41,148 @@ export const { ThemeProvider, useTheme, useUtilityClasses, useColorScheme } =
   createThemeContext(created);
 ```
 
-## ThemeProvider
-
-Requires `theme: CreatedTheme` from `createTheme`. Passes `theme.schemes` into the color-scheme store automatically.
-
 ```tsx
-<ThemeProvider presetColorScheme="light">
+<ThemeProvider presetColorScheme="light" storage={{ type: 'localStorage', key: 'theme' }}>
   <App />
 </ThemeProvider>
 ```
 
-Also exports: `useDeviceSize`, `DeviceMatch`, `useColorSchemeTogglePosition`.
+`ThemeProvider` requires `theme: CreatedTheme` from `createTheme`. It wraps children with `DeviceSizeProvider`, so `useDeviceSize()` works anywhere under the tree. Optional `breakpointsRem` forwards to the inner provider.
+
+Also exports: `useDeviceSize`, `DeviceMatch`, `useColorSchemeTogglePosition`, `resolveUtilityClasses`.
+
+Default breakpoints (component-0 aligned): `DEFAULT_DEVICE_BREAKPOINTS_REM` — 48 / 62 / 80 rem.
+
+## Hooks
+
+- `useTheme()` — typed token tree from context
+- `useColorScheme()` — `colorScheme`, `changeColorScheme`, `colorSchemeList`, `labelShort`
+- `useDeviceSize(options?)` — `{ mobile, tablet, desktop, wide }`; `options.breakpointsRem` overrides provider defaults
+- `DeviceMatch` — renders `children` only when viewport matches `size`
+- `useUtilityClasses(props)` — `{ className, style }`; equivalent to `resolveUtilityClasses(props, useTheme())`
+- `useColorSchemeTogglePosition(ref)` — view-transition origin CSS vars
+
+## Utility props (consumer custom markup)
+
+```tsx
+function PaddedSection({ children }: { children: React.ReactNode }) {
+  const { className, style } = useUtilityClasses({
+    px: 'md',
+    py: 'sm',
+    color: 'text-primary',
+    fontSize: 'lg',
+  });
+  return (
+    <section className={className} style={style}>
+      {children}
+    </section>
+  );
+}
+```
+
+Prefer `@ohJohny/component-0` layout hosts when available:
+
+```tsx
+import { Box } from '@ohJohny/component-0/react/components/Box';
+
+function PaddedSection({ children }: { children: React.ReactNode }) {
+  return (
+    <Box px="md" py="sm" textColor="text-primary" fontSize="lg">
+      {children}
+    </Box>
+  );
+}
+```
+
+## @ohJohny/component-0 integration
+
+`@ohJohny/component-0` extends utility resolution with `resolveBoxPresentation` and `prepareHostPresentation` (not exported from theme-builder). Use those in `lib-react`; use `useUtilityClasses` only in consumer app markup without a layout host.
+
+### Class merge order
+
+1. Theme utility classes from layout props (resolver output)
+2. `*.module.scss` root / slot class
+3. `classes?.root` (or other `ThemeSlotClasses` key)
+4. Top-level `className`
+
+### Layout host (`Box`, `Flex`, `Grid`)
+
+```tsx
+import { useTheme } from '@ohJohny/theme-builder/react';
+import {
+  resolveBoxPresentation,
+  splitBoxLayoutProps,
+  type BoxLayoutStyleProps,
+} from '@ohJohny/component-0/react/components/Box';
+
+const theme = useTheme();
+const { layout, passThroughProps } = splitBoxLayoutProps(rest);
+const presentation = resolveBoxPresentation(theme, layout as BoxLayoutStyleProps, {
+  class: [className, classes?.root].filter(Boolean).join(' '),
+  style,
+});
+```
+
+### Themed interactive host (`Button`, `Loader`, …)
+
+```tsx
+import { useMemo } from 'react';
+import { useTheme } from '@ohJohny/theme-builder/react';
+import { prepareHostPresentation } from '@ohJohny/component-0/react/components/Box/componentVars';
+import { cx } from '@ohJohny/component-0/utils';
+
+const hostPresentation = useMemo(
+  () =>
+    prepareHostPresentation(theme, layoutProps, {
+      componentId: 'loader',
+      extras: { class: cx(styles.root, classes?.root) },
+    }),
+  [theme, layoutProps, classes?.root],
+);
+```
+
+### Partial typography class only
+
+```tsx
+const labelClass = resolveBoxPresentation(theme, { fontSize: 'sm', fontWeight: 500 }).class;
+```
+
+See component-0 `package` and `components` skills for `prepareHostPresentation` API and host patterns.
+
+## Device size
+
+```tsx
+function Layout() {
+  const { mobile, desktop } = useDeviceSize();
+  return mobile ? <MobileNav /> : desktop ? <DesktopNav /> : <TabletNav />;
+}
+```
+
+## DeviceMatch
+
+```tsx
+function Sidebar() {
+  return (
+    <>
+      <DeviceMatch size="mobile">
+        <MobileNav />
+      </DeviceMatch>
+      <DeviceMatch size="desktop">
+        <DesktopNav />
+      </DeviceMatch>
+    </>
+  );
+}
+```
+
+## CSS
+
+Import or inject theme CSS (`createTheme` with `inject: true`, or `generateThemeArtifacts` at build time). Style `[data-theme="dark"]` on `:root`. This package does not ship app styles.
+
+## TypeScript extension
+
+Augment `@ohJohny/theme-builder/core` interfaces `ThemeColorOverrides` / semantic token overrides in a `.d.ts` file (see `theme-builder-core` skill).
+
+## Peer
+
+`react` >= 18. No icon library coupling.

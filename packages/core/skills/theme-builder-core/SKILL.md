@@ -69,4 +69,16 @@ Helpers: `buildThemeStylesheet`, `buildBreakpointsScss`, `rewriteUtilityCss`, `c
 
 `resolveUtilityClasses(props, created.theme)` maps known tokens to classes; arbitrary values fall back to inline CSS.
 
+```ts
+import { resolveUtilityClasses } from '@ohJohny/theme-builder/core';
+
+const { className, style } = resolveUtilityClasses(
+  { px: 'md', color: 'text-primary', bg: '#fff' },
+  created.theme,
+);
+// px/md → utility class; raw bg → inline style
+```
+
 Spacing tokens drive padding (`p-*`), margin (`m-*`), and flex/grid gap (`gap-*`) utilities from a single `spacing` config scale.
+
+`@ohJohny/component-0` extends this with `resolveBoxPresentation` and `prepareHostPresentation` in its lib internals (not exported from theme-builder). See the `theme-builder-react` skill — **@ohJohny/component-0 integration** — for when to use resolvers vs `useUtilityClasses`.
