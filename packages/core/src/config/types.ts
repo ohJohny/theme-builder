@@ -27,7 +27,7 @@ export interface ThemeColorsConfigInput {
 
 export interface ThemeConfigInput {
 	readonly schemes?: readonly string[];
-	/** Root `font-size` on `:root` — the px reference for rem (e.g. `'16px'`). */
+	/** Root rem reference — emits `--rem-base` (default `16px`) and sets `:root { font-size: var(--rem-base) }`. */
 	readonly remBase?: string;
 	readonly colors?: ThemeColorsConfigInput;
 	readonly spacing?: Readonly<Record<string, string>>;

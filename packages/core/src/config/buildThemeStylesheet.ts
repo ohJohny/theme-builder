@@ -21,6 +21,9 @@ import {
 	lineHeightUtilityClass,
 	lineHeightVarName,
 	lineHeightVarRef,
+	REM_BASE_VAR_NAME,
+	DEFAULT_REM_BASE,
+	remBaseVarRef,
 	shadowUtilityClass,
 	shadowVarName,
 	shadowVarRef,
@@ -62,16 +65,20 @@ function formatBlock(
 	return `${selector}{\n${body}\n}`;
 }
 
+function resolveRemBase(config: ThemeConfigInput): string {
+	return config.remBase ?? DEFAULT_REM_BASE;
+}
+
 function collectRootProperties(config: ThemeConfigInput): Record<string, string> {
-	const properties: Record<string, string> = {};
-	if (config.remBase !== undefined) {
-		properties['font-size'] = config.remBase;
-	}
-	return properties;
+	return {
+		'font-size': remBaseVarRef(),
+	};
 }
 
 function collectInvariantVariables(config: ThemeConfigInput): Record<string, string> {
-	const variables: Record<string, string> = {};
+	const variables: Record<string, string> = {
+		[REM_BASE_VAR_NAME]: resolveRemBase(config),
+	};
 
 	if (config.colors?.base) {
 		for (const [name, value] of Object.entries(config.colors.base)) {

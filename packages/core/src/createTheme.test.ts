@@ -24,12 +24,23 @@ describe('createTheme', () => {
 });
 
 describe('buildThemeStylesheet scheme blocks', () => {
-	it('sets root font-size from remBase', () => {
+	it('emits --rem-base and sets root font-size from it', () => {
 		const css = buildThemeStylesheet(testThemeConfig, {
 			defaultScheme: 'light',
 			schemes: ['light', 'dark'],
 		});
-		expect(css).toMatch(/:root\{[^}]*font-size:16px/);
+		expect(css).toMatch(/:root\{[^}]*--rem-base:16px/);
+		expect(css).toMatch(/:root\{[^}]*font-size:var\(--rem-base\)/);
+	});
+
+	it('defaults --rem-base to 16px when remBase is omitted', () => {
+		const { remBase: _remBase, ...configWithoutRemBase } = testThemeConfig;
+		const css = buildThemeStylesheet(configWithoutRemBase, {
+			defaultScheme: 'light',
+			schemes: ['light', 'dark'],
+		});
+		expect(css).toMatch(/:root\{[^}]*--rem-base:16px/);
+		expect(css).toMatch(/:root\{[^}]*font-size:var\(--rem-base\)/);
 	});
 
 	it('emits :root and per-scheme blocks for 3 schemes', () => {

@@ -118,4 +118,12 @@ export function displayUtilityClass(name: string): string {
 	return `d-${name}`;
 }
 
+export const REM_BASE_VAR_NAME = '--rem-base';
+
+export const DEFAULT_REM_BASE = '16px';
+
+export function remBaseVarRef(): string {
+	return `var(${REM_BASE_VAR_NAME})`;
+}
+
 export { SPACING_PREFIXES };
