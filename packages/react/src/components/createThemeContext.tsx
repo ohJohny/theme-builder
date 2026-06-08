@@ -1,101 +1,34 @@
 import {
-	useEffect,
-	useMemo,
-	useSyncExternalStore,
-	type ReactNode,
-} from 'react';
-
-import {
-	createColorSchemeStore,
-	resolveUtilityClasses,
-	type ColorSchemeStoreOptions,
 	type CreatedTheme,
+	type Theme,
 	type ThemeConfigInput,
 	type UtilityClassesResult,
 	type UtilityProps,
 } from '@ohJohny/theme-builder-core';
 
-import {
-	ColorSchemeContext,
-	type ColorSchemeContextValue,
-	ThemeContext,
-	useTheme,
-} from './ColorSchemeContext';
+import { useTheme } from './ColorSchemeContext';
+import { ThemeProvider, type ThemeProviderProps } from './ThemeProvider';
 import { useColorScheme } from './useColorScheme';
-import { DeviceSizeProvider } from './DeviceSizeProvider';
-import type { DeviceBreakpoints } from '../utils/types';
-
-export type ThemeProviderProps<C extends ThemeConfigInput> = Omit<
-	ColorSchemeStoreOptions,
-	'schemes'
-> & {
-	readonly theme: CreatedTheme<C>;
-	readonly breakpoints?: Partial<DeviceBreakpoints>;
-	/** @deprecated Use {@link ThemeProviderProps.breakpoints} */
-	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
-	readonly children: ReactNode;
-};
-
-export function ThemeProvider<C extends ThemeConfigInput>(props: ThemeProviderProps<C>) {
-	const { children, breakpoints, breakpointsRem, theme, ...storeOptions } = props;
-
-	const store = useMemo(
-		() =>
-			createColorSchemeStore({
-				...storeOptions,
-				schemes: theme.schemes,
-				presetColorScheme: storeOptions.presetColorScheme ?? theme.defaultScheme,
-			}),
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- store is created once per theme identity
-		[],
-	);
-	const state = useSyncExternalStore(store.subscribe, store.getState, store.getState);
-
-	useEffect(() => {
-		return () => store.dispose();
-	}, [store]);
-
-	const colorSchemeValue = useMemo(
-		(): ColorSchemeContextValue => ({
-			...store,
-			state,
-		}),
-		[store, state],
-	);
-
-	return (
-		<ColorSchemeContext.Provider value={colorSchemeValue}>
-			<ThemeContext.Provider value={theme.theme}>
-				<DeviceSizeProvider breakpoints={breakpoints} breakpointsRem={breakpointsRem}>
-					{children}
-				</DeviceSizeProvider>
-			</ThemeContext.Provider>
-		</ColorSchemeContext.Provider>
-	);
-}
+import { useUtilityClasses } from './useUtilityClasses';
 
 export function createThemeContext<C extends ThemeConfigInput>(created: CreatedTheme<C>) {
 	function BoundThemeProvider(props: Omit<ThemeProviderProps<C>, 'theme'>) {
 		return <ThemeProvider {...props} theme={created} />;
 	}
 
-	function useThemeFromContext(): CreatedTheme<C>['theme'] {
-		return useTheme() as CreatedTheme<C>['theme'];
+	function useThemeBound(): Theme<C> {
+		return useTheme<C>();
 	}
 
-	function useUtilityClassesFromContext(props: UtilityProps<C>): UtilityClassesResult {
-		return resolveUtilityClasses(props, created.theme);
-	}
-
-	function useColorSchemeFromContext() {
-		return useColorScheme();
+	function useUtilityClassesBound(props: UtilityProps<C>): UtilityClassesResult {
+		return useUtilityClasses(props, created);
 	}
 
 	return {
 		ThemeProvider: BoundThemeProvider,
-		useTheme: useThemeFromContext,
-		useUtilityClasses: useUtilityClassesFromContext,
-		useColorScheme: useColorSchemeFromContext,
+		useTheme: useThemeBound,
+		useUtilityClasses: useUtilityClassesBound,
+		useColorScheme,
 		theme: created,
 	};
 }

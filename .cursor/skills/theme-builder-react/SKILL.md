@@ -49,9 +49,62 @@ export const { ThemeProvider, useTheme, useUtilityClasses, useColorScheme } =
 
 `ThemeProvider` requires `theme: CreatedTheme` from `createTheme`. It wraps children with `DeviceSizeProvider`, so `useDeviceSize()` works anywhere under the tree. Optional `breakpointsRem` forwards to the inner provider.
 
-Also exports: `useDeviceSize`, `DeviceMatch`, `useColorSchemeTogglePosition`, `resolveUtilityClasses`.
+Also exports: `useDeviceSize`, `DeviceMatch`, `useColorSchemeTogglePosition`, `resolveUtilityClasses`, `useColorSchemeContext`.
 
 Default breakpoints: `DEFAULT_DEVICE_BREAKPOINTS_REM` — 48 / 62 / 80 rem.
+
+## How it works
+
+`createThemeContext(created)` returns bound exports from one `CreatedTheme`:
+
+| Export | Role |
+| ------ | ---- |
+| `ThemeProvider` | Same as the base provider but omits the `theme` prop (uses `created` from closure) |
+| `useTheme` | Typed token tree for your config |
+| `useUtilityClasses` | Resolves utility props against `created.theme` |
+| `useColorScheme` | Subscribes to the color-scheme store |
+| `theme` | The `CreatedTheme` instance (build scripts, tests, non-React code) |
+
+`ThemeProvider` sets up three contexts:
+
+1. **ThemeContext** — static token tree (`created.theme`); stable when the color scheme changes
+2. **ColorSchemeContext** — `createColorSchemeStore` API (`subscribe`, `getState`, `changeColorScheme`); does **not** re-render the provider subtree on scheme changes
+3. **DeviceSizeContext** — breakpoint defaults for `useDeviceSize`
+
+`useColorScheme()` is the only hook that subscribes to scheme changes (`useSyncExternalStore` on the store). Components that only call `useTheme()` or `useUtilityClasses()` stay stable across toggles.
+
+### Without `createThemeContext`
+
+Use the base exports when you prefer passing `theme` explicitly:
+
+```tsx
+import {
+  ThemeProvider,
+  useTheme,
+  useUtilityClasses,
+  useColorScheme,
+} from '@ohJohny/theme-builder/react';
+
+<ThemeProvider theme={created} presetColorScheme="light">
+  <App />
+</ThemeProvider>
+```
+
+Hooks default to `ThemeConfigInput` unless you augment types or use `createThemeContext` for inference from your config.
+
+### Advanced: `useColorSchemeContext`
+
+Direct store access for custom subscriptions or imperative reads:
+
+```tsx
+import { useColorSchemeContext } from '@ohJohny/theme-builder/react';
+
+const store = useColorSchemeContext();
+store.changeColorScheme('dark');
+const { colorScheme } = store.getState();
+```
+
+Prefer `useColorScheme()` in UI — it handles subscription and returns `{ colorScheme, changeColorScheme, colorSchemeList, labelShort }`.
 
 ## Hooks
 

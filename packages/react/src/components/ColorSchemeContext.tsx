@@ -2,11 +2,9 @@ import { createContext, useContext } from 'react';
 
 import { createColorSchemeStore, type ColorSchemeId } from '@ohJohny/theme-builder-core';
 
-import type { ColorSchemeStoreState, Theme, ThemeConfigInput } from '@ohJohny/theme-builder-core';
+import type { Theme, ThemeConfigInput } from '@ohJohny/theme-builder-core';
 
-export type ColorSchemeContextValue = ReturnType<typeof createColorSchemeStore> & {
-	readonly state: ColorSchemeStoreState;
-};
+export type ColorSchemeContextValue = ReturnType<typeof createColorSchemeStore>;
 
 export const ColorSchemeContext = createContext<ColorSchemeContextValue | null>(null);
 

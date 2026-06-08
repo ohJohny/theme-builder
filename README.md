@@ -71,6 +71,8 @@ export const { ThemeProvider, useTheme, useUtilityClasses, useColorScheme } =
   createThemeContext(created);
 ```
 
+`createThemeContext` binds your `CreatedTheme` to typed hooks — you omit `theme` on `ThemeProvider` and get config-aware autocomplete on `useTheme` / `useUtilityClasses`. The provider exposes a static token tree and a color-scheme store; only components calling `useColorScheme()` re-render when the scheme changes.
+
 ### 3. Generate CSS for production
 
 ```ts
