@@ -1,6 +1,6 @@
 {
 	"name": "@ohJohny/theme-builder",
-	"version": "0.1.20",
+	"version": "0.1.22",
 	"description": "Framework-agnostic design tokens with React and Solid providers",
 	"type": "module",
 	"license": "MIT",
