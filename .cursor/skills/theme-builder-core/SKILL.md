@@ -64,6 +64,7 @@ Helpers: `buildThemeStylesheet`, `buildBreakpointsScss`, `rewriteUtilityCss`, `c
 - Scheme-varying colors use `{ light, dark, ... }` objects in config.
 - CSS emits `:root` (invariant + default scheme) and `[data-theme="<name>"]` blocks.
 - `createColorSchemeStore({ schemes })` cycles round-robin when `changeColorScheme()` is called with no argument.
+- Multi-root apps (Astro islands): use `SingletonThemeProvider` from `@ohJohny/theme-builder/react` or `/solid` — it wraps a shared store via `peekOrCreateSharedColorSchemeStore`, `retainSharedColorSchemeStore`, and `releaseSharedColorSchemeStore` (ref-counted dispose when the last provider unmounts). One store per page; first-call options win.
 
 ## Utility props
 

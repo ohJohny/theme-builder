@@ -1,8 +1,9 @@
 ---
 name: ohjohny-theme-builder-react
 description: >-
-  React ThemeProvider, useTheme, useColorScheme, useDeviceSize, DeviceMatch, and useUtilityClasses
-  from @ohJohny/theme-builder/react. Use for utility-class props, className/style from theme tokens,
+  React ThemeProvider, SingletonThemeProvider, useTheme, useColorScheme, useDeviceSize, DeviceMatch,
+  and useUtilityClasses from @ohJohny/theme-builder/react. Use SingletonThemeProvider for Astro islands
+  or other multi-root setups. Use for utility-class props, className/style from theme tokens,
   resolveBoxPresentation, prepareHostPresentation, classes?.root, and ThemeSlotClasses when building
   or consuming a layout component library. Lib internals use presentation resolvers, not useUtilityClasses.
 ---
@@ -15,6 +16,8 @@ Re-exports core APIs (`createTheme`, `resolveUtilityClasses`, color-scheme helpe
 
 | Context | Approach |
 | ------- | -------- |
+| Single React root (SPA) | `ThemeProvider` |
+| Multiple roots (Astro islands, micro-frontends) | `SingletonThemeProvider` per root — shared color-scheme store |
 | Consumer custom markup (plain element) | `useUtilityClasses({ px: 'md', … })` |
 | Consumer with layout hosts (`Box`, `Flex`, `Text`, …) | Layout props on those hosts |
 | **Design system lib internals** | `resolveBoxPresentation` or `prepareHostPresentation` + `useTheme()` |
@@ -37,7 +40,7 @@ const created = createTheme(themeConfig, {
   defaultScheme: 'light',
 });
 
-export const { ThemeProvider, useTheme, useUtilityClasses, useColorScheme } =
+export const { ThemeProvider, SingletonThemeProvider, useTheme, useUtilityClasses, useColorScheme } =
   createThemeContext(created);
 ```
 
@@ -49,7 +52,7 @@ export const { ThemeProvider, useTheme, useUtilityClasses, useColorScheme } =
 
 `ThemeProvider` requires `theme: CreatedTheme` from `createTheme`. It wraps children with `DeviceSizeProvider`, so `useDeviceSize()` works anywhere under the tree. Optional `breakpointsRem` forwards to the inner provider.
 
-Also exports: `useDeviceSize`, `DeviceMatch`, `useColorSchemeTogglePosition`, `resolveUtilityClasses`, `useColorSchemeContext`.
+Also exports: `SingletonThemeProvider`, `useDeviceSize`, `DeviceMatch`, `useColorSchemeTogglePosition`, `resolveUtilityClasses`, `useColorSchemeContext`, `peekOrCreateSharedColorSchemeStore`, `retainSharedColorSchemeStore`, `releaseSharedColorSchemeStore`.
 
 Default breakpoints: `DEFAULT_DEVICE_BREAKPOINTS_REM` — 48 / 62 / 80 rem.
 
@@ -60,6 +63,7 @@ Default breakpoints: `DEFAULT_DEVICE_BREAKPOINTS_REM` — 48 / 62 / 80 rem.
 | Export | Role |
 | ------ | ---- |
 | `ThemeProvider` | Same as the base provider but omits the `theme` prop (uses `created` from closure) |
+| `SingletonThemeProvider` | Multi-root wrapper — shared ref-counted color-scheme store; same props as `ThemeProvider` minus `theme` |
 | `useTheme` | Typed token tree for your config |
 | `useUtilityClasses` | Resolves utility props against `created.theme` |
 | `useColorScheme` | Subscribes to the color-scheme store |
@@ -72,6 +76,35 @@ Default breakpoints: `DEFAULT_DEVICE_BREAKPOINTS_REM` — 48 / 62 / 80 rem.
 3. **DeviceSizeContext** — breakpoint defaults for `useDeviceSize`
 
 `useColorScheme()` is the only hook that subscribes to scheme changes (`useSyncExternalStore` on the store). Components that only call `useTheme()` or `useUtilityClasses()` stay stable across toggles.
+
+### SingletonThemeProvider (Astro islands / multi-root)
+
+React context does **not** cross separate roots. Each island still needs its own provider so hooks work, but `ThemeProvider` creates a **new** color-scheme store per mount — islands won't sync and will fight over `data-theme`.
+
+Use `SingletonThemeProvider` instead: one module-level store (ref-counted), same contexts per root.
+
+```tsx
+export const { SingletonThemeProvider, useColorScheme } = createThemeContext(created);
+```
+
+```astro
+---
+import { SingletonThemeProvider } from '../theme/context';
+import { ThemeToggle } from './ThemeToggle';
+---
+<SingletonThemeProvider client:load storage={{ type: 'localStorage', key: 'theme' }}>
+  <ThemeToggle />
+</SingletonThemeProvider>
+```
+
+Rules:
+
+- Wrap **each** interactive island; children must be inside the same island as the provider.
+- Pass the **same** store options on every island (`storage`, `presetColorScheme`, …). **First mount wins** — later mismatched options are ignored.
+- Import/inject theme CSS once in the layout (`generateThemeArtifacts` or `createTheme` with `inject: true` in dev).
+- No separate singleton for `DeviceSizeProvider` — `useDeviceSize` already shares a ref-counted `resize` listener.
+
+Low-level (rare): `peekOrCreateSharedColorSchemeStore`, `retainSharedColorSchemeStore`, `releaseSharedColorSchemeStore` from `@ohJohny/theme-builder/core` — used internally by `SingletonThemeProvider`.
 
 ### Without `createThemeContext`
 
