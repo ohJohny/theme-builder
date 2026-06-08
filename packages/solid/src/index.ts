@@ -1,4 +1,5 @@
 export { ThemeProvider, type ThemeProviderProps } from './components/ThemeProvider';
+export { SingletonThemeProvider, type SingletonThemeProviderProps } from './components/SingletonThemeProvider';
 export { createThemeContext } from './components/createThemeContext';
 export { useTheme, ThemeContext } from './components/useTheme';
 export type { Theme } from './components/useTheme';
@@ -32,6 +33,10 @@ export {
 	createTheme,
 	applyColorScheme,
 	createColorSchemeStore,
+	peekOrCreateSharedColorSchemeStore,
+	retainSharedColorSchemeStore,
+	releaseSharedColorSchemeStore,
+	resetSharedColorSchemeStoreForTests,
 	resolveUtilityClasses,
 	DEFAULT_THEME_META,
 	DEFAULT_SCHEMES,

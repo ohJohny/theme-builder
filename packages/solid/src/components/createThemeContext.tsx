@@ -9,12 +9,17 @@ import {
 } from '@ohJohny/theme-builder-core';
 
 import { ThemeProvider, type ThemeProviderProps } from './ThemeProvider';
+import { SingletonThemeProvider, type SingletonThemeProviderProps } from './SingletonThemeProvider';
 import { useColorScheme } from './useColorScheme';
 import { useTheme } from './useTheme';
 
 export function createThemeContext<C extends ThemeConfigInput>(created: CreatedTheme<C>) {
 	function BoundThemeProvider(props: Omit<ThemeProviderProps<C>, 'theme'>) {
 		return <ThemeProvider {...props} theme={created} />;
+	}
+
+	function BoundSingletonThemeProvider(props: Omit<SingletonThemeProviderProps<C>, 'theme'>) {
+		return <SingletonThemeProvider {...props} theme={created} />;
 	}
 
 	function useThemeFromContext(): Theme<C> {
@@ -31,6 +36,7 @@ export function createThemeContext<C extends ThemeConfigInput>(created: CreatedT
 
 	return {
 		ThemeProvider: BoundThemeProvider,
+		SingletonThemeProvider: BoundSingletonThemeProvider,
 		useTheme: useThemeFromContext,
 		useUtilityClasses: useUtilityClassesFromContext,
 		useColorScheme: useColorSchemeFromContext,

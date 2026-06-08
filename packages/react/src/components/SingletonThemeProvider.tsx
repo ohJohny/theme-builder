@@ -1,7 +1,9 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 
 import {
-	createColorSchemeStore,
+	peekOrCreateSharedColorSchemeStore,
+	releaseSharedColorSchemeStore,
+	retainSharedColorSchemeStore,
 	type ColorSchemeStoreOptions,
 	type CreatedTheme,
 	type ThemeConfigInput,
@@ -10,33 +12,32 @@ import {
 import { ThemeProviderTree } from './ThemeProviderTree';
 import type { DeviceBreakpoints } from '../utils/types';
 
-export type ThemeProviderProps<C extends ThemeConfigInput> = Omit<
+export type SingletonThemeProviderProps<C extends ThemeConfigInput> = Omit<
 	ColorSchemeStoreOptions,
 	'schemes'
 > & {
 	readonly theme: CreatedTheme<C>;
 	readonly breakpoints?: Partial<DeviceBreakpoints>;
-	/** @deprecated Use {@link ThemeProviderProps.breakpoints} */
+	/** @deprecated Use {@link SingletonThemeProviderProps.breakpoints} */
 	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
 	readonly children: ReactNode;
 };
 
-export function ThemeProvider<C extends ThemeConfigInput>(props: ThemeProviderProps<C>) {
+export function SingletonThemeProvider<C extends ThemeConfigInput>(
+	props: SingletonThemeProviderProps<C>,
+) {
 	const { children, breakpoints, breakpointsRem, theme, ...storeOptions } = props;
 
-	const storeRef = useRef<ReturnType<typeof createColorSchemeStore> | null>(null);
-	if (!storeRef.current) {
-		storeRef.current = createColorSchemeStore({
-			...storeOptions,
-			schemes: theme.schemes,
-			presetColorScheme: storeOptions.presetColorScheme ?? theme.defaultScheme,
-		});
-	}
-	const store = storeRef.current;
+	const store = peekOrCreateSharedColorSchemeStore({
+		...storeOptions,
+		schemes: theme.schemes,
+		presetColorScheme: storeOptions.presetColorScheme ?? theme.defaultScheme,
+	});
 
 	useEffect(() => {
-		return () => store.dispose();
-	}, [store]);
+		retainSharedColorSchemeStore();
+		return () => releaseSharedColorSchemeStore();
+	}, []);
 
 	return (
 		<ThemeProviderTree

@@ -88,6 +88,12 @@ export type {
 	ColorSchemeStoreState,
 	ColorSchemeListItem,
 } from './store/createColorSchemeStore';
+export {
+	peekOrCreateSharedColorSchemeStore,
+	retainSharedColorSchemeStore,
+	releaseSharedColorSchemeStore,
+	resetSharedColorSchemeStoreForTests,
+} from './store/sharedColorSchemeStore';
 
 export type {
 	Theme,
