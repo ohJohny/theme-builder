@@ -34,4 +34,8 @@ export type {
 	ShadowName,
 	IconSizeName,
 	DisplayName,
+	CustomClassName,
+	CustomClassCssProperties,
+	ThemeCustomClassesConfigInput,
+	ThemeCustomClasses,
 } from './types';

@@ -19,6 +19,11 @@ import {
 	spacingUtilityClass,
 } from '../utils/theme-token-spec';
 import { SPACING_PREFIXES, type SpacingPrefix } from '../types/theme.js';
+import {
+	collectCustomClassEntries,
+	resolveCustomClassName,
+	resolveCustomClassOptions,
+} from '../utils/custom-class-spec';
 import { resolveUtilityClassFromMap } from './resolveUtilityClassFromMap';
 import type { ColorTokenPair, IconSizeToken, TokenClass } from '../types/theme.js';
 import type { Theme, ThemeConfigInput } from './types';
@@ -147,6 +152,14 @@ export function buildThemeFromConfig<C extends ThemeConfigInput>(
 		colors[name] = colorVarRef(name);
 	}
 
+	const customClassOptions = resolveCustomClassOptions(config.classes);
+	const classes = {} as Record<string, { class: string }>;
+	for (const { name } of collectCustomClassEntries(config)) {
+		classes[name] = {
+			class: resolveCustomClassName(name, customClassOptions),
+		};
+	}
+
 	return {
 		colors: colors as Theme<C>['colors'],
 		colorUtilities: {
@@ -166,5 +179,6 @@ export function buildThemeFromConfig<C extends ThemeConfigInput>(
 		icon: icon as Theme<C>['icon'],
 		display: display as Theme<C>['display'],
 		shadow: shadow as Theme<C>['shadow'],
+		classes: classes as Theme<C>['classes'],
 	} as Theme<C>;
 }

@@ -39,6 +39,10 @@ export type {
 	ShadowName,
 	IconSizeName,
 	DisplayName,
+	CustomClassName,
+	CustomClassCssProperties,
+	ThemeCustomClassesConfigInput,
+	ThemeCustomClasses,
 } from './config';
 export { applyThemeVariables, resolveThemeVariableTarget } from './applyThemeVariables';
 export { lookupColorTokenPresentation, resolvePaletteColor } from './resolvePaletteColor';

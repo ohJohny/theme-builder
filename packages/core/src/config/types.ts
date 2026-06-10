@@ -25,6 +25,15 @@ export interface ThemeColorsConfigInput {
 	readonly semantic?: Readonly<Record<string, ColorValue>>;
 }
 
+/** Framework-agnostic CSS object (camelCase keys, string | number values). */
+export type CustomClassCssProperties = Readonly<Record<string, string | number>>;
+
+export interface ThemeCustomClassesConfigInput {
+	readonly withPrefix?: boolean;
+	readonly prefix?: string;
+	readonly [className: string]: CustomClassCssProperties | boolean | string | undefined;
+}
+
 export interface ThemeConfigInput {
 	readonly schemes?: readonly string[];
 	/** Root rem reference — emits `--rem-base` (default `16px`) and sets `:root { font-size: var(--rem-base) }`. */
@@ -36,6 +45,7 @@ export interface ThemeConfigInput {
 	readonly icon?: Readonly<Record<string, string>>;
 	readonly display?: Readonly<Record<string, string>>;
 	readonly breakpoints?: Readonly<Record<string, BreakpointValue>>;
+	readonly classes?: ThemeCustomClassesConfigInput;
 }
 
 export type DefaultSchemes = readonly ['light', 'dark'];
@@ -80,6 +90,13 @@ export type IconSizeName<C extends ThemeConfigInput> =
 
 export type DisplayName<C extends ThemeConfigInput> =
 	keyof NonNullable<C['display']> & string;
+
+export type CustomClassName<C extends ThemeConfigInput> =
+	keyof Omit<NonNullable<C['classes']>, 'withPrefix' | 'prefix'> & string;
+
+export type ThemeCustomClasses<C extends ThemeConfigInput> = Readonly<
+	Record<CustomClassName<C>, { readonly class: string }>
+>;
 
 export type ThemeColors<C extends ThemeConfigInput> = Readonly<
 	Record<BaseColorName<C> | SemanticColorName<C>, string>
@@ -134,6 +151,7 @@ export type Theme<C extends ThemeConfigInput> = {
 	readonly icon: IconSizeScale<C>;
 	readonly display: ThemeDisplay<C>;
 	readonly shadow: ShadowScale<C>;
+	readonly classes: ThemeCustomClasses<C>;
 };
 
 export type UtilityClassMapMode = 'identity' | 'hashed';

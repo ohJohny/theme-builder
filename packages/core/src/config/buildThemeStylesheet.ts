@@ -40,6 +40,12 @@ import {
 	expandLogicalAxisDeclarationCss,
 	isLogicalAxisProperty,
 } from '../types/logical-axis-expand.js';
+import {
+	buildCustomClassRule,
+	collectCustomClassEntries,
+	resolveCustomClassName,
+	resolveCustomClassOptions,
+} from '../utils/custom-class-spec';
 import type { ColorValue, ThemeConfigInput } from './types';
 
 export type BuildThemeStylesheetOptions = {
@@ -233,6 +239,13 @@ function buildUtilityRules(config: ThemeConfigInput): string[] {
 	return rules;
 }
 
+function buildCustomClassRules(config: ThemeConfigInput): string[] {
+	const options = resolveCustomClassOptions(config.classes);
+	return collectCustomClassEntries(config).map(({ name, properties }) =>
+		buildCustomClassRule(resolveCustomClassName(name, options), properties),
+	);
+}
+
 function spacingDeclarationsForPrefix(prefix: SpacingPrefix, value: string): string {
 	const prop = SPACING_PREFIX_CSS_PROPERTY[prefix];
 	if (isLogicalAxisProperty(prop)) {
@@ -271,7 +284,9 @@ export function buildThemeStylesheet(
 		}
 	}
 
-	return [...blocks.filter(Boolean), ...buildUtilityRules(config)].join('\n');
+	return [...blocks.filter(Boolean), ...buildUtilityRules(config), ...buildCustomClassRules(config)].join(
+		'\n',
+	);
 }
 
 export function resolveSchemes(config: ThemeConfigInput): readonly string[] {

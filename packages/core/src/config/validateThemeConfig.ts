@@ -1,3 +1,7 @@
+import {
+	isCustomClassMetaKey,
+	isValidCustomClassName,
+} from '../utils/custom-class-spec';
 import { isPlainObject } from '../utils/isPlainObject';
 import { isRemLength } from '../utils/remLength.js';
 import type { BreakpointValue, ThemeConfigInput } from './types';
@@ -102,6 +106,39 @@ export function validateThemeConfig(config: ThemeConfigInput): void {
 		for (const value of Object.values(config.breakpoints)) {
 			if (!isBreakpointValue(value)) {
 				throw new TypeError('[defineThemeConfig] invalid breakpoint value');
+			}
+		}
+	}
+
+	if (config.classes !== undefined) {
+		if (!isPlainObject(config.classes)) {
+			throw new TypeError('[defineThemeConfig] classes must be an object');
+		}
+		if (
+			config.classes.withPrefix !== undefined &&
+			typeof config.classes.withPrefix !== 'boolean'
+		) {
+			throw new TypeError('[defineThemeConfig] classes.withPrefix must be a boolean');
+		}
+		if (config.classes.prefix !== undefined) {
+			if (typeof config.classes.prefix !== 'string' || config.classes.prefix.length === 0) {
+				throw new TypeError('[defineThemeConfig] classes.prefix must be a non-empty string');
+			}
+		}
+		for (const [name, value] of Object.entries(config.classes)) {
+			if (isCustomClassMetaKey(name)) continue;
+			if (!isValidCustomClassName(name)) {
+				throw new TypeError(`[defineThemeConfig] invalid custom class name "${name}"`);
+			}
+			if (!isPlainObject(value)) {
+				throw new TypeError(`[defineThemeConfig] classes.${name} must be an object`);
+			}
+			for (const propValue of Object.values(value)) {
+				if (typeof propValue !== 'string' && typeof propValue !== 'number') {
+					throw new TypeError(
+						`[defineThemeConfig] classes.${name} values must be string or number`,
+					);
+				}
 			}
 		}
 	}

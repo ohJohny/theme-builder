@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 
-import type { CreatedTheme, ThemeConfigInput } from '@ohJohny/theme-builder/core';
+import type {
+	CreatedTheme,
+	CustomClassCssProperties,
+	ThemeConfigInput,
+} from '@ohJohny/theme-builder/core';
 import {
 	ThemeProvider,
 	useColorScheme,
@@ -277,6 +281,70 @@ function configKeys(record: object | undefined): readonly string[] {
 	return record ? Object.keys(record) : [];
 }
 
+const CUSTOM_CLASS_META_KEYS = new Set(['withPrefix', 'prefix']);
+
+function customClassNames(classes: ThemeConfigInput['classes']): readonly string[] {
+	if (!classes) return [];
+	return Object.keys(classes).filter((name) => !CUSTOM_CLASS_META_KEYS.has(name));
+}
+
+function CustomClassChip({
+	name,
+	className,
+	properties,
+}: {
+	name: string;
+	className: string;
+	properties: CustomClassCssProperties;
+}) {
+	const propertySummary = Object.entries(properties)
+		.map(([key, value]) => `${key}: ${String(value)}`)
+		.join('; ');
+
+	return (
+		<div className="token-chip custom-class-chip">
+			<div className={`custom-class-preview ${className}`}>
+				{name === 'badge' ? 'New' : `${name} preview`}
+			</div>
+			<div className="token-chip-label">
+				<strong>{name}</strong> → .{className}
+			</div>
+			<div className="custom-class-properties" title={propertySummary}>
+				{propertySummary}
+			</div>
+		</div>
+	);
+}
+
+function CustomClassesSection({ config }: { config: ThemeConfigInput }) {
+	const theme = useTheme();
+	const names = customClassNames(config.classes);
+
+	if (names.length === 0) {
+		return null;
+	}
+
+	return (
+		<Section title="Custom classes">
+			{names.map((name) => {
+				const entry = theme.classes[name as keyof typeof theme.classes];
+				const properties = config.classes?.[name];
+				if (!entry || !properties || typeof properties !== 'object') {
+					return null;
+				}
+				return (
+					<CustomClassChip
+						key={name}
+						name={name}
+						className={entry.class}
+						properties={properties}
+					/>
+				);
+			})}
+		</Section>
+	);
+}
+
 function PlaygroundPreview({ config }: { config: ThemeConfigInput }) {
 	const semanticColors = configKeys(config.colors?.semantic);
 	const spacingNames = configKeys(config.spacing);
@@ -289,8 +357,7 @@ function PlaygroundPreview({ config }: { config: ThemeConfigInput }) {
 	const fontFamily = configKeys(config.fonts?.family)[0] ?? 'sans';
 
 	return (
-		<>
-			<SchemeBar />
+		<div className="playground-preview">
 			<ColorsSection names={semanticColors} />
 			<SpacingSection title="Paddings" prefix="p" names={spacingNames} />
 			<SpacingSection title="Margins" prefix="m" names={spacingNames} />
@@ -299,14 +366,44 @@ function PlaygroundPreview({ config }: { config: ThemeConfigInput }) {
 			<ShadowsSection names={shadows} />
 			<IconsSection sizes={iconSizes} />
 			<DisplaySection keys={displays} />
+			<CustomClassesSection config={config} />
 			<DeviceSizeSection breakpointNames={breakpoints} />
-		</>
+		</div>
+	);
+}
+
+function ThemeConfigPanel({
+	jsonText,
+	error,
+	onJsonChange,
+	showSchemeBar,
+}: {
+	jsonText: string;
+	error: string | null;
+	onJsonChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
+	showSchemeBar: boolean;
+}) {
+	return (
+		<aside className="playground-sidebar">
+			<h1>Theme Builder Playground</h1>
+			{showSchemeBar ? <SchemeBar /> : null}
+			<label className="theme-config-label" htmlFor="theme-config-json">
+				Theme config (JSON)
+			</label>
+			<textarea
+				id="theme-config-json"
+				className="theme-config-editor"
+				value={jsonText}
+				onChange={onJsonChange}
+				spellCheck={false}
+			/>
+			{error ? <p className="theme-config-error">{error}</p> : null}
+		</aside>
 	);
 }
 
 export function App() {
 	const [jsonText, setJsonText] = useState(defaultThemeJson);
-	const [themeKey, setThemeKey] = useState(0);
 	const lastValidTheme = useRef<CreatedTheme<ThemeConfigInput> | null>(null);
 
 	const { created, error } = useMemo(() => parseThemeJson(jsonText), [jsonText]);
@@ -316,8 +413,7 @@ export function App() {
 			return;
 		}
 		lastValidTheme.current = created;
-		setThemeKey((key) => key + 1);
-	}, [jsonText, created]);
+	}, [created]);
 
 	const activeTheme = created ?? lastValidTheme.current;
 
@@ -325,32 +421,32 @@ export function App() {
 		setJsonText(event.target.value);
 	}
 
+	const layout = (
+		<div className="playground-layout">
+			<ThemeConfigPanel
+				jsonText={jsonText}
+				error={error}
+				onJsonChange={handleJsonChange}
+				showSchemeBar={activeTheme !== null}
+			/>
+			<main className="playground-main">
+				{activeTheme ? <PlaygroundPreview config={activeTheme.config} /> : null}
+			</main>
+		</div>
+	);
+
 	return (
 		<div className="playground">
-			<header className="playground-header">
-				<h1>Theme Builder Playground</h1>
-				<label className="theme-config-label" htmlFor="theme-config-json">
-					Theme config (JSON)
-				</label>
-				<textarea
-					id="theme-config-json"
-					className="theme-config-editor"
-					value={jsonText}
-					onChange={handleJsonChange}
-					spellCheck={false}
-				/>
-				{error ? <p className="theme-config-error">{error}</p> : null}
-			</header>
-
 			{activeTheme ? (
 				<ThemeProvider
-					key={themeKey}
 					theme={activeTheme}
 					presetColorScheme={activeTheme.defaultScheme}
 				>
-					<PlaygroundPreview config={activeTheme.config} />
+					{layout}
 				</ThemeProvider>
-			) : null}
+			) : (
+				layout
+			)}
 		</div>
 	);
 }

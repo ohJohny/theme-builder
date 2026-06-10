@@ -22,6 +22,13 @@ export const testThemeConfig = defineThemeConfig({
 	shadow: { md: '0 2px 4px rgba(0,0,0,.1)' },
 	icon: { sm: '16px' },
 	display: { flex: 'flex', block: 'block' },
+	classes: {
+		card: {
+			padding: 'var(--space-md)',
+			borderRadius: '8px',
+			backgroundColor: 'var(--color-surface-main)',
+		},
+	},
 });
 
 export function createTestTheme(): CreatedTheme<typeof testThemeConfig> {

@@ -3,8 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { buildBreakpointsScss } from './config/buildBreakpointsScss';
 import { buildThemeStylesheet } from './config/buildThemeStylesheet';
 import { createTheme } from './config/createTheme';
+import { defineThemeConfig } from './config/defineThemeConfig';
 import { generateThemeArtifacts } from './config/generateThemeArtifacts';
 import { createColorSchemeStore } from './store/createColorSchemeStore';
+import { rewriteUtilityCss } from './utils/utility-class-map';
+import { buildThemeClassMap } from './config/collectClassNames';
 import { testThemeConfig } from './testFixtures';
 
 describe('createTheme', () => {
@@ -20,6 +23,51 @@ describe('createTheme', () => {
 	it('builds hashed class names', () => {
 		const created = createTheme(testThemeConfig, { mode: 'hashed' });
 		expect(created.theme.spacing.px.md.class).toMatch(/^cl-/);
+	});
+
+	it('exposes custom classes on theme.classes', () => {
+		const created = createTheme(testThemeConfig, { mode: 'identity' });
+		expect(created.theme.classes.card.class).toBe('tb-card');
+	});
+});
+
+describe('custom classes in stylesheet', () => {
+	it('emits prefixed custom class rules', () => {
+		const css = buildThemeStylesheet(testThemeConfig, {
+			defaultScheme: 'light',
+			schemes: ['light', 'dark'],
+		});
+		expect(css).toContain(
+			'.tb-card{padding:var(--space-md);border-radius:8px;background-color:var(--color-surface-main)}',
+		);
+	});
+
+	it('emits bare class names when withPrefix is false', () => {
+		const config = defineThemeConfig({
+			...testThemeConfig,
+			classes: {
+				withPrefix: false,
+				card: { padding: '16px' },
+			},
+		});
+		const css = buildThemeStylesheet(config, {
+			defaultScheme: 'light',
+			schemes: ['light', 'dark'],
+		});
+		expect(css).toContain('.card{padding:16px}');
+		expect(css).not.toContain('.tb-card{padding:16px}');
+	});
+
+	it('leaves custom classes unhashed in hashed mode', () => {
+		const classMap = buildThemeClassMap(testThemeConfig, 'hashed');
+		let css = buildThemeStylesheet(testThemeConfig, {
+			defaultScheme: 'light',
+			schemes: ['light', 'dark'],
+		});
+		css = rewriteUtilityCss(css, classMap);
+		expect(css).toContain(
+			'.tb-card{padding:var(--space-md);border-radius:8px;background-color:var(--color-surface-main)}',
+		);
 	});
 });
 

@@ -128,6 +128,31 @@ export const demoThemeConfigInput: ThemeConfigInput = {
 		tablet: { min: '48rem', max: '63.9375rem' },
 		desktop: { min: '64rem' },
 	},
+	classes: {
+		card: {
+			padding: 'var(--space-md)',
+			borderRadius: '8px',
+			backgroundColor: 'var(--color-surface-container)',
+			border: '1px solid var(--color-border-default)',
+			boxShadow: 'var(--shadow-sm)',
+		},
+		badge: {
+			display: 'inline-block',
+			padding: 'var(--space-xs) var(--space-sm)',
+			borderRadius: '9999px',
+			fontSize: 'var(--font-size-xs)',
+			fontWeight: '600',
+			backgroundColor: 'var(--color-action-primary-default)',
+			color: '#fff',
+		},
+		'callout-warning': {
+			padding: 'var(--space-md)',
+			borderRadius: '8px',
+			borderLeft: '4px solid var(--color-action-primary-default)',
+			backgroundColor: 'var(--color-body-default)',
+			color: 'var(--color-text-primary)',
+		},
+	},
 };
 
 export const defaultThemeJson = JSON.stringify(demoThemeConfigInput, null, '\t');
