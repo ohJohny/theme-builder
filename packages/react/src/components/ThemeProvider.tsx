@@ -18,11 +18,13 @@ export type ThemeProviderProps<C extends ThemeConfigInput> = Omit<
 	readonly breakpoints?: Partial<DeviceBreakpoints>;
 	/** @deprecated Use {@link ThemeProviderProps.breakpoints} */
 	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
+	/** When set, overrides the OS `prefers-reduced-motion` preference for this subtree. */
+	readonly reducedMotion?: boolean;
 	readonly children: ReactNode;
 };
 
 export function ThemeProvider<C extends ThemeConfigInput>(props: ThemeProviderProps<C>) {
-	const { children, breakpoints, breakpointsRem, theme, ...storeOptions } = props;
+	const { children, breakpoints, breakpointsRem, reducedMotion, theme, ...storeOptions } = props;
 
 	const storeRef = useRef<ReturnType<typeof createColorSchemeStore> | null>(null);
 	if (!storeRef.current) {
@@ -44,6 +46,7 @@ export function ThemeProvider<C extends ThemeConfigInput>(props: ThemeProviderPr
 			theme={theme}
 			breakpoints={breakpoints}
 			breakpointsRem={breakpointsRem}
+			reducedMotion={reducedMotion}
 		>
 			{children}
 		</ThemeProviderTree>

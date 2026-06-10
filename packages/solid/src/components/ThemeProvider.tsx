@@ -17,6 +17,7 @@ import {
 
 import { ColorSchemeContext } from './ColorSchemeContext';
 import { DeviceSizeProvider } from './DeviceSizeProvider';
+import { ReducedMotionProvider } from './ReducedMotionProvider';
 import { ThemeContext } from './useTheme';
 import type { DeviceBreakpoints } from '../utils/types';
 
@@ -28,6 +29,8 @@ export type ThemeProviderProps<C extends ThemeConfigInput> = Omit<
 	readonly breakpoints?: Partial<DeviceBreakpoints>;
 	/** @deprecated Use {@link ThemeProviderProps.breakpoints} */
 	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
+	/** When set, overrides the OS `prefers-reduced-motion` preference for this subtree. */
+	readonly reducedMotion?: boolean;
 };
 
 export function ThemeProvider<C extends ThemeConfigInput>(
@@ -37,6 +40,7 @@ export function ThemeProvider<C extends ThemeConfigInput>(
 		'children',
 		'breakpoints',
 		'breakpointsRem',
+		'reducedMotion',
 		'theme',
 	]);
 
@@ -72,7 +76,9 @@ export function ThemeProvider<C extends ThemeConfigInput>(
 		<ColorSchemeContext.Provider value={colorSchemeValue}>
 			<ThemeContext.Provider value={themeAccessor}>
 				<DeviceSizeProvider breakpoints={local.breakpoints} breakpointsRem={local.breakpointsRem}>
-					{local.children}
+					<ReducedMotionProvider reducedMotion={local.reducedMotion}>
+						{local.children}
+					</ReducedMotionProvider>
 				</DeviceSizeProvider>
 			</ThemeContext.Provider>
 		</ColorSchemeContext.Provider>

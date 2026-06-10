@@ -14,7 +14,7 @@ export const { ThemeProvider, SingletonThemeProvider, useTheme, useUtilityClasse
 
 `ThemeProvider` requires `theme: CreatedTheme`. `useTheme()` reads from context accessor.
 
-Also exports: `SingletonThemeProvider`, `useDeviceSize`, `DeviceMatch`, `useColorSchemeTogglePosition`, `peekOrCreateSharedColorSchemeStore`, `retainSharedColorSchemeStore`, `releaseSharedColorSchemeStore`.
+Also exports: `SingletonThemeProvider`, `useDeviceSize`, `useReducedMotion`, `DeviceMatch`, `useColorSchemeTogglePosition`, `peekOrCreateSharedColorSchemeStore`, `retainSharedColorSchemeStore`, `releaseSharedColorSchemeStore`, `subscribeReducedMotion`, `getReducedMotionSnapshot`, `applyReducedMotion`.
 
 ## SingletonThemeProvider (multi-root)
 
@@ -26,4 +26,27 @@ Same as React: use when you have **separate Solid roots** (e.g. Astro islands wi
 </SingletonThemeProvider>
 ```
 
-Pass identical store options on every island; first mount wins. No singleton needed for device size — `useDeviceSize` already uses a shared ref-counted `resize` subscription.
+Pass identical store options on every island; first mount wins. No singleton needed for device size — `useDeviceSize` already uses a shared ref-counted `resize` subscription. `ThemeProvider` passes `reducedMotion` via context (`Accessor<boolean>`); optional `reducedMotion` prop overrides the OS preference. Outside a provider, `useReducedMotion()` falls back to a shared ref-counted `matchMedia` listener.
+
+## Hooks
+
+- `useTheme()` — typed token tree accessor from context
+- `useColorScheme()` — `colorScheme`, `changeColorScheme`, `colorSchemeList`, `labelShort` accessors
+- `useDeviceSize(options?)` — `Accessor<{ mobile, tablet, desktop, wide }>`
+- `useReducedMotion()` — `Accessor<boolean>`; OS `prefers-reduced-motion` preference
+- `DeviceMatch` — renders `children` only when viewport matches `size`
+- `useUtilityClasses(props)` — `{ className, style }`
+- `useColorSchemeTogglePosition(ref)` — view-transition origin CSS vars
+
+## Reduced motion
+
+```tsx
+function AnimatedPanel(props: { children: JSX.Element }) {
+  const reducedMotion = useReducedMotion();
+  return (
+    <div class={reducedMotion() ? styles.static : styles.animated}>{props.children}</div>
+  );
+}
+```
+
+Use `[data-reduced-motion]` in CSS when any `useReducedMotion()` subscriber is mounted. Core exports `subscribeReducedMotion` / `getReducedMotionSnapshot` for imperative or custom subscriptions.

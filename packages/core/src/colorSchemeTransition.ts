@@ -1,3 +1,5 @@
+import { getReducedMotionSnapshot } from './reducedMotion';
+
 const VIEW_TRANSITION_NAME_ATTR = 'data-view-transition-name';
 const VIEW_TRANSITION_NAME = 'color-scheme-toggle';
 
@@ -10,11 +12,6 @@ export function updateColorSchemeTogglePosition(el: HTMLElement): void {
 	const root = document.documentElement;
 	root.style.setProperty('--cs-toggle-pos-x', `${centerX}px`);
 	root.style.setProperty('--cs-toggle-pos-y', `${centerY}px`);
-}
-
-function prefersReducedMotion(): boolean {
-	if (typeof window === 'undefined') return false;
-	return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 function clearViewTransitionName(): void {
@@ -34,7 +31,7 @@ export function startColorSchemeViewTransition(updateDom: () => void): void {
 	}
 
 	const startViewTransition = document.startViewTransition.bind(document);
-	if (prefersReducedMotion()) {
+	if (getReducedMotionSnapshot()) {
 		updateDom();
 		return;
 	}

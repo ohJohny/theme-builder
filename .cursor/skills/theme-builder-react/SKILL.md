@@ -48,11 +48,16 @@ export const { ThemeProvider, SingletonThemeProvider, useTheme, useUtilityClasse
 <ThemeProvider presetColorScheme="light" storage={{ type: 'localStorage', key: 'theme' }}>
   <App />
 </ThemeProvider>
+
+// Optional override (e.g. Storybook)
+<ThemeProvider theme={created} reducedMotion>
+  <App />
+</ThemeProvider>
 ```
 
 `ThemeProvider` requires `theme: CreatedTheme` from `createTheme`. It wraps children with `DeviceSizeProvider`, so `useDeviceSize()` works anywhere under the tree. Optional `breakpointsRem` forwards to the inner provider.
 
-Also exports: `SingletonThemeProvider`, `useDeviceSize`, `DeviceMatch`, `useColorSchemeTogglePosition`, `resolveUtilityClasses`, `useColorSchemeContext`, `peekOrCreateSharedColorSchemeStore`, `retainSharedColorSchemeStore`, `releaseSharedColorSchemeStore`.
+Also exports: `SingletonThemeProvider`, `useDeviceSize`, `useReducedMotion`, `DeviceMatch`, `useColorSchemeTogglePosition`, `resolveUtilityClasses`, `useColorSchemeContext`, `peekOrCreateSharedColorSchemeStore`, `retainSharedColorSchemeStore`, `releaseSharedColorSchemeStore`, `subscribeReducedMotion`, `getReducedMotionSnapshot`, `applyReducedMotion`.
 
 Default breakpoints: `DEFAULT_DEVICE_BREAKPOINTS_REM` — 48 / 62 / 80 rem.
 
@@ -69,11 +74,12 @@ Default breakpoints: `DEFAULT_DEVICE_BREAKPOINTS_REM` — 48 / 62 / 80 rem.
 | `useColorScheme` | Subscribes to the color-scheme store |
 | `theme` | The `CreatedTheme` instance (build scripts, tests, non-React code) |
 
-`ThemeProvider` sets up three contexts:
+`ThemeProvider` sets up four contexts:
 
 1. **ThemeContext** — static token tree (`created.theme`); stable when the color scheme changes
 2. **ColorSchemeContext** — `createColorSchemeStore` API (`subscribe`, `getState`, `changeColorScheme`); does **not** re-render the provider subtree on scheme changes
 3. **DeviceSizeContext** — breakpoint defaults for `useDeviceSize`
+4. **ReducedMotionContext** — `reducedMotion` boolean from OS `prefers-reduced-motion` (optional `reducedMotion` prop on `ThemeProvider` overrides)
 
 `useColorScheme()` is the only hook that subscribes to scheme changes (`useSyncExternalStore` on the store). Components that only call `useTheme()` or `useUtilityClasses()` stay stable across toggles.
 
@@ -103,6 +109,7 @@ Rules:
 - Pass the **same** store options on every island (`storage`, `presetColorScheme`, …). **First mount wins** — later mismatched options are ignored.
 - Import/inject theme CSS once in the layout (`generateThemeArtifacts` or `createTheme` with `inject: true` in dev).
 - No separate singleton for `DeviceSizeProvider` — `useDeviceSize` already shares a ref-counted `resize` listener.
+- `ThemeProvider` passes `reducedMotion` via context; optional `reducedMotion` prop overrides the OS preference. Outside a provider, `useReducedMotion` falls back to a shared ref-counted `matchMedia` listener; while the OS pipeline is active, sets `data-reduced-motion="true"` on `<html>` when active.
 
 Low-level (rare): `peekOrCreateSharedColorSchemeStore`, `retainSharedColorSchemeStore`, `releaseSharedColorSchemeStore` from `@ohJohny/theme-builder/core` — used internally by `SingletonThemeProvider`.
 
@@ -144,6 +151,7 @@ Prefer `useColorScheme()` in UI — it handles subscription and returns `{ color
 - `useTheme()` — typed token tree from context
 - `useColorScheme()` — `colorScheme`, `changeColorScheme`, `colorSchemeList`, `labelShort`
 - `useDeviceSize(options?)` — `{ mobile, tablet, desktop, wide }`; `options.breakpointsRem` overrides provider defaults
+- `useReducedMotion()` — `boolean`; OS `prefers-reduced-motion` preference (shared ref-counted subscription)
 - `DeviceMatch` — renders `children` only when viewport matches `size`
 - `useUtilityClasses(props)` — `{ className, style }`; equivalent to `resolveUtilityClasses(props, useTheme())`
 - `useColorSchemeTogglePosition(ref)` — view-transition origin CSS vars
@@ -243,6 +251,19 @@ function Layout() {
   return mobile ? <MobileNav /> : desktop ? <DesktopNav /> : <TabletNav />;
 }
 ```
+
+## Reduced motion
+
+```tsx
+function AnimatedPanel({ children }: { children: React.ReactNode }) {
+  const reducedMotion = useReducedMotion();
+  return (
+    <div className={reducedMotion ? styles.static : styles.animated}>{children}</div>
+  );
+}
+```
+
+While any `useReducedMotion()` subscriber is mounted, `<html data-reduced-motion="true">` is set when the OS preference is active — use `[data-reduced-motion]` in CSS. Core also exports `subscribeReducedMotion` / `getReducedMotionSnapshot` for non-React consumers.
 
 ## DeviceMatch
 

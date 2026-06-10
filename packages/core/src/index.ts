@@ -80,6 +80,12 @@ export {
 	updateColorSchemeTogglePosition,
 	startColorSchemeViewTransition,
 } from './colorSchemeTransition';
+export {
+	subscribeReducedMotion,
+	getReducedMotionSnapshot,
+	applyReducedMotion,
+	resetReducedMotionForTests,
+} from './reducedMotion';
 export { applyAdditionalVariables } from './applyAdditionalVariables';
 export { createColorSchemeStore } from './store/createColorSchemeStore';
 export type {

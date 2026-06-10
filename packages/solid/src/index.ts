@@ -12,6 +12,9 @@ export { DeviceSizeProvider } from './components/DeviceSizeProvider';
 export type { DeviceSizeProviderProps } from './components/DeviceSizeProvider';
 export { useDeviceSize } from './components/useDeviceSize';
 export type { UseDeviceSizeResult } from './components/useDeviceSize';
+export { useReducedMotion } from './components/useReducedMotion';
+export { useReducedMotionContext } from './components/ReducedMotionContext';
+export type { ReducedMotionContextValue } from './components/ReducedMotionContext';
 export { DeviceMatch } from './components/DeviceMatch';
 export type { DeviceMatchProps } from './components/DeviceMatch';
 export {
@@ -42,6 +45,9 @@ export {
 	DEFAULT_SCHEMES,
 	startColorSchemeViewTransition,
 	updateColorSchemeTogglePosition,
+	subscribeReducedMotion,
+	getReducedMotionSnapshot,
+	applyReducedMotion,
 } from '@ohJohny/theme-builder-core';
 
 export type {

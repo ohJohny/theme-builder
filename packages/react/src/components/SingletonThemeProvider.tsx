@@ -20,13 +20,15 @@ export type SingletonThemeProviderProps<C extends ThemeConfigInput> = Omit<
 	readonly breakpoints?: Partial<DeviceBreakpoints>;
 	/** @deprecated Use {@link SingletonThemeProviderProps.breakpoints} */
 	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
+	/** When set, overrides the OS `prefers-reduced-motion` preference for this subtree. */
+	readonly reducedMotion?: boolean;
 	readonly children: ReactNode;
 };
 
 export function SingletonThemeProvider<C extends ThemeConfigInput>(
 	props: SingletonThemeProviderProps<C>,
 ) {
-	const { children, breakpoints, breakpointsRem, theme, ...storeOptions } = props;
+	const { children, breakpoints, breakpointsRem, reducedMotion, theme, ...storeOptions } = props;
 
 	const store = peekOrCreateSharedColorSchemeStore({
 		...storeOptions,
@@ -45,6 +47,7 @@ export function SingletonThemeProvider<C extends ThemeConfigInput>(
 			theme={theme}
 			breakpoints={breakpoints}
 			breakpointsRem={breakpointsRem}
+			reducedMotion={reducedMotion}
 		>
 			{children}
 		</ThemeProviderTree>

@@ -1,9 +1,12 @@
 /** @jsxImportSource solid-js */
 import { render, screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { resetSharedColorSchemeStoreForTests } from '@ohJohny/theme-builder-core';
+import {
+	resetReducedMotionForTests,
+	resetSharedColorSchemeStoreForTests,
+} from '@ohJohny/theme-builder-core';
 
 import { useColorSchemeContext } from './ColorSchemeContext';
 import {
@@ -12,6 +15,8 @@ import {
 } from './SingletonThemeProvider';
 import { useColorScheme } from './useColorScheme';
 import { useDeviceSize } from './useDeviceSize';
+import { useReducedMotion } from './useReducedMotion';
+import { useReducedMotionContext } from './ReducedMotionContext';
 import { useTheme } from './useTheme';
 import { solidTestTheme } from '../testFixtures';
 
@@ -74,6 +79,75 @@ describe('SingletonThemeProvider / useDeviceSize', () => {
 		});
 
 		expect(screen.getByTestId('mobile').textContent).toBe('true');
+		unmount();
+	});
+});
+
+describe('SingletonThemeProvider / useReducedMotion', () => {
+	afterEach(() => {
+		resetReducedMotionForTests();
+		resetSharedColorSchemeStoreForTests();
+	});
+
+	it('provides reducedMotion from context under ThemeProvider', () => {
+		const mq = {
+			matches: true,
+			media: '(prefers-reduced-motion: reduce)',
+			onchange: null,
+			addListener: vi.fn(),
+			removeListener: vi.fn(),
+			addEventListener: vi.fn(),
+			removeEventListener: vi.fn(),
+			dispatchEvent: vi.fn(),
+		} as MediaQueryList;
+		vi.spyOn(window, 'matchMedia').mockReturnValue(mq);
+
+		const { unmount } = renderWithProvider(() => {
+			const reduced = useReducedMotion();
+			return <span data-testid="r">{String(reduced())}</span>;
+		});
+
+		expect(screen.getByTestId('r').textContent).toBe('true');
+		unmount();
+	});
+
+	it('exposes reducedMotion via useReducedMotionContext', () => {
+		let reducedMotion: boolean | undefined;
+
+		const { unmount } = renderWithProvider(
+			() => {
+				reducedMotion = useReducedMotionContext().reducedMotion();
+				return null;
+			},
+			{ reducedMotion: true },
+		);
+
+		expect(reducedMotion).toBe(true);
+		unmount();
+	});
+
+	it('reducedMotion prop overrides the OS preference', () => {
+		const mq = {
+			matches: false,
+			media: '(prefers-reduced-motion: reduce)',
+			onchange: null,
+			addListener: vi.fn(),
+			removeListener: vi.fn(),
+			addEventListener: vi.fn(),
+			removeEventListener: vi.fn(),
+			dispatchEvent: vi.fn(),
+		} as MediaQueryList;
+		vi.spyOn(window, 'matchMedia').mockReturnValue(mq);
+
+		const { unmount } = renderWithProvider(
+			() => {
+				const reduced = useReducedMotion();
+				return <span data-testid="r">{String(reduced())}</span>;
+			},
+			{ reducedMotion: true },
+		);
+
+		expect(screen.getByTestId('r').textContent).toBe('true');
 		unmount();
 	});
 });

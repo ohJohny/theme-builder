@@ -4,6 +4,7 @@ import {
 	startColorSchemeViewTransition,
 	updateColorSchemeTogglePosition,
 } from './colorSchemeTransition';
+import { resetReducedMotionForTests, subscribeReducedMotion } from './reducedMotion';
 
 describe('updateColorSchemeTogglePosition', () => {
 	beforeEach(() => {
@@ -32,13 +33,30 @@ describe('updateColorSchemeTogglePosition', () => {
 	});
 });
 
+function mockReducedMotion(matches: boolean) {
+	const mq = {
+		matches,
+		media: '(prefers-reduced-motion: reduce)',
+		onchange: null,
+		addListener: vi.fn(),
+		removeListener: vi.fn(),
+		addEventListener: vi.fn(),
+		removeEventListener: vi.fn(),
+		dispatchEvent: vi.fn(),
+	} as MediaQueryList;
+	vi.spyOn(window, 'matchMedia').mockReturnValue(mq);
+	return subscribeReducedMotion(() => {});
+}
+
 describe('startColorSchemeViewTransition', () => {
 	beforeEach(() => {
 		document.documentElement.removeAttribute('data-view-transition-name');
+		resetReducedMotionForTests();
 	});
 
 	afterEach(() => {
 		document.documentElement.removeAttribute('data-view-transition-name');
+		resetReducedMotionForTests();
 		vi.restoreAllMocks();
 	});
 
@@ -66,18 +84,9 @@ describe('startColorSchemeViewTransition', () => {
 		document.startViewTransition =
 			startViewTransition as unknown as typeof document.startViewTransition;
 
-		vi.spyOn(window, 'matchMedia').mockReturnValue({
-			matches: false,
-			media: '(prefers-reduced-motion: reduce)',
-			onchange: null,
-			addListener: vi.fn(),
-			removeListener: vi.fn(),
-			addEventListener: vi.fn(),
-			removeEventListener: vi.fn(),
-			dispatchEvent: vi.fn(),
-		} as MediaQueryList);
-
+		const unsub = mockReducedMotion(false);
 		startColorSchemeViewTransition(updateDom);
+		unsub();
 
 		expect(startViewTransition).toHaveBeenCalledTimes(1);
 		expect(updateDom).toHaveBeenCalledTimes(1);
@@ -97,18 +106,9 @@ describe('startColorSchemeViewTransition', () => {
 		document.startViewTransition =
 			startViewTransition as unknown as typeof document.startViewTransition;
 
-		vi.spyOn(window, 'matchMedia').mockReturnValue({
-			matches: true,
-			media: '(prefers-reduced-motion: reduce)',
-			onchange: null,
-			addListener: vi.fn(),
-			removeListener: vi.fn(),
-			addEventListener: vi.fn(),
-			removeEventListener: vi.fn(),
-			dispatchEvent: vi.fn(),
-		} as MediaQueryList);
-
+		const unsub = mockReducedMotion(true);
 		startColorSchemeViewTransition(updateDom);
+		unsub();
 
 		expect(startViewTransition).not.toHaveBeenCalled();
 		expect(updateDom).toHaveBeenCalledTimes(1);
