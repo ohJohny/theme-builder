@@ -25,6 +25,13 @@ describe('createTheme', () => {
 		expect(created.theme.spacing.px.md.class).toMatch(/^cl-/);
 	});
 
+	it('injects hashed utility classes that match classMap', () => {
+		const created = createTheme(testThemeConfig, { mode: 'hashed', inject: true });
+		const injected = document.querySelector('style[id^="theme-builder-injected-"]');
+		expect(injected?.textContent).toContain(created.theme.spacing.px.md.class);
+		expect(injected?.textContent).not.toContain('.px-md{');
+	});
+
 	it('exposes custom classes on theme.classes', () => {
 		const created = createTheme(testThemeConfig, { mode: 'identity' });
 		expect(created.theme.classes.card.class).toBe('tb-card');

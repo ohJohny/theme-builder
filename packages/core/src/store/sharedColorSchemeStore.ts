@@ -1,11 +1,52 @@
+import type { ColorSchemeStoreOptions } from './colorSchemeStoreOptions';
 import {
 	createColorSchemeStore,
 	type ColorSchemeStore,
-	type ColorSchemeStoreOptions,
 } from './createColorSchemeStore';
 
 let sharedStore: ColorSchemeStore | null = null;
+let firstOptions: ColorSchemeStoreOptions | null = null;
 let refCount = 0;
+
+function isDevEnvironment(): boolean {
+	return (
+		(typeof import.meta !== 'undefined' &&
+			(import.meta as { env?: { DEV?: boolean } }).env?.DEV === true) ||
+		process.env.NODE_ENV === 'development'
+	);
+}
+
+function warnOptionMismatch(next: ColorSchemeStoreOptions): void {
+	if (!isDevEnvironment() || firstOptions === null) {
+		return;
+	}
+
+	const mismatches: string[] = [];
+	if (firstOptions.storage?.key !== next.storage?.key) {
+		mismatches.push(
+			`storage.key (${firstOptions.storage?.key ?? 'none'} vs ${next.storage?.key ?? 'none'})`,
+		);
+	}
+	if (firstOptions.storage?.type !== next.storage?.type) {
+		mismatches.push(
+			`storage.type (${firstOptions.storage?.type ?? 'none'} vs ${next.storage?.type ?? 'none'})`,
+		);
+	}
+	if (firstOptions.presetColorScheme !== next.presetColorScheme) {
+		mismatches.push(
+			`presetColorScheme (${firstOptions.presetColorScheme ?? 'default'} vs ${next.presetColorScheme ?? 'default'})`,
+		);
+	}
+	if (firstOptions.includeSystemScheme !== next.includeSystemScheme) {
+		mismatches.push('includeSystemScheme');
+	}
+
+	if (mismatches.length > 0) {
+		console.warn(
+			`[theme-builder] SingletonThemeProvider option mismatch (first mount wins): ${mismatches.join(', ')}`,
+		);
+	}
+}
 
 /**
  * Returns the module singleton color-scheme store, creating it on first call.
@@ -15,7 +56,10 @@ export function peekOrCreateSharedColorSchemeStore(
 	options: ColorSchemeStoreOptions,
 ): ColorSchemeStore {
 	if (!sharedStore) {
+		firstOptions = options;
 		sharedStore = createColorSchemeStore(options);
+	} else {
+		warnOptionMismatch(options);
 	}
 	return sharedStore;
 }
@@ -34,6 +78,7 @@ export function releaseSharedColorSchemeStore(): void {
 		refCount = 0;
 		sharedStore?.dispose();
 		sharedStore = null;
+		firstOptions = null;
 	}
 }
 
@@ -41,5 +86,6 @@ export function releaseSharedColorSchemeStore(): void {
 export function resetSharedColorSchemeStoreForTests(): void {
 	sharedStore?.dispose();
 	sharedStore = null;
+	firstOptions = null;
 	refCount = 0;
 }

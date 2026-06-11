@@ -1,14 +1,16 @@
 import path from 'node:path';
 import type { Plugin } from 'vite';
 
-import { runGenerateThemeCli } from './cli/runGenerateThemeCli.js';
-import { resolveGenerateCliConfig } from './cli/resolveGenerateCliConfig.js';
-import type { GenerateCliConfig } from './cli/resolveGenerateCliConfig.js';
+import { loadThemeConfigModule } from './config/loadThemeConfig.js';
+import { generateThemeArtifacts } from './config/generateThemeArtifacts.js';
+import type { ColorSchemeInitScriptOptions } from './config/generateThemeArtifacts.js';
+import { resolveThemeConfigPath } from './config/resolveThemeConfigPath.js';
+import type { UtilityClassMapMode } from './config/types.js';
 
 export type ThemeBuilderVitePluginOptions = {
 	readonly configPath?: string;
 	readonly outDir?: string;
-	readonly mode?: 'identity' | 'hashed';
+	readonly mode?: UtilityClassMapMode;
 	readonly defaultScheme?: string;
 	readonly storageKey?: string;
 	readonly storageType?: 'localStorage' | 'cookie';
@@ -19,29 +21,19 @@ export type ThemeBuilderVitePluginOptions = {
 	readonly strictA11y?: boolean;
 };
 
-function resolvePluginGenerateConfig(
+function resolvePluginOutDir(projectRoot: string, outDir?: string): string {
+	const value = outDir ?? 'src/generated';
+	return path.isAbsolute(value) ? value : path.resolve(projectRoot, value);
+}
+
+function resolveInitScript(
 	options: ThemeBuilderVitePluginOptions,
-	projectRoot: string,
-): GenerateCliConfig {
-	const base = resolveGenerateCliConfig(projectRoot);
-	return {
-		...base,
-		configPath: options.configPath
-			? path.resolve(projectRoot, options.configPath)
-			: base.configPath,
-		outDir: options.outDir ? path.resolve(projectRoot, options.outDir) : base.outDir,
-		mode: options.mode ?? base.mode,
-		defaultScheme: options.defaultScheme,
-		force: true,
-		initScriptStorage:
-			options.storageKey && options.storageType
-				? { type: options.storageType, key: options.storageKey }
-				: base.initScriptStorage,
-		exportDtcg: options.exportDtcg ?? false,
-		lintA11y: options.lintA11y ?? true,
-		strictA11y: options.strictA11y ?? false,
-		watch: false,
-	};
+	modInit?: ColorSchemeInitScriptOptions,
+): ColorSchemeInitScriptOptions | undefined {
+	if (options.storageKey && options.storageType) {
+		return { storage: { type: options.storageType, key: options.storageKey } };
+	}
+	return modInit;
 }
 
 export function themeBuilder(options: ThemeBuilderVitePluginOptions = {}): Plugin {
@@ -53,14 +45,46 @@ export function themeBuilder(options: ThemeBuilderVitePluginOptions = {}): Plugi
 			projectRoot = config.root;
 		},
 		async buildStart() {
-			await runGenerateThemeCli(resolvePluginGenerateConfig(options, projectRoot));
+			const configPath = resolveThemeConfigPath(projectRoot, options.configPath);
+			const mod = await loadThemeConfigModule(configPath);
+			if (mod.themeConfig === undefined) {
+				throw new Error(`Theme config module must export \`themeConfig\`: ${configPath}`);
+			}
+
+			await generateThemeArtifacts(mod.themeConfig, {
+				mode: options.mode ?? 'hashed',
+				outDir: resolvePluginOutDir(projectRoot, options.outDir),
+				defaultScheme: options.defaultScheme ?? mod.themeHashedOptions?.defaultScheme,
+				utilityClassHashSalt: mod.themeHashedOptions?.utilityClassHashSalt,
+				utilityClassHashPrefix: mod.themeHashedOptions?.utilityClassHashPrefix,
+				initScript: resolveInitScript(options, mod.themeInitOptions),
+				exportDtcg: options.exportDtcg ?? false,
+				lintA11y: options.lintA11y ?? true,
+				strictA11y: options.strictA11y ?? false,
+			});
 		},
 		async watchChange(file) {
-			const generateConfig = resolvePluginGenerateConfig(options, projectRoot);
-			if (path.resolve(file) !== path.resolve(generateConfig.configPath)) {
+			const configPath = resolveThemeConfigPath(projectRoot, options.configPath);
+			if (path.resolve(file) !== path.resolve(configPath)) {
 				return;
 			}
-			await runGenerateThemeCli(generateConfig);
+
+			const mod = await loadThemeConfigModule(configPath);
+			if (mod.themeConfig === undefined) {
+				return;
+			}
+
+			await generateThemeArtifacts(mod.themeConfig, {
+				mode: options.mode ?? 'hashed',
+				outDir: resolvePluginOutDir(projectRoot, options.outDir),
+				defaultScheme: options.defaultScheme ?? mod.themeHashedOptions?.defaultScheme,
+				utilityClassHashSalt: mod.themeHashedOptions?.utilityClassHashSalt,
+				utilityClassHashPrefix: mod.themeHashedOptions?.utilityClassHashPrefix,
+				initScript: resolveInitScript(options, mod.themeInitOptions),
+				exportDtcg: options.exportDtcg ?? false,
+				lintA11y: options.lintA11y ?? true,
+				strictA11y: options.strictA11y ?? false,
+			});
 		},
 	};
 }

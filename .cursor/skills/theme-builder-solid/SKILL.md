@@ -28,6 +28,8 @@ Same as React: use when you have **separate Solid roots** (e.g. Astro islands wi
 
 Pass identical store options on every island; first mount wins. No singleton needed for device size — `useDeviceSize` already uses a shared ref-counted `resize` subscription. `ThemeProvider` passes `reducedMotion` via context (`Accessor<boolean>`); optional `reducedMotion` prop overrides the OS preference. Outside a provider, `useReducedMotion()` falls back to a shared ref-counted `matchMedia` listener.
 
+**SSR:** `ThemeProvider` / `SingletonThemeProvider` call `store.mount()` only on the client. SSR HTML from `useColorScheme()` may show `schemes[0]` until mount; use `[data-theme]` on `<html>` for correct first-paint styling (see `theme-builder-core` **Anti-FOUC**). Treat hook-driven scheme labels as client-only or accept one post-mount update.
+
 ## Hooks
 
 - `useTheme()` — typed token tree accessor from context

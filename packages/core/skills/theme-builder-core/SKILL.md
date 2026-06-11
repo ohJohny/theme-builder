@@ -2,6 +2,15 @@
 
 `@ohJohny/theme-builder` is a shorthand alias for `/core`.
 
+## Import guide
+
+| Entry | Use for |
+|-------|---------|
+| `@ohJohny/theme-builder/core` | Runtime — `createTheme`, store, `resolveColorSchemeFromCookie`, inline init script |
+| `@ohJohny/theme-builder/core/build-utils` | Build — `generateThemeArtifacts`, `themeBuilder`, `lintThemeContrast`, hashing |
+
+`utility-class-map.json` is for debugging/tooling; runtime uses `createTheme().classMap`. Optional peer: `tsx` when loading `.ts` config files.
+
 ## Config-first setup
 
 ```ts
@@ -160,13 +169,17 @@ Generate via `generateThemeArtifacts` `initScript`, CLI `--storage-key` / `--sto
 
 **SSR:** `resolveColorSchemeFromCookie` → `<html data-theme={scheme}>`. Use `cookie` storage (not `localStorage`) when pairing init script + provider with SSR.
 
-Store re-applies the same scheme on mount via `resolveColorSchemePreference` — no flash when init or SSR is correct.
+`createColorSchemeStore().mount()` is client-only (`typeof window` guard). On the server the store stays unmounted — `getState()` uses `schemes[0]` until the provider mounts on the client.
+
+**SSR + hooks:** UI that displays `colorScheme` from `useColorScheme()` may render `schemes[0]` in SSR HTML, then update after client `mount()` reads storage. That does not break styling if `[data-theme]` is set correctly on `<html>` via cookie or init script. Prefer `data-theme` for theme CSS; treat hook-driven labels (toggle text, scheme name) as client-only or accept one post-hydration update.
+
+Store re-applies the stored preference on client `mount()` via `resolveColorSchemePreference` — no visual flash when init script or SSR `data-theme` is correct.
 
 ## Color schemes
 
 - Scheme-varying colors use `{ light, dark, ... }` objects in config.
 - CSS emits `:root` (invariant + default scheme) and `[data-theme="<name>"]` blocks.
-- `createColorSchemeStore({ schemes })` cycles round-robin when `changeColorScheme()` is called with no argument (includes `system` when `includeSystemScheme` is true).
+- `createColorSchemeStore({ schemes })` — call `mount()` on the client (providers do this); `dispose()` on unmount. Cycles round-robin when `changeColorScheme()` is called with no argument (includes `system` when `includeSystemScheme` is true).
 - `SYSTEM_COLOR_SCHEME` (`'system'`) follows OS preference; `getState().resolvedColorScheme` is what lands on `data-theme`.
 - Optional `viewTransition: true` wraps scheme changes in `startColorSchemeViewTransition`.
 - Multi-root apps (Astro islands): use `SingletonThemeProvider` from `@ohJohny/theme-builder/react` or `/solid` — it wraps a shared store via `peekOrCreateSharedColorSchemeStore`, `retainSharedColorSchemeStore`, and `releaseSharedColorSchemeStore` (ref-counted dispose when the last provider unmounts). One store per page; first-call options win.

@@ -49,7 +49,13 @@ function contrastRatio(foreground: string, background: string): number | null {
 const TEXT_TOKEN_PATTERN = /text/i;
 const SURFACE_TOKEN_PATTERN = /surface|background|body/i;
 
-/** Warn when semantic text/surface hex pairs fall below WCAG AA (4.5:1). */
+/**
+ * Heuristic smoke check: pairs the first semantic token whose name matches `/text/i`
+ * with the first matching `/surface|background|body/i` per scheme.
+ *
+ * Not checked: base colors, non-hex values, arbitrary token pairs, component-level
+ * contrast, or tokens that do not match the name patterns.
+ */
 export function lintThemeContrast(
 	config: ThemeConfigInput,
 	minRatio = 4.5,

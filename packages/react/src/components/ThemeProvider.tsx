@@ -40,6 +40,7 @@ export function ThemeProvider<C extends ThemeConfigInput>(props: ThemeProviderPr
 	const store = storeRef.current;
 
 	useEffect(() => {
+		store.mount();
 		return () => store.dispose();
 	}, [store]);
 

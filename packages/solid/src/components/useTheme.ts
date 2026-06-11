@@ -3,6 +3,9 @@ import { createContext, useContext, type Accessor, type Context } from 'solid-js
 
 import type { Theme, ThemeConfigInput } from '@ohJohny/theme-builder-core';
 
+export const ThemeConfigContext: Context<Accessor<ThemeConfigInput> | undefined> =
+	createContext<Accessor<ThemeConfigInput> | undefined>();
+
 export const ThemeContext: Context<Accessor<Theme<ThemeConfigInput>> | undefined> =
 	createContext<Accessor<Theme<ThemeConfigInput>> | undefined>();
 

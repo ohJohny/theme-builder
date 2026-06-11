@@ -22,12 +22,13 @@ describe('createColorSchemeStore', () => {
 		expect(Object.is(first, second)).toBe(true);
 	});
 
-	it('changeColorScheme updates snapshot and applies data-theme', () => {
+	it('changeColorScheme updates snapshot and applies data-theme after mount', () => {
 		const store = createColorSchemeStore({
 			schemes,
 			presetColorScheme: 'light',
 			applyColorSchemeOnMount: true,
 		});
+		store.mount();
 
 		expect(store.getState().colorScheme).toBe('light');
 		expect(document.documentElement.getAttribute('data-theme')).toBe('light');
@@ -46,6 +47,7 @@ describe('createColorSchemeStore', () => {
 			presetColorScheme: 'light',
 			applyColorSchemeOnMount: true,
 		});
+		store.mount();
 
 		store.changeColorScheme('system');
 		expect(store.getState().colorScheme).toBe('system');
@@ -64,6 +66,7 @@ describe('createColorSchemeStore', () => {
 			storage: { type: 'localStorage', key: 'tb-store-test' },
 			applyColorSchemeOnMount: false,
 		});
+		store.mount();
 
 		expect(store.getState().colorScheme).toBe('dark');
 	});
@@ -77,8 +80,22 @@ describe('createColorSchemeStore', () => {
 			storage: { type: 'localStorage', key: 'tb-store-test' },
 			applyColorSchemeOnMount: false,
 		});
+		store.mount();
 
 		expect(store.getState().colorScheme).toBe('sepia');
+	});
+
+	it('writes only to configured storage type', () => {
+		const store = createColorSchemeStore({
+			schemes,
+			storage: { type: 'cookie', key: 'tb-cookie-only' },
+			applyColorSchemeOnMount: false,
+		});
+		store.mount();
+		store.changeColorScheme('dark');
+
+		expect(document.cookie).toContain('tb-cookie-only=dark');
+		expect(localStorage.getItem('tb-cookie-only')).toBeNull();
 	});
 
 	it('dispose clears listeners so subscribers stop receiving updates', () => {

@@ -12,7 +12,8 @@ export type DeviceBreakpoints = {
 /** @deprecated Use {@link DeviceBreakpoints} — keys are now `tabletMin`, `desktopMin`, `wideMin`. */
 export type DeviceBreakpointsRem = DeviceBreakpoints;
 
-export type DeviceMatches = Record<DeviceSizeName, boolean>;
+/** Legacy bands (`mobile` / `tablet` / `desktop` / `wide`) or `config.breakpoints` keys. */
+export type DeviceMatches = Record<string, boolean>;
 
 export type DeviceBreakpointsPx = {
 	readonly tabletMin: number;

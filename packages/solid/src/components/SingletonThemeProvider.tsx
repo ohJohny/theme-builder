@@ -21,7 +21,7 @@ import {
 import { ColorSchemeContext } from './ColorSchemeContext';
 import { DeviceSizeProvider } from './DeviceSizeProvider';
 import { ReducedMotionProvider } from './ReducedMotionProvider';
-import { ThemeContext } from './useTheme';
+import { ThemeConfigContext, ThemeContext } from './useTheme';
 import type { DeviceBreakpoints } from '../utils/types';
 
 export type SingletonThemeProviderProps<C extends ThemeConfigInput> = Omit<
@@ -55,6 +55,9 @@ export function SingletonThemeProvider<C extends ThemeConfigInput>(
 		schemes: local.theme.schemes,
 		presetColorScheme: storeOptions.presetColorScheme ?? local.theme.defaultScheme,
 	});
+	if (typeof window !== 'undefined') {
+		store.mount();
+	}
 	const [snapshot, setSnapshot] = createSignal(store.getState());
 
 	onMount(() => {
@@ -80,16 +83,19 @@ export function SingletonThemeProvider<C extends ThemeConfigInput>(
 	};
 
 	const themeAccessor = () => local.theme.theme;
+	const themeConfigAccessor = () => local.theme.config;
 
 	return (
 		<ColorSchemeContext.Provider value={colorSchemeValue}>
-			<ThemeContext.Provider value={themeAccessor}>
+			<ThemeConfigContext.Provider value={themeConfigAccessor}>
+				<ThemeContext.Provider value={themeAccessor}>
 				<DeviceSizeProvider breakpoints={local.breakpoints} breakpointsRem={local.breakpointsRem}>
 					<ReducedMotionProvider reducedMotion={local.reducedMotion}>
 						{local.children}
 					</ReducedMotionProvider>
 				</DeviceSizeProvider>
-			</ThemeContext.Provider>
+				</ThemeContext.Provider>
+			</ThemeConfigContext.Provider>
 		</ColorSchemeContext.Provider>
 	);
 }

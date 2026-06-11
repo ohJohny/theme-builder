@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 import type { ThemeStorageConfig } from '../colorScheme.types.js';
+import { resolveThemeConfigPath } from '../config/resolveThemeConfigPath.js';
 import type { UtilityClassMapMode } from '../config/types.js';
 
 export type GenerateCliConfig = {
@@ -55,8 +56,7 @@ function parseStorageType(value: string | undefined): ThemeStorageConfig['type']
 }
 
 export function resolveGenerateCliConfig(cwd = process.cwd()): GenerateCliConfig {
-	const configPath =
-		readArg('--config') ?? process.env.THEME_CONFIG ?? 'src/theme/default-theme.ts';
+	const explicitConfigPath = readArg('--config') ?? process.env.THEME_CONFIG;
 	const outDir = readArg('--out') ?? process.env.THEME_OUT_DIR ?? 'src/generated';
 	const mode = parseMode(readArg('--mode') ?? process.env.THEME_MODE ?? 'hashed');
 	const defaultScheme = readArg('--default-scheme') ?? process.env.THEME_DEFAULT_SCHEME;
@@ -73,7 +73,7 @@ export function resolveGenerateCliConfig(cwd = process.cwd()): GenerateCliConfig
 
 	return {
 		cwd,
-		configPath: resolvePath(cwd, configPath),
+		configPath: resolveThemeConfigPath(cwd, explicitConfigPath),
 		outDir: resolvePath(cwd, outDir),
 		mode,
 		defaultScheme,

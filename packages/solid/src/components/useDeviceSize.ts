@@ -1,6 +1,8 @@
 import type { Accessor } from 'solid-js';
 import { createMemo, onCleanup, useContext } from 'solid-js';
 
+import { resolveDeviceMatchesFromBreakpoints } from '@ohJohny/theme-builder-core';
+
 import {
 	breakpointsToPx,
 	computeMatches,
@@ -11,6 +13,7 @@ import {
 import { subscribeSharedWindowWidth } from '../utils/subscribeSharedWindowWidth';
 import type { DeviceMatches, UseDeviceSizeOptions } from '../utils/types';
 import { DeviceSizeContext } from './DeviceSizeContext';
+import { ThemeConfigContext } from './useTheme';
 
 export type UseDeviceSizeResult = Accessor<DeviceMatches>;
 
@@ -25,6 +28,7 @@ export type UseDeviceSizeResult = Accessor<DeviceMatches>;
  */
 export function useDeviceSize(options?: UseDeviceSizeOptions): UseDeviceSizeResult {
 	const ctx = useContext(DeviceSizeContext);
+	const themeConfig = useContext(ThemeConfigContext);
 
 	const [width, release] = subscribeSharedWindowWidth();
 	onCleanup(release);
@@ -38,7 +42,12 @@ export function useDeviceSize(options?: UseDeviceSizeOptions): UseDeviceSizeResu
 	});
 
 	const matches = createMemo(() => {
-		const px = breakpointsToPx(breakpoints(), getRootFontSizePx());
+		const rootFontPx = getRootFontSizePx();
+		const config = themeConfig?.();
+		if (config?.breakpoints && Object.keys(config.breakpoints).length > 0) {
+			return resolveDeviceMatchesFromBreakpoints(config, width(), rootFontPx);
+		}
+		const px = breakpointsToPx(breakpoints(), rootFontPx);
 		return computeMatches(width(), px);
 	});
 

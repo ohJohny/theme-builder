@@ -17,7 +17,10 @@ function buildStorageReadExpression(storage: ThemeStorageConfig): string {
 	return `try{var m=document.cookie.match(new RegExp("(?:^|; )${escapedKey}=([^;]*)"));if(m)stored=decodeURIComponent(m[1])}catch(e){}`;
 }
 
-/** Generates a blocking IIFE for `<head>` that sets `data-theme` before first paint. */
+/**
+ * Generates a blocking IIFE for `<head>` that sets `data-theme` before first paint.
+ * @remarks Runtime/SSR helper — also available from `@ohJohny/theme-builder/core/build-utils`.
+ */
 export function buildColorSchemeInitScript(options: BuildColorSchemeInitScriptOptions): string {
 	const schemesJson = JSON.stringify([...options.schemes]);
 	const defaultSchemeJson = JSON.stringify(options.defaultScheme);

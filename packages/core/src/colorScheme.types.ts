@@ -27,6 +27,14 @@ export type ThemeStorageConfig = {
 	readonly key: string;
 };
 
+/** Shared color-scheme settings for init script, store, and SSR. */
+export type ColorSchemeProfile = {
+	readonly schemes?: readonly string[];
+	readonly defaultScheme?: ColorSchemeId;
+	readonly storage?: ThemeStorageConfig;
+	readonly includeSystemScheme?: boolean;
+};
+
 export const DEFAULT_SCHEMES: readonly string[] = ['light', 'dark'];
 
 export const DEFAULT_THEME_META: readonly ThemeMetaItem[] = [

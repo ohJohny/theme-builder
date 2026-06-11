@@ -10,42 +10,23 @@ import {
 	type ColorSchemeId,
 	type ColorSchemePreference,
 	type ThemeMetaItem,
-	type ThemeStorageConfig,
 } from '../colorScheme.types';
-import { readRawStorageValue, writePersistedColorScheme } from '../colorSchemeStorage';
+import { readRawStorageValue, writeStoredColorScheme } from '../colorSchemeStorage';
 import { nextPreferenceInCycle, resolveAppliedColorScheme } from '../resolveAppliedColorScheme';
 import { resolveColorSchemePreference } from '../resolveInitialColorScheme';
+import type {
+	ColorSchemeListItem,
+	ColorSchemeStoreOptions,
+	ColorSchemeStoreState,
+} from './colorSchemeStoreOptions';
 
-export type ColorSchemeListItem = ThemeMetaItem & {
-	readonly active: boolean;
-};
-
-export type ColorSchemeStoreState = {
-	/** User preference — may be `system`. */
-	readonly colorScheme: ColorSchemePreference;
-	/** Scheme applied to `data-theme`. */
-	readonly resolvedColorScheme: ColorSchemeId;
-	readonly colorSchemeList: readonly ColorSchemeListItem[];
-	readonly labelShort: string;
-};
-
-export type ColorSchemeStoreOptions = {
-	readonly schemes: readonly string[];
-	readonly themeMeta?: readonly ThemeMetaItem[];
-	readonly presetColorScheme?: ColorSchemePreference;
-	readonly storage?: ThemeStorageConfig;
-	readonly applyColorSchemeOnMount?: boolean;
-	readonly additionalVariables?: Record<string, string>;
-	/** When true (default), `system` is a valid preference and included in round-robin cycling. */
-	readonly includeSystemScheme?: boolean;
-	/** When true, scheme changes use `startColorSchemeViewTransition` (respects reduced motion). */
-	readonly viewTransition?: boolean;
-};
+export type { ColorSchemeListItem, ColorSchemeStoreState, ColorSchemeStoreOptions } from './colorSchemeStoreOptions';
 
 export type ColorSchemeStore = {
 	readonly subscribe: (listener: () => void) => () => void;
 	readonly getState: () => ColorSchemeStoreState;
 	readonly changeColorScheme: (next?: ColorSchemePreference) => void;
+	readonly mount: () => void;
 	readonly dispose: () => void;
 };
 
@@ -85,6 +66,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorS
 	let resolvedColorScheme: ColorSchemeId = schemes[0] ?? DEFAULT_SCHEMES[0];
 	let appliedVariableKeys: string[] = [];
 	let cachedState: ColorSchemeStoreState | null = null;
+	let mounted = false;
 
 	const applyVariables = () => {
 		appliedVariableKeys = applyAdditionalVariables(options.additionalVariables, appliedVariableKeys);
@@ -141,9 +123,11 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorS
 		colorScheme = next;
 		syncResolvedScheme();
 		invalidateState();
-		applyCurrentScheme(true);
+		if (mounted) {
+			applyCurrentScheme(true);
+		}
 		if (options.storage) {
-			writePersistedColorScheme(options.storage.key, colorScheme);
+			writeStoredColorScheme(options.storage, colorScheme);
 		}
 		notify();
 	};
@@ -191,6 +175,11 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorS
 	};
 
 	const mount = () => {
+		if (mounted || typeof window === 'undefined') {
+			return;
+		}
+		mounted = true;
+
 		const stored = options.storage ? readRawStorageValue(options.storage) : null;
 		colorScheme = resolveColorSchemePreference({
 			schemes,
@@ -209,7 +198,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorS
 		notify();
 		attachSystemPreferenceListener();
 
-		if (!options.storage) {
+		if (!options.storage || options.storage.type !== 'localStorage') {
 			return;
 		}
 
@@ -232,9 +221,15 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorS
 		window.addEventListener('storage', storageListener);
 	};
 
-	if (typeof window !== 'undefined') {
-		mount();
-	}
+	const dispose = () => {
+		if (storageListener && typeof window !== 'undefined') {
+			window.removeEventListener('storage', storageListener);
+			storageListener = undefined;
+		}
+		detachSystemPreferenceListener();
+		listeners.clear();
+		mounted = false;
+	};
 
 	return {
 		subscribe: (listener) => {
@@ -243,12 +238,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorS
 		},
 		getState,
 		changeColorScheme,
-		dispose: () => {
-			if (storageListener && typeof window !== 'undefined') {
-				window.removeEventListener('storage', storageListener);
-			}
-			detachSystemPreferenceListener();
-			listeners.clear();
-		},
+		mount,
+		dispose,
 	};
 }

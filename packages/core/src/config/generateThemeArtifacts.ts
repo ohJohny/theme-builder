@@ -5,22 +5,16 @@ import {
 	buildColorSchemeInitScript,
 	buildColorSchemeInitScriptHtmlSnippet,
 } from '../buildColorSchemeInitScript';
-import type { ThemeStorageConfig } from '../colorScheme.types';
 import { exportDesignTokens } from '../exportDesignTokens';
 import { lintThemeContrast } from '../lintThemeContrast';
-import { rewriteUtilityCss } from '../utils/utility-class-map';
 import { buildBreakpointsScss } from './buildBreakpointsScss';
-import {
-	buildThemeStylesheet,
-	resolveDefaultScheme,
-	resolveSchemes,
-} from './buildThemeStylesheet';
-import { buildThemeClassMap, collectClassNames } from './collectClassNames';
+import { buildThemeCss } from './buildThemeCss';
+import { resolveDefaultScheme, resolveSchemes } from './buildThemeStylesheet';
+import { collectClassNames } from './collectClassNames';
+import type { ColorSchemeProfile } from '../colorScheme.types';
 import type { ThemeConfigInput, UtilityClassMapMode } from './types';
 
-export type ColorSchemeInitScriptOptions = {
-	readonly storage: ThemeStorageConfig;
-};
+export type ColorSchemeInitScriptOptions = ColorSchemeProfile;
 
 export type GenerateThemeArtifactsOptions = {
 	readonly mode: UtilityClassMapMode;
@@ -63,17 +57,13 @@ export async function generateThemeArtifacts(
 	const outDir = assertOutDir(options.outDir);
 	const schemes = resolveSchemes(config);
 	const defaultScheme = resolveDefaultScheme(config, options.defaultScheme);
-	const classMap = buildThemeClassMap(
-		config,
-		options.mode,
-		options.utilityClassHashSalt,
-		options.utilityClassHashPrefix,
-	);
-
-	let css = buildThemeStylesheet(config, { defaultScheme, schemes });
-	if (options.mode === 'hashed') {
-		css = rewriteUtilityCss(css, classMap);
-	}
+	const { css, classMap } = buildThemeCss(config, {
+		mode: options.mode,
+		defaultScheme,
+		schemes,
+		utilityClassHashSalt: options.utilityClassHashSalt,
+		utilityClassHashPrefix: options.utilityClassHashPrefix,
+	});
 
 	await mkdir(outDir, { recursive: true });
 
@@ -82,7 +72,13 @@ export async function generateThemeArtifacts(
 
 	const catalog = collectClassNames(config);
 	const mapPath = path.join(outDir, 'utility-class-map.json');
-	await writeFile(mapPath, JSON.stringify({ mode: options.mode, map: classMap, catalog }, null, 2), 'utf-8');
+	const mapPayload = {
+		_generated: 'theme-builder — debugging and external tooling; runtime uses createTheme().classMap',
+		mode: options.mode,
+		map: classMap,
+		catalog,
+	};
+	await writeFile(mapPath, JSON.stringify(mapPayload, null, 2), 'utf-8');
 
 	const breakpointsScss = buildBreakpointsScss(config);
 	let breakpointsPath: string | undefined;
@@ -94,10 +90,15 @@ export async function generateThemeArtifacts(
 	let initScriptPath: string | undefined;
 	let initScriptHtmlPath: string | undefined;
 	if (options.initScript !== undefined) {
+		const profile = options.initScript;
+		if (profile.storage === undefined) {
+			throw new Error('[generateThemeArtifacts] initScript requires storage');
+		}
 		const initScript = buildColorSchemeInitScript({
-			schemes,
-			defaultScheme,
-			storage: options.initScript.storage,
+			schemes: profile.schemes ?? schemes,
+			defaultScheme: profile.defaultScheme ?? defaultScheme,
+			storage: profile.storage,
+			includeSystemScheme: profile.includeSystemScheme,
 		});
 		initScriptPath = path.join(outDir, 'theme-init.js');
 		await writeFile(initScriptPath, initScript, 'utf-8');

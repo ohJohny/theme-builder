@@ -2,7 +2,12 @@ import type { ReactNode } from 'react';
 
 import type { CreatedTheme, ReducedMotionPreference, ThemeConfigInput } from '@ohJohny/theme-builder-core';
 
-import { ColorSchemeContext, type ColorSchemeContextValue, ThemeContext } from './ColorSchemeContext';
+import {
+	ColorSchemeContext,
+	type ColorSchemeContextValue,
+	ThemeConfigContext,
+	ThemeContext,
+} from './ColorSchemeContext';
 import { DeviceSizeProvider } from './DeviceSizeProvider';
 import { ReducedMotionProvider } from './ReducedMotionProvider';
 import type { DeviceBreakpoints } from '../utils/types';
@@ -26,11 +31,13 @@ export function ThemeProviderTree<C extends ThemeConfigInput>(props: ThemeProvid
 
 	return (
 		<ColorSchemeContext.Provider value={store}>
-			<ThemeContext.Provider value={theme.theme}>
-				<DeviceSizeProvider breakpoints={breakpoints} breakpointsRem={breakpointsRem}>
+			<ThemeConfigContext.Provider value={theme.config}>
+				<ThemeContext.Provider value={theme.theme}>
+					<DeviceSizeProvider breakpoints={breakpoints} breakpointsRem={breakpointsRem}>
 					<ReducedMotionProvider reducedMotion={reducedMotion}>{children}</ReducedMotionProvider>
-				</DeviceSizeProvider>
-			</ThemeContext.Provider>
+					</DeviceSizeProvider>
+				</ThemeContext.Provider>
+			</ThemeConfigContext.Provider>
 		</ColorSchemeContext.Provider>
 	);
 }

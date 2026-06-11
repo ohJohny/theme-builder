@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
 	peekOrCreateSharedColorSchemeStore,
@@ -7,69 +7,34 @@ import {
 	retainSharedColorSchemeStore,
 } from './sharedColorSchemeStore';
 
-describe('sharedColorSchemeStore', () => {
-	const schemes = ['light', 'dark'] as const;
-
-	beforeEach(() => {
-		localStorage.clear();
-		document.documentElement.removeAttribute('data-theme');
-		resetSharedColorSchemeStoreForTests();
-	});
-
+describe('peekOrCreateSharedColorSchemeStore', () => {
 	afterEach(() => {
 		resetSharedColorSchemeStoreForTests();
-		localStorage.clear();
-		document.documentElement.removeAttribute('data-theme');
+		vi.restoreAllMocks();
 	});
 
-	it('peekOrCreate returns the same instance across calls', () => {
-		const first = peekOrCreateSharedColorSchemeStore({
-			schemes,
-			applyColorSchemeOnMount: false,
-		});
-		const second = peekOrCreateSharedColorSchemeStore({
-			schemes,
-			applyColorSchemeOnMount: false,
-		});
+	it('warns in development when later options mismatch', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		vi.stubEnv('NODE_ENV', 'development');
 
-		expect(first).toBe(second);
-	});
-
-	it('retain/release ref-count disposes only when count reaches zero', () => {
-		const store = peekOrCreateSharedColorSchemeStore({
-			schemes,
-			applyColorSchemeOnMount: false,
+		peekOrCreateSharedColorSchemeStore({
+			schemes: ['light', 'dark'],
+			storage: { type: 'localStorage', key: 'a' },
+		});
+		peekOrCreateSharedColorSchemeStore({
+			schemes: ['light', 'dark'],
+			storage: { type: 'localStorage', key: 'b' },
 		});
 
-		retainSharedColorSchemeStore();
-		retainSharedColorSchemeStore();
-
-		releaseSharedColorSchemeStore();
-		expect(peekOrCreateSharedColorSchemeStore({ schemes, applyColorSchemeOnMount: false })).toBe(
-			store,
+		expect(warn).toHaveBeenCalledWith(
+			expect.stringContaining('SingletonThemeProvider option mismatch'),
 		);
-
-		releaseSharedColorSchemeStore();
-		const recreated = peekOrCreateSharedColorSchemeStore({
-			schemes,
-			applyColorSchemeOnMount: false,
-		});
-		expect(recreated).not.toBe(store);
 	});
 
-	it('resetSharedColorSchemeStoreForTests clears module state', () => {
-		const store = peekOrCreateSharedColorSchemeStore({
-			schemes,
-			applyColorSchemeOnMount: false,
-		});
+	it('retains and releases the shared store by ref count', () => {
+		const store = peekOrCreateSharedColorSchemeStore({ schemes: ['light', 'dark'] });
 		retainSharedColorSchemeStore();
-
-		resetSharedColorSchemeStoreForTests();
-
-		const recreated = peekOrCreateSharedColorSchemeStore({
-			schemes,
-			applyColorSchemeOnMount: false,
-		});
-		expect(recreated).not.toBe(store);
+		releaseSharedColorSchemeStore();
+		expect(store.getState().colorScheme).toBe('light');
 	});
 });

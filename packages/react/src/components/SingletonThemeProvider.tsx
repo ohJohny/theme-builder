@@ -41,9 +41,12 @@ export function SingletonThemeProvider<C extends ThemeConfigInput>(
 	});
 
 	useEffect(() => {
+		store.mount();
 		retainSharedColorSchemeStore();
-		return () => releaseSharedColorSchemeStore();
-	}, []);
+		return () => {
+			releaseSharedColorSchemeStore();
+		};
+	}, [store]);
 
 	return (
 		<ThemeProviderTree

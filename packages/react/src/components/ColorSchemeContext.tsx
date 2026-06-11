@@ -18,6 +18,8 @@ export function useColorSchemeContext(): ColorSchemeContextValue {
 
 export const ThemeContext = createContext<Theme<ThemeConfigInput> | null>(null);
 
+export const ThemeConfigContext = createContext<ThemeConfigInput | null>(null);
+
 export function useTheme<C extends ThemeConfigInput = ThemeConfigInput>(): Theme<C> {
 	const theme = useContext(ThemeContext);
 	if (!theme) {

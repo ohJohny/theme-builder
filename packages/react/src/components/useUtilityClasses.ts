@@ -7,6 +7,7 @@ import {
 } from '@ohJohny/theme-builder-core';
 
 import { useTheme } from './ColorSchemeContext';
+import { useDeviceSize } from './useDeviceSize';
 
 /** Resolves utility props using the current theme from ThemeProvider. */
 export function useUtilityClasses<C extends ThemeConfigInput>(
@@ -14,7 +15,8 @@ export function useUtilityClasses<C extends ThemeConfigInput>(
 	created?: CreatedTheme<C>,
 ): UtilityClassesResult {
 	const theme = created?.theme ?? useTheme<C>();
-	return resolveUtilityClasses(props, theme);
+	const deviceMatches = useDeviceSize();
+	return resolveUtilityClasses(props, theme, { deviceMatches });
 }
 
 export type { UtilityClassesResult, UtilityProps } from '@ohJohny/theme-builder-core';

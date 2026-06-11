@@ -1,10 +1,6 @@
 import { buildThemeFromConfig } from './buildThemeFromConfig';
-import {
-	buildThemeStylesheet,
-	resolveDefaultScheme,
-	resolveSchemes,
-} from './buildThemeStylesheet';
-import { buildThemeClassMap } from './collectClassNames';
+import { buildThemeCss } from './buildThemeCss';
+import { resolveDefaultScheme, resolveSchemes } from './buildThemeStylesheet';
 import { injectThemeStyles } from './injectThemeStyles';
 import type {
 	CreateThemeOptions,
@@ -23,16 +19,16 @@ export function createTheme<const C extends ThemeConfigInput>(
 		config,
 		options.defaultScheme as string | undefined,
 	);
-	const classMap = buildThemeClassMap(
-		config,
+	const { css, classMap } = buildThemeCss(config, {
 		mode,
-		options.utilityClassHashSalt,
-		options.utilityClassHashPrefix,
-	);
+		defaultScheme,
+		schemes,
+		utilityClassHashSalt: options.utilityClassHashSalt,
+		utilityClassHashPrefix: options.utilityClassHashPrefix,
+	});
 	const theme = buildThemeFromConfig(config, classMap);
 
 	if (options.inject) {
-		const css = buildThemeStylesheet(config, { defaultScheme, schemes });
 		injectThemeStyles(css);
 	}
 

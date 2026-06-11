@@ -77,6 +77,12 @@ Default breakpoints: `DEFAULT_DEVICE_BREAKPOINTS_REM` — 48 / 62 / 80 rem.
 
 `useColorScheme()` is the only hook that subscribes to scheme changes (`useSyncExternalStore` on the store). Components that only call `useTheme()` or `useUtilityClasses()` stay stable across toggles.
 
+### SSR and hydration
+
+`ThemeProvider` calls `store.mount()` in `useEffect` (client only). On SSR the store is unmounted — `useColorScheme()` renders `schemes[0]`, not the user's stored preference.
+
+UI that **displays** `colorScheme` from the hook on first paint may show `schemes[0]` in SSR HTML, then update on the client after `mount()`. **Fix:** rely on `[data-theme]` (SSR cookie or init script) for styling; treat hook-driven display text as client-only or accept one update. See `theme-builder-core` **Anti-FOUC** for `resolveColorSchemeFromCookie`.
+
 ### SingletonThemeProvider (Astro islands / multi-root)
 
 React context does **not** cross separate roots. Each island still needs its own provider so hooks work, but `ThemeProvider` creates a **new** color-scheme store per mount — islands won't sync and will fight over `data-theme`.

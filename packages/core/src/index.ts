@@ -74,6 +74,7 @@ export { isSolidPaintCssValue } from './isSolidPaintCssValue';
 export type {
 	ColorSchemeId,
 	ColorSchemePreference,
+	ColorSchemeProfile,
 	ThemeOption,
 	ThemeMetaItem,
 	ThemeStorageConfig,
@@ -134,6 +135,7 @@ export {
 } from './reducedMotion';
 export type { ReducedMotionPreference } from './reducedMotion';
 export { applyAdditionalVariables } from './applyAdditionalVariables';
+export { resolveDeviceMatchesFromBreakpoints } from './resolveDeviceMatchesFromBreakpoints';
 export { createColorSchemeStore } from './store/createColorSchemeStore';
 export type {
 	ColorSchemeStore,

@@ -8,7 +8,16 @@ Framework-agnostic, config-first design tokens with React and Solid providers.
 npm install @ohJohny/theme-builder
 ```
 
-Peer dependencies: `react` + `react-dom` for `/react`, `solid-js` for `/solid`.
+Peer dependencies: `react` + `react-dom` for `/react`, `solid-js` for `/solid`. Optional: `tsx` when the CLI or Vite plugin loads a `.ts` theme config (`npm install -D tsx`).
+
+## Import guide
+
+| Entry | Use for |
+|-------|---------|
+| `@ohJohny/theme-builder/core` | Browser/SSR runtime — `createTheme`, color-scheme store, `resolveColorSchemeFromCookie`, inline `buildColorSchemeInitScript` |
+| `@ohJohny/theme-builder/core/build-utils` | Node/build — `generateThemeArtifacts`, `themeBuilder`, `exportDesignTokens`, `lintThemeContrast`, utility-class hashing |
+
+Some symbols appear in both entries for convenience; prefer `/core/build-utils` for build scripts and the Vite plugin.
 
 ## Entry points
 
@@ -98,6 +107,13 @@ await generateThemeArtifacts(themeConfig, {
 ```
 
 Outputs: `theme.css`, `utility-class-map.json`, `_breakpoints.scss` (when breakpoints are set), and optionally `theme-init.js` + `theme-init.html` (when `initScript` is set). `outDir` is **required** — the tool has no default.
+
+| Artifact | Purpose |
+|----------|---------|
+| `theme.css` | Production stylesheet (import in layout) |
+| `utility-class-map.json` | Debugging, external tooling, CI — **not** read at runtime; the app uses `createTheme().classMap` rebuilt from config |
+| `_breakpoints.scss` | SCSS mixins from `config.breakpoints` |
+| `theme-init.js` / `theme-init.html` | Anti-FOUC blocking script |
 
 Pass `initScript` to emit a blocking anti-FOUC script, or use CLI flags `--storage-key` / `--storage-type`, or export `themeInitOptions` from your config module:
 
@@ -242,7 +258,9 @@ Motion duration vars zero out under `[data-reduced-motion]` when configured.
 
 ## Responsive spacing
 
-Pass breakpoint maps and optional device context:
+When `breakpoints` are set on the theme config, `useDeviceSize()` and `useUtilityClasses()` under `ThemeProvider` derive `deviceMatches` from those names automatically. Keys in responsive props match `config.breakpoints` (e.g. `{ px: { mobile: 'sm', desktop: 'md' } }`).
+
+For manual resolution:
 
 ```ts
 resolveUtilityClasses(
@@ -267,6 +285,8 @@ theme-builder generate --strict-a11y
 # Opt out of contrast warnings
 theme-builder generate --no-lint-a11y
 ```
+
+Contrast lint (`--lint-a11y`, default on) is a **heuristic smoke check**: it pairs the first semantic `text*` token with the first `surface*` / `background*` / `body*` token per scheme, hex colors only, minimum ratio 4.5:1. It does not validate arbitrary pairs, base colors, or component-level contrast.
 
 Vite plugin (`lintA11y` defaults to `true`; pass `strictA11y: true` in CI):
 

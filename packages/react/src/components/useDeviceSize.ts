@@ -1,5 +1,7 @@
 import { useContext, useMemo, useSyncExternalStore } from 'react';
 
+import { resolveDeviceMatchesFromBreakpoints } from '@ohJohny/theme-builder-core';
+
 import {
 	breakpointsToPx,
 	computeMatches,
@@ -7,6 +9,7 @@ import {
 	getRootFontSizePx,
 	mergeBreakpoints,
 } from '../utils/deviceSizeCore';
+import { ThemeConfigContext } from './ColorSchemeContext';
 import { DeviceSizeContext } from './DeviceSizeContext';
 import {
 	getSharedWindowWidthSnapshot,
@@ -23,6 +26,7 @@ import type { DeviceMatches, UseDeviceSizeOptions } from '../utils/types';
  */
 export function useDeviceSize(options?: UseDeviceSizeOptions): DeviceMatches {
 	const ctx = useContext(DeviceSizeContext);
+	const themeConfig = useContext(ThemeConfigContext);
 
 	const width = useSyncExternalStore(
 		subscribeSharedWindowWidth,
@@ -39,7 +43,11 @@ export function useDeviceSize(options?: UseDeviceSizeOptions): DeviceMatches {
 	}, [ctx, options?.breakpoints, options?.breakpointsRem]);
 
 	return useMemo(() => {
-		const px = breakpointsToPx(breakpoints, getRootFontSizePx());
+		const rootFontPx = getRootFontSizePx();
+		if (themeConfig?.breakpoints && Object.keys(themeConfig.breakpoints).length > 0) {
+			return resolveDeviceMatchesFromBreakpoints(themeConfig, width, rootFontPx);
+		}
+		const px = breakpointsToPx(breakpoints, rootFontPx);
 		return computeMatches(width, px);
-	}, [width, breakpoints]);
+	}, [width, breakpoints, themeConfig]);
 }

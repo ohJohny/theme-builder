@@ -16,12 +16,11 @@
 		"dist",
 		"scripts/sync-cursor-skills.mjs"
 	],
-	"sideEffects": false,
+	"sideEffects": [
+		"./dist/core/index.js"
+	],
 	"bin": {
 		"theme-builder": "./dist/core/cli/generate.js"
-	},
-	"dependencies": {
-		"tsx": "^4.19.4"
 	},
 	"exports": {
 		".": {
@@ -70,7 +69,8 @@
 	"peerDependencies": {
 		"react": ">=18.0.0",
 		"react-dom": ">=18.0.0",
-		"solid-js": ">=1.8.0"
+		"solid-js": ">=1.8.0",
+		"tsx": "^4.19.4"
 	},
 	"peerDependenciesMeta": {
 		"react": {
@@ -80,6 +80,9 @@
 			"optional": true
 		},
 		"solid-js": {
+			"optional": true
+		},
+		"tsx": {
 			"optional": true
 		}
 	},
@@ -92,6 +95,7 @@
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
 		"solid-js": "1.9.12",
+		"tsx": "^4.19.4",
 		"typescript": "^6.0.3",
 		"vite": "8.0.5",
 		"vite-plugin-solid": "2.11.12",
