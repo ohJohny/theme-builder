@@ -24,9 +24,23 @@ import {
 	REM_BASE_VAR_NAME,
 	DEFAULT_REM_BASE,
 	remBaseVarRef,
+	motionDurationUtilityClass,
+	motionDurationVarName,
+	motionDurationVarRef,
+	motionEasingVarName,
+	motionEasingVarRef,
+	opacityUtilityClass,
+	opacityVarName,
+	opacityVarRef,
+	radiusUtilityClass,
+	radiusVarName,
+	radiusVarRef,
 	shadowUtilityClass,
 	shadowVarName,
 	shadowVarRef,
+	zIndexUtilityClass,
+	zIndexVarName,
+	zIndexVarRef,
 	spaceVarName,
 	spaceVarRef,
 	spacingUtilityClass,
@@ -131,6 +145,31 @@ function collectInvariantVariables(config: ThemeConfigInput): Record<string, str
 			variables[shadowVarName(name)] = value;
 		}
 	}
+	if (config.radius) {
+		for (const [name, value] of Object.entries(config.radius)) {
+			variables[radiusVarName(name)] = value;
+		}
+	}
+	if (config.motion?.duration) {
+		for (const [name, value] of Object.entries(config.motion.duration)) {
+			variables[motionDurationVarName(name)] = value;
+		}
+	}
+	if (config.motion?.easing) {
+		for (const [name, value] of Object.entries(config.motion.easing)) {
+			variables[motionEasingVarName(name)] = value;
+		}
+	}
+	if (config.opacity) {
+		for (const [name, value] of Object.entries(config.opacity)) {
+			variables[opacityVarName(name)] = value;
+		}
+	}
+	if (config.zIndex) {
+		for (const [name, value] of Object.entries(config.zIndex)) {
+			variables[zIndexVarName(name)] = String(value);
+		}
+	}
 	if (config.icon) {
 		for (const [name, value] of Object.entries(config.icon)) {
 			variables[iconVarName(name)] = value;
@@ -222,6 +261,32 @@ function buildUtilityRules(config: ThemeConfigInput): string[] {
 		}
 	}
 
+	if (config.radius) {
+		for (const name of Object.keys(config.radius)) {
+			rules.push(`.${radiusUtilityClass(name)}{border-radius:${radiusVarRef(name)}}`);
+		}
+	}
+
+	if (config.motion?.duration) {
+		for (const name of Object.keys(config.motion.duration)) {
+			rules.push(
+				`.${motionDurationUtilityClass(name)}{transition-duration:${motionDurationVarRef(name)}}`,
+			);
+		}
+	}
+
+	if (config.opacity) {
+		for (const name of Object.keys(config.opacity)) {
+			rules.push(`.${opacityUtilityClass(name)}{opacity:${opacityVarRef(name)}}`);
+		}
+	}
+
+	if (config.zIndex) {
+		for (const name of Object.keys(config.zIndex)) {
+			rules.push(`.${zIndexUtilityClass(name)}{z-index:${zIndexVarRef(name)}}`);
+		}
+	}
+
 	if (config.icon) {
 		for (const name of Object.keys(config.icon)) {
 			rules.push(
@@ -284,9 +349,27 @@ export function buildThemeStylesheet(
 		}
 	}
 
-	return [...blocks.filter(Boolean), ...buildUtilityRules(config), ...buildCustomClassRules(config)].join(
-		'\n',
-	);
+	const reducedMotionOverrides = buildReducedMotionOverrides(config);
+
+	return [
+		...blocks.filter(Boolean),
+		...buildUtilityRules(config),
+		...buildCustomClassRules(config),
+		reducedMotionOverrides,
+	]
+		.filter(Boolean)
+		.join('\n');
+}
+
+function buildReducedMotionOverrides(config: ThemeConfigInput): string {
+	const durations = Object.keys(config.motion?.duration ?? {});
+	if (durations.length === 0) {
+		return '';
+	}
+	const vars = durations
+		.map((name) => `\t${motionDurationVarName(name)}:0ms;`)
+		.join('\n');
+	return `[data-reduced-motion]{\n${vars}\n}`;
 }
 
 export function resolveSchemes(config: ThemeConfigInput): readonly string[] {

@@ -125,6 +125,25 @@ describe('ThemeProvider / useReducedMotion', () => {
 		});
 		expect(result.current).toBe(true);
 	});
+
+	it('reducedMotion="auto" follows the OS preference', () => {
+		const mq = {
+			matches: true,
+			media: '(prefers-reduced-motion: reduce)',
+			onchange: null,
+			addListener: vi.fn(),
+			removeListener: vi.fn(),
+			addEventListener: vi.fn(),
+			removeEventListener: vi.fn(),
+			dispatchEvent: vi.fn(),
+		} as MediaQueryList;
+		vi.spyOn(window, 'matchMedia').mockReturnValue(mq);
+
+		const { result } = renderHook(() => useReducedMotion(), {
+			wrapper: createWrapper({ reducedMotion: 'auto' }),
+		});
+		expect(result.current).toBe(true);
+	});
 });
 
 describe('ThemeProvider / useColorScheme', () => {

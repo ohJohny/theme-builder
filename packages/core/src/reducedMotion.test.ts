@@ -4,6 +4,7 @@ import {
 	applyReducedMotion,
 	getReducedMotionSnapshot,
 	resetReducedMotionForTests,
+	resolveReducedMotion,
 	subscribeReducedMotion,
 } from './reducedMotion';
 
@@ -44,6 +45,20 @@ describe('reducedMotion', () => {
 	afterEach(() => {
 		resetReducedMotionForTests();
 		vi.restoreAllMocks();
+	});
+
+	describe('resolveReducedMotion', () => {
+		it('returns OS preference for auto or undefined', () => {
+			expect(resolveReducedMotion(undefined, true)).toBe(true);
+			expect(resolveReducedMotion(undefined, false)).toBe(false);
+			expect(resolveReducedMotion('auto', true)).toBe(true);
+			expect(resolveReducedMotion('auto', false)).toBe(false);
+		});
+
+		it('returns explicit true or false', () => {
+			expect(resolveReducedMotion(true, false)).toBe(true);
+			expect(resolveReducedMotion(false, true)).toBe(false);
+		});
 	});
 
 	it('applyReducedMotion sets and removes data-reduced-motion', () => {

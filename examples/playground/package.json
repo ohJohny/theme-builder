@@ -3,6 +3,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
+		"predev": "bun scripts/write-theme-init.ts",
+		"prebuild": "bun scripts/write-theme-init.ts",
 		"dev": "vite",
 		"build": "vite build",
 		"preview": "vite preview"

@@ -37,8 +37,20 @@ export type {
 	FontWeightName,
 	LineHeightName,
 	ShadowName,
+	RadiusName,
+	MotionDurationName,
+	MotionEasingName,
+	OpacityName,
+	ZIndexName,
 	IconSizeName,
 	DisplayName,
+	RadiusInputValue,
+	MotionDurationInputValue,
+	OpacityInputValue,
+	ZIndexInputValue,
+	ResponsiveSpacingInputValue,
+	DeviceMatchesContext,
+	ResolveUtilityClassesOptions,
 	CustomClassName,
 	CustomClassCssProperties,
 	ThemeCustomClassesConfigInput,
@@ -61,6 +73,7 @@ export { resolveContrastColor } from './resolveContrastColor';
 export { isSolidPaintCssValue } from './isSolidPaintCssValue';
 export type {
 	ColorSchemeId,
+	ColorSchemePreference,
 	ThemeOption,
 	ThemeMetaItem,
 	ThemeStorageConfig,
@@ -68,28 +81,58 @@ export type {
 export {
 	DEFAULT_THEME_META,
 	DEFAULT_SCHEMES,
+	SYSTEM_COLOR_SCHEME,
+	SYSTEM_THEME_META,
 	isColorSchemeId,
+	isColorSchemePreference,
 	isKnownScheme,
 	deriveThemeMeta,
 } from './colorScheme.types';
 export { applyColorScheme } from './applyColorScheme';
 export {
 	clearPersistedColorScheme,
+	readRawStorageValue,
 	readStoredColorScheme,
 	STORY_COLOR_SCHEME_STORAGE_KEY,
 	writePersistedColorScheme,
 	writeStoredColorScheme,
 } from './colorSchemeStorage';
+export { parseCookieValue, escapeCookieName } from './parseCookieValue';
+export {
+	resolveColorSchemePreference,
+	resolveInitialColorScheme,
+	resolveInitialAppliedColorScheme,
+	type ResolveInitialColorSchemeOptions,
+} from './resolveInitialColorScheme';
+export {
+	resolveAppliedColorScheme,
+	getSystemPrefersDark,
+	nextPreferenceInCycle,
+	preferenceCycle,
+	isValidStoredPreference,
+} from './resolveAppliedColorScheme';
+export {
+	resolveColorSchemeFromCookie,
+	type ResolveColorSchemeFromCookieOptions,
+} from './resolveColorSchemeFromCookie';
+export {
+	buildColorSchemeInitScript,
+	buildColorSchemeInitScriptHtmlSnippet,
+	type BuildColorSchemeInitScriptOptions,
+} from './buildColorSchemeInitScript';
 export {
 	updateColorSchemeTogglePosition,
 	startColorSchemeViewTransition,
 } from './colorSchemeTransition';
 export {
+	AUTO_REDUCED_MOTION,
+	resolveReducedMotion,
 	subscribeReducedMotion,
 	getReducedMotionSnapshot,
 	applyReducedMotion,
 	resetReducedMotionForTests,
 } from './reducedMotion';
+export type { ReducedMotionPreference } from './reducedMotion';
 export { applyAdditionalVariables } from './applyAdditionalVariables';
 export { createColorSchemeStore } from './store/createColorSchemeStore';
 export type {

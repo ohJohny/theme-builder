@@ -50,9 +50,18 @@ export function validateThemeConfig(config: ThemeConfigInput): void {
 			if (!isPlainObject(config.colors.semantic)) {
 				throw new TypeError('[defineThemeConfig] colors.semantic must be an object');
 			}
-			for (const value of Object.values(config.colors.semantic)) {
+			const schemes = config.schemes ?? ['light', 'dark'];
+			for (const [name, value] of Object.entries(config.colors.semantic)) {
 				if (!isColorValue(value)) {
 					throw new TypeError('[defineThemeConfig] invalid semantic color value');
+				}
+				if (isPlainObject(value)) {
+					const missing = schemes.filter((scheme) => value[scheme] === undefined);
+					if (missing.length > 0) {
+						throw new TypeError(
+							`[defineThemeConfig] colors.semantic.${name} is missing scheme(s): ${missing.join(', ')}`,
+						);
+					}
 				}
 			}
 		}
@@ -72,6 +81,34 @@ export function validateThemeConfig(config: ThemeConfigInput): void {
 	}
 	if (config.shadow !== undefined && !isStringRecord(config.shadow)) {
 		throw new TypeError('[defineThemeConfig] shadow must be Record<string, string>');
+	}
+	if (config.radius !== undefined && !isStringRecord(config.radius)) {
+		throw new TypeError('[defineThemeConfig] radius must be Record<string, string>');
+	}
+	if (config.opacity !== undefined && !isStringRecord(config.opacity)) {
+		throw new TypeError('[defineThemeConfig] opacity must be Record<string, string>');
+	}
+	if (config.zIndex !== undefined) {
+		if (!isPlainObject(config.zIndex)) {
+			throw new TypeError('[defineThemeConfig] zIndex must be an object');
+		}
+		for (const value of Object.values(config.zIndex)) {
+			if (typeof value !== 'string' && typeof value !== 'number') {
+				throw new TypeError('[defineThemeConfig] zIndex values must be string or number');
+			}
+		}
+	}
+	if (config.motion !== undefined) {
+		if (!isPlainObject(config.motion)) {
+			throw new TypeError('[defineThemeConfig] motion must be an object');
+		}
+		const { duration, easing } = config.motion;
+		if (duration !== undefined && !isStringRecord(duration)) {
+			throw new TypeError('[defineThemeConfig] motion.duration must be Record<string, string>');
+		}
+		if (easing !== undefined && !isStringRecord(easing)) {
+			throw new TypeError('[defineThemeConfig] motion.easing must be Record<string, string>');
+		}
 	}
 	if (config.icon !== undefined && !isStringRecord(config.icon)) {
 		throw new TypeError('[defineThemeConfig] icon must be Record<string, string>');

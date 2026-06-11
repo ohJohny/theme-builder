@@ -150,6 +150,31 @@ describe('SingletonThemeProvider / useReducedMotion', () => {
 		expect(screen.getByTestId('r').textContent).toBe('true');
 		unmount();
 	});
+
+	it('reducedMotion="auto" follows the OS preference', () => {
+		const mq = {
+			matches: true,
+			media: '(prefers-reduced-motion: reduce)',
+			onchange: null,
+			addListener: vi.fn(),
+			removeListener: vi.fn(),
+			addEventListener: vi.fn(),
+			removeEventListener: vi.fn(),
+			dispatchEvent: vi.fn(),
+		} as MediaQueryList;
+		vi.spyOn(window, 'matchMedia').mockReturnValue(mq);
+
+		const { unmount } = renderWithProvider(
+			() => {
+				const reduced = useReducedMotion();
+				return <span data-testid="r">{String(reduced())}</span>;
+			},
+			{ reducedMotion: 'auto' },
+		);
+
+		expect(screen.getByTestId('r').textContent).toBe('true');
+		unmount();
+	});
 });
 
 describe('SingletonThemeProvider / useColorScheme', () => {

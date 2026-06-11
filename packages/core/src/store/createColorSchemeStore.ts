@@ -1,24 +1,30 @@
 import { applyColorScheme } from '../applyColorScheme';
+import { startColorSchemeViewTransition } from '../colorSchemeTransition';
 import { applyAdditionalVariables } from '../applyAdditionalVariables';
 import {
 	DEFAULT_SCHEMES,
+	SYSTEM_COLOR_SCHEME,
+	SYSTEM_THEME_META,
 	deriveThemeMeta,
-	isKnownScheme,
+	isColorSchemePreference,
 	type ColorSchemeId,
+	type ColorSchemePreference,
 	type ThemeMetaItem,
 	type ThemeStorageConfig,
 } from '../colorScheme.types';
-import {
-	readStoredColorScheme,
-	writePersistedColorScheme,
-} from '../colorSchemeStorage';
+import { readRawStorageValue, writePersistedColorScheme } from '../colorSchemeStorage';
+import { nextPreferenceInCycle, resolveAppliedColorScheme } from '../resolveAppliedColorScheme';
+import { resolveColorSchemePreference } from '../resolveInitialColorScheme';
 
 export type ColorSchemeListItem = ThemeMetaItem & {
 	readonly active: boolean;
 };
 
 export type ColorSchemeStoreState = {
-	readonly colorScheme: ColorSchemeId;
+	/** User preference — may be `system`. */
+	readonly colorScheme: ColorSchemePreference;
+	/** Scheme applied to `data-theme`. */
+	readonly resolvedColorScheme: ColorSchemeId;
 	readonly colorSchemeList: readonly ColorSchemeListItem[];
 	readonly labelShort: string;
 };
@@ -26,41 +32,47 @@ export type ColorSchemeStoreState = {
 export type ColorSchemeStoreOptions = {
 	readonly schemes: readonly string[];
 	readonly themeMeta?: readonly ThemeMetaItem[];
-	readonly presetColorScheme?: ColorSchemeId;
+	readonly presetColorScheme?: ColorSchemePreference;
 	readonly storage?: ThemeStorageConfig;
 	readonly applyColorSchemeOnMount?: boolean;
 	readonly additionalVariables?: Record<string, string>;
+	/** When true (default), `system` is a valid preference and included in round-robin cycling. */
+	readonly includeSystemScheme?: boolean;
+	/** When true, scheme changes use `startColorSchemeViewTransition` (respects reduced motion). */
+	readonly viewTransition?: boolean;
 };
 
 export type ColorSchemeStore = {
 	readonly subscribe: (listener: () => void) => () => void;
 	readonly getState: () => ColorSchemeStoreState;
-	readonly changeColorScheme: (next?: ColorSchemeId) => void;
+	readonly changeColorScheme: (next?: ColorSchemePreference) => void;
 	readonly dispose: () => void;
 };
 
-function resolveInitialColorScheme(
-	schemes: readonly string[],
-	preset: ColorSchemeId,
-	storage?: ThemeStorageConfig,
-): ColorSchemeId {
-	const stored = storage ? readStoredColorScheme(storage) : null;
-	if (stored && isKnownScheme(stored, schemes)) return stored;
-	if (isKnownScheme(preset, schemes)) return preset;
-	return schemes[0] ?? DEFAULT_SCHEMES[0];
-}
+const PREFERS_COLOR_SCHEME_QUERY = '(prefers-color-scheme: dark)';
 
-function nextSchemeInCycle(schemes: readonly string[], current: ColorSchemeId): ColorSchemeId {
-	const index = schemes.indexOf(current);
-	if (index === -1 || schemes.length === 0) return schemes[0] ?? current;
-	return schemes[(index + 1) % schemes.length] ?? current;
+function buildThemeMetaList(
+	schemes: readonly string[],
+	themeMeta: readonly ThemeMetaItem[],
+	includeSystemScheme: boolean,
+): readonly ThemeMetaItem[] {
+	if (!includeSystemScheme) {
+		return themeMeta;
+	}
+	return [...themeMeta, SYSTEM_THEME_META];
 }
 
 export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorSchemeStore {
 	const schemes = options.schemes.length > 0 ? options.schemes : DEFAULT_SCHEMES;
-	const themeMeta = options.themeMeta ?? deriveThemeMeta(schemes);
+	const includeSystemScheme = options.includeSystemScheme ?? true;
+	const themeMeta = buildThemeMetaList(
+		schemes,
+		options.themeMeta ?? deriveThemeMeta(schemes),
+		includeSystemScheme,
+	);
 	const preset = options.presetColorScheme ?? schemes[0] ?? DEFAULT_SCHEMES[0];
 	const applyOnMount = options.applyColorSchemeOnMount ?? true;
+	const useViewTransition = options.viewTransition ?? false;
 
 	const listeners = new Set<() => void>();
 	const notify = () => {
@@ -69,12 +81,26 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorS
 		}
 	};
 
-	let colorScheme: ColorSchemeId = schemes[0] ?? DEFAULT_SCHEMES[0];
+	let colorScheme: ColorSchemePreference = schemes[0] ?? DEFAULT_SCHEMES[0];
+	let resolvedColorScheme: ColorSchemeId = schemes[0] ?? DEFAULT_SCHEMES[0];
 	let appliedVariableKeys: string[] = [];
 	let cachedState: ColorSchemeStoreState | null = null;
 
 	const applyVariables = () => {
 		appliedVariableKeys = applyAdditionalVariables(options.additionalVariables, appliedVariableKeys);
+	};
+
+	const syncResolvedScheme = () => {
+		resolvedColorScheme = resolveAppliedColorScheme(colorScheme, schemes);
+	};
+
+	const applyCurrentScheme = (animate = false) => {
+		const apply = () => applyColorScheme(resolvedColorScheme);
+		if (animate && useViewTransition) {
+			startColorSchemeViewTransition(apply);
+		} else {
+			apply();
+		}
 	};
 
 	const buildList = (): readonly ColorSchemeListItem[] =>
@@ -97,6 +123,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorS
 			const colorSchemeList = buildList();
 			cachedState = {
 				colorScheme,
+				resolvedColorScheme,
 				colorSchemeList,
 				labelShort: buildLabelShort(colorSchemeList),
 			};
@@ -104,45 +131,100 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorS
 		return cachedState;
 	};
 
-	const changeColorScheme = (next?: ColorSchemeId) => {
-		const resolved =
-			next !== undefined ? next : nextSchemeInCycle(schemes, colorScheme);
-		if (!isKnownScheme(resolved, schemes)) return;
-		if (resolved === colorScheme) return;
-		colorScheme = resolved;
+	const setPreference = (next: ColorSchemePreference) => {
+		if (!isColorSchemePreference(next, schemes, includeSystemScheme)) {
+			return;
+		}
+		if (next === colorScheme) {
+			return;
+		}
+		colorScheme = next;
+		syncResolvedScheme();
 		invalidateState();
-		applyColorScheme(resolved);
+		applyCurrentScheme(true);
 		if (options.storage) {
-			writePersistedColorScheme(options.storage.key, resolved);
+			writePersistedColorScheme(options.storage.key, colorScheme);
 		}
 		notify();
 	};
 
+	const changeColorScheme = (next?: ColorSchemePreference) => {
+		const resolved =
+			next !== undefined
+				? next
+				: nextPreferenceInCycle(schemes, colorScheme, includeSystemScheme);
+		setPreference(resolved);
+	};
+
 	let storageListener: ((event: StorageEvent) => void) | undefined;
+	let systemPreferenceListener: ((event: MediaQueryListEvent) => void) | undefined;
+	let systemMediaQuery: MediaQueryList | null = null;
+
+	const attachSystemPreferenceListener = () => {
+		if (
+			typeof window === 'undefined' ||
+			typeof window.matchMedia !== 'function' ||
+			!includeSystemScheme
+		) {
+			return;
+		}
+
+		systemMediaQuery = window.matchMedia(PREFERS_COLOR_SCHEME_QUERY);
+		systemPreferenceListener = () => {
+			if (colorScheme !== SYSTEM_COLOR_SCHEME) {
+				return;
+			}
+			syncResolvedScheme();
+			invalidateState();
+			applyCurrentScheme();
+			notify();
+		};
+		systemMediaQuery.addEventListener('change', systemPreferenceListener);
+	};
+
+	const detachSystemPreferenceListener = () => {
+		if (systemMediaQuery && systemPreferenceListener) {
+			systemMediaQuery.removeEventListener('change', systemPreferenceListener);
+		}
+		systemMediaQuery = null;
+		systemPreferenceListener = undefined;
+	};
 
 	const mount = () => {
-		const initialScheme = resolveInitialColorScheme(schemes, preset, options.storage);
-		colorScheme = initialScheme;
+		const stored = options.storage ? readRawStorageValue(options.storage) : null;
+		colorScheme = resolveColorSchemePreference({
+			schemes,
+			preset,
+			stored,
+			includeSystemScheme,
+		});
+		syncResolvedScheme();
 		invalidateState();
 		applyVariables();
 
 		if (applyOnMount) {
-			applyColorScheme(initialScheme);
+			applyCurrentScheme();
 		}
 
 		notify();
+		attachSystemPreferenceListener();
 
-		if (!options.storage || options.storage.type !== 'localStorage') {
+		if (!options.storage) {
 			return;
 		}
 
 		storageListener = (event: StorageEvent) => {
 			if (event.key !== options.storage?.key) return;
 			const next = event.newValue;
-			if (next && isKnownScheme(next, schemes) && next !== colorScheme) {
+			if (
+				next &&
+				isColorSchemePreference(next, schemes, includeSystemScheme) &&
+				next !== colorScheme
+			) {
 				colorScheme = next;
+				syncResolvedScheme();
 				invalidateState();
-				applyColorScheme(next);
+				applyCurrentScheme();
 				notify();
 			}
 		};
@@ -165,6 +247,7 @@ export function createColorSchemeStore(options: ColorSchemeStoreOptions): ColorS
 			if (storageListener && typeof window !== 'undefined') {
 				window.removeEventListener('storage', storageListener);
 			}
+			detachSystemPreferenceListener();
 			listeners.clear();
 		},
 	};

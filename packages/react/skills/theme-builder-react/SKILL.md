@@ -265,6 +265,8 @@ function Sidebar() {
 
 Import or inject theme CSS (`createTheme` with `inject: true`, or `generateThemeArtifacts` at build time). Style `[data-theme="dark"]` on `:root`. This package does not ship app styles.
 
+For CLI watch mode, the `themeBuilder` Vite plugin, DTCG export, and contrast lint, see the **Tooling** section in the `theme-builder-core` skill.
+
 ## TypeScript extension
 
 Augment `@ohJohny/theme-builder/core` interfaces `ThemeColorOverrides` / semantic token overrides in a `.d.ts` file (see `theme-builder-core` skill).

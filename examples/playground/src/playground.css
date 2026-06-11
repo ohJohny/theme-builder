@@ -17,6 +17,47 @@ body {
 	color: var(--color-text-primary, #111);
 }
 
+@view-transition {
+	navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation-duration: 0.35s;
+	animation-timing-function: ease;
+}
+
+::view-transition-old(root) {
+	animation-name: cs-fade-out;
+}
+
+::view-transition-new(root) {
+	animation-name: cs-fade-in;
+}
+
+@keyframes cs-fade-out {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes cs-fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+[data-reduced-motion] ::view-transition-old(root),
+[data-reduced-motion] ::view-transition-new(root) {
+	animation: none !important;
+}
+
 .playground-main,
 .theme-config-editor,
 .device-matches-json {

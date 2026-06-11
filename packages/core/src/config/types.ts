@@ -20,6 +20,11 @@ export interface ThemeFontsConfigInput {
 	readonly lineHeight?: Readonly<Record<string | number, string>>;
 }
 
+export interface ThemeMotionConfigInput {
+	readonly duration?: Readonly<Record<string, string>>;
+	readonly easing?: Readonly<Record<string, string>>;
+}
+
 export interface ThemeColorsConfigInput {
 	readonly base?: Readonly<Record<string, string>>;
 	readonly semantic?: Readonly<Record<string, ColorValue>>;
@@ -42,6 +47,10 @@ export interface ThemeConfigInput {
 	readonly spacing?: Readonly<Record<string, string>>;
 	readonly fonts?: ThemeFontsConfigInput;
 	readonly shadow?: Readonly<Record<string, string>>;
+	readonly radius?: Readonly<Record<string, string>>;
+	readonly motion?: ThemeMotionConfigInput;
+	readonly opacity?: Readonly<Record<string, string>>;
+	readonly zIndex?: Readonly<Record<string, string | number>>;
 	readonly icon?: Readonly<Record<string, string>>;
 	readonly display?: Readonly<Record<string, string>>;
 	readonly breakpoints?: Readonly<Record<string, BreakpointValue>>;
@@ -84,6 +93,21 @@ export type LineHeightName<C extends ThemeConfigInput> =
 
 export type ShadowName<C extends ThemeConfigInput> =
 	keyof NonNullable<C['shadow']> & string;
+
+export type RadiusName<C extends ThemeConfigInput> =
+	keyof NonNullable<C['radius']> & string;
+
+export type MotionDurationName<C extends ThemeConfigInput> =
+	keyof NonNullable<NonNullable<C['motion']>['duration']> & string;
+
+export type MotionEasingName<C extends ThemeConfigInput> =
+	keyof NonNullable<NonNullable<C['motion']>['easing']> & string;
+
+export type OpacityName<C extends ThemeConfigInput> =
+	keyof NonNullable<C['opacity']> & string;
+
+export type ZIndexName<C extends ThemeConfigInput> =
+	keyof NonNullable<C['zIndex']> & string;
 
 export type IconSizeName<C extends ThemeConfigInput> =
 	keyof NonNullable<C['icon']> & string;
@@ -138,6 +162,20 @@ export type ThemeDisplay<C extends ThemeConfigInput> = Readonly<
 
 export type ShadowScale<C extends ThemeConfigInput> = Readonly<Record<ShadowName<C>, TokenClass>>;
 
+export type RadiusScale<C extends ThemeConfigInput> = Readonly<Record<RadiusName<C>, TokenClass>>;
+
+export type MotionDurationScale<C extends ThemeConfigInput> = Readonly<
+	Record<MotionDurationName<C>, TokenClass>
+>;
+
+export type MotionEasingScale<C extends ThemeConfigInput> = Readonly<
+	Record<MotionEasingName<C>, TokenClass>
+>;
+
+export type OpacityScale<C extends ThemeConfigInput> = Readonly<Record<OpacityName<C>, TokenClass>>;
+
+export type ZIndexScale<C extends ThemeConfigInput> = Readonly<Record<ZIndexName<C>, TokenClass>>;
+
 export type IconSizeScale<C extends ThemeConfigInput> = Readonly<
 	Record<IconSizeName<C>, IconSizeToken>
 >;
@@ -151,6 +189,13 @@ export type Theme<C extends ThemeConfigInput> = {
 	readonly icon: IconSizeScale<C>;
 	readonly display: ThemeDisplay<C>;
 	readonly shadow: ShadowScale<C>;
+	readonly radius: RadiusScale<C>;
+	readonly motion: {
+		readonly duration: MotionDurationScale<C>;
+		readonly easing: MotionEasingScale<C>;
+	};
+	readonly opacity: OpacityScale<C>;
+	readonly zIndex: ZIndexScale<C>;
 	readonly classes: ThemeCustomClasses<C>;
 };
 
@@ -198,18 +243,56 @@ export type ShadowInputValue<C extends ThemeConfigInput> =
 	| ShadowName<C>
 	| (string & {});
 
+export type RadiusInputValue<C extends ThemeConfigInput> =
+	| RadiusName<C>
+	| (string & {})
+	| (number & {});
+
+export type MotionDurationInputValue<C extends ThemeConfigInput> =
+	| MotionDurationName<C>
+	| (string & {});
+
+export type OpacityInputValue<C extends ThemeConfigInput> =
+	| OpacityName<C>
+	| (string & {})
+	| (number & {});
+
+export type ZIndexInputValue<C extends ThemeConfigInput> =
+	| ZIndexName<C>
+	| (string & {})
+	| (number & {});
+
+/** Per-breakpoint spacing — keys match `config.breakpoints` names. */
+export type ResponsiveSpacingMap<C extends ThemeConfigInput> = Readonly<
+	Partial<Record<string, SpacingInputValue<C>>>
+>;
+
+export type ResponsiveSpacingInputValue<C extends ThemeConfigInput> =
+	| SpacingInputValue<C>
+	| ResponsiveSpacingMap<C>;
+
+export type DeviceMatchesContext = Readonly<Partial<Record<string, boolean>>>;
+
+export type ResolveUtilityClassesOptions = {
+	readonly deviceMatches?: DeviceMatchesContext;
+};
+
 export type UtilityProps<C extends ThemeConfigInput> = {
 	readonly className?: string;
 	readonly color?: ColorName<C> | (string & {});
 	readonly bg?: ColorName<C> | (string & {});
-	readonly gap?: SpacingInputValue<C>;
+	readonly gap?: ResponsiveSpacingInputValue<C>;
 	readonly font?: FontFamilyName<C> | (string & {});
 	readonly fontSize?: FontSizeInputValue<C>;
 	readonly fontWeight?: FontWeightName<C> | (string & {}) | number;
 	readonly lineHeight?: LineHeightInputValue<C>;
 	readonly display?: DisplayName<C> | (string & {});
 	readonly shadow?: ShadowInputValue<C>;
+	readonly radius?: RadiusInputValue<C>;
+	readonly transition?: MotionDurationInputValue<C>;
+	readonly opacity?: OpacityInputValue<C>;
+	readonly zIndex?: ZIndexInputValue<C>;
 	readonly icon?: IconSizeInputValue<C>;
 } & {
-	readonly [K in SpacingPrefix]?: SpacingInputValue<C>;
+	readonly [K in SpacingPrefix]?: ResponsiveSpacingInputValue<C>;
 };

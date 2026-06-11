@@ -47,6 +47,8 @@ export {
 	subscribeReducedMotion,
 	getReducedMotionSnapshot,
 	applyReducedMotion,
+	AUTO_REDUCED_MOTION,
+	resolveReducedMotion,
 } from '@ohJohny/theme-builder-core';
 
 export type {
@@ -60,4 +62,5 @@ export type {
 	UtilityProps,
 	UtilityClassesResult,
 	CreateThemeOptions,
+	ReducedMotionPreference,
 } from '@ohJohny/theme-builder-core';

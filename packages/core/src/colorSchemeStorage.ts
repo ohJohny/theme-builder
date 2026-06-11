@@ -1,5 +1,6 @@
-import type { ColorSchemeId, ThemeStorageConfig } from './colorScheme.types';
-import { isColorSchemeId } from './colorScheme.types';
+import type { ColorSchemeId, ColorSchemePreference, ThemeStorageConfig } from './colorScheme.types';
+import { isColorSchemePreference } from './colorScheme.types';
+import { parseCookieValue } from './parseCookieValue';
 
 /** Shared key for Storybook toolbar + `StoryThemeProvider`. */
 export const STORY_COLOR_SCHEME_STORAGE_KEY = 'story-theme';
@@ -9,10 +10,6 @@ type StorageAdapter = {
 	readonly write: (key: string, value: string) => void;
 	readonly remove: (key: string) => void;
 };
-
-function escapeCookieName(name: string): string {
-	return name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
 
 const localStorageAdapter: StorageAdapter = {
 	read(key) {
@@ -28,10 +25,7 @@ const localStorageAdapter: StorageAdapter = {
 
 const cookieAdapter: StorageAdapter = {
 	read(key) {
-		const match = document.cookie.match(
-			new RegExp(`(?:^|; )${escapeCookieName(key)}=([^;]*)`),
-		);
-		return match ? decodeURIComponent(match[1]) : null;
+		return parseCookieValue(document.cookie, key);
 	},
 	write(key, value) {
 		document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=31536000; SameSite=Lax`;
@@ -50,16 +44,23 @@ function getAdapter(type: ThemeStorageConfig['type']): StorageAdapter {
 	return STORAGE_ADAPTERS[type];
 }
 
-export function readStoredColorScheme(config: ThemeStorageConfig): ColorSchemeId | null {
+export function readRawStorageValue(config: ThemeStorageConfig): string | null {
 	if (typeof window === 'undefined') return null;
+	return getAdapter(config.type).read(config.key);
+}
 
-	const raw = getAdapter(config.type).read(config.key);
-	return raw && isColorSchemeId(raw) ? raw : null;
+export function readStoredColorScheme(
+	config: ThemeStorageConfig,
+	schemes: readonly string[],
+	includeSystemScheme = true,
+): ColorSchemePreference | null {
+	const raw = readRawStorageValue(config);
+	return raw && isColorSchemePreference(raw, schemes, includeSystemScheme) ? raw : null;
 }
 
 export function writeStoredColorScheme(
 	config: ThemeStorageConfig,
-	colorScheme: ColorSchemeId,
+	colorScheme: ColorSchemePreference,
 ): void {
 	if (typeof window === 'undefined') return;
 
@@ -69,7 +70,7 @@ export function writeStoredColorScheme(
 /** Persists to both localStorage and a cookie (same key) for Storybook / app parity. */
 export function writePersistedColorScheme(
 	key: string,
-	colorScheme: ColorSchemeId,
+	colorScheme: ColorSchemePreference,
 ): void {
 	writeStoredColorScheme({ type: 'localStorage', key }, colorScheme);
 	writeStoredColorScheme({ type: 'cookie', key }, colorScheme);

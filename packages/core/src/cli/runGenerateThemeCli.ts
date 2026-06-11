@@ -3,6 +3,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { register } from 'tsx/esm/api';
 
+import type { ColorSchemeInitScriptOptions } from '../config/generateThemeArtifacts.js';
 import { generateThemeArtifacts } from '../config/generateThemeArtifacts.js';
 import type { GenerateThemeArtifactsOptions } from '../config/generateThemeArtifacts.js';
 import type { ThemeConfigInput } from '../config/types.js';
@@ -16,6 +17,7 @@ type ThemeConfigModule = {
 			'utilityClassHashSalt' | 'utilityClassHashPrefix' | 'defaultScheme'
 		>
 	>;
+	readonly themeInitOptions?: ColorSchemeInitScriptOptions;
 };
 
 let tsxRegistered = false;
@@ -47,6 +49,9 @@ export async function runGenerateThemeCli(config: GenerateCliConfig): Promise<{
 	readonly cssPath: string;
 	readonly mapPath: string;
 	readonly breakpointsPath?: string;
+	readonly initScriptPath?: string;
+	readonly initScriptHtmlPath?: string;
+	readonly designTokensPath?: string;
 }> {
 	if (!fs.existsSync(config.configPath)) {
 		throw new Error(`Theme config not found: ${config.configPath}`);
@@ -61,6 +66,11 @@ export async function runGenerateThemeCli(config: GenerateCliConfig): Promise<{
 		);
 	}
 
+	const initScript =
+		config.initScriptStorage !== undefined
+			? { storage: config.initScriptStorage }
+			: mod.themeInitOptions;
+
 	const result = await generateThemeArtifacts(mod.themeConfig, {
 		mode: config.mode,
 		outDir: config.outDir,
@@ -69,6 +79,10 @@ export async function runGenerateThemeCli(config: GenerateCliConfig): Promise<{
 			config.utilityClassHashSalt ?? mod.themeHashedOptions?.utilityClassHashSalt,
 		utilityClassHashPrefix:
 			config.utilityClassHashPrefix ?? mod.themeHashedOptions?.utilityClassHashPrefix,
+		initScript,
+		exportDtcg: config.exportDtcg,
+		lintA11y: config.lintA11y,
+		strictA11y: config.strictA11y,
 	});
 
 	return result;

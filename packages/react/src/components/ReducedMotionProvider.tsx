@@ -1,14 +1,19 @@
 import { useMemo, useSyncExternalStore, type ReactNode } from 'react';
 import {
 	getReducedMotionSnapshot,
+	resolveReducedMotion,
 	subscribeReducedMotion,
+	type ReducedMotionPreference,
 } from '@ohJohny/theme-builder-core';
 
 import { ReducedMotionContext } from './ReducedMotionContext';
 
 export type ReducedMotionProviderProps = {
-	/** When set, overrides the OS `prefers-reduced-motion` preference for this subtree. */
-	readonly reducedMotion?: boolean;
+	/**
+	 * `true` / `false` force reduced motion on or off; `'auto'` (default) follows
+	 * OS `prefers-reduced-motion`. `false` is not recommended — prefer `'auto'`.
+	 */
+	readonly reducedMotion?: ReducedMotionPreference;
 	readonly children: ReactNode;
 };
 
@@ -25,7 +30,7 @@ export function ReducedMotionProvider(props: ReducedMotionProviderProps) {
 		getReducedMotionSnapshot,
 	);
 
-	const reducedMotion = reducedMotionOverride ?? reducedMotionFromOs;
+	const reducedMotion = resolveReducedMotion(reducedMotionOverride, reducedMotionFromOs);
 
 	const value = useMemo(() => ({ reducedMotion }), [reducedMotion]);
 

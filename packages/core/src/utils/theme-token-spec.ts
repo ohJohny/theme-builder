@@ -102,6 +102,62 @@ export function shadowUtilityClass(name: string): string {
 	return `shadow-${name}`;
 }
 
+export function radiusVarName(name: string): string {
+	return `--radius-${name}`;
+}
+
+export function radiusVarRef(name: string): string {
+	return `var(${radiusVarName(name)})`;
+}
+
+export function radiusUtilityClass(name: string): string {
+	return `rounded-${name}`;
+}
+
+export function motionDurationVarName(name: string): string {
+	return `--motion-duration-${name}`;
+}
+
+export function motionDurationVarRef(name: string): string {
+	return `var(${motionDurationVarName(name)})`;
+}
+
+export function motionDurationUtilityClass(name: string): string {
+	return `duration-${name}`;
+}
+
+export function motionEasingVarName(name: string): string {
+	return `--motion-easing-${name}`;
+}
+
+export function motionEasingVarRef(name: string): string {
+	return `var(${motionEasingVarName(name)})`;
+}
+
+export function opacityVarName(name: string): string {
+	return `--opacity-${name}`;
+}
+
+export function opacityVarRef(name: string): string {
+	return `var(${opacityVarName(name)})`;
+}
+
+export function opacityUtilityClass(name: string): string {
+	return `opacity-${name}`;
+}
+
+export function zIndexVarName(name: string): string {
+	return `--z-index-${name}`;
+}
+
+export function zIndexVarRef(name: string): string {
+	return `var(${zIndexVarName(name)})`;
+}
+
+export function zIndexUtilityClass(name: string): string {
+	return `z-${name}`;
+}
+
 export function iconVarName(name: string): string {
 	return `--icon-size-${name}`;
 }

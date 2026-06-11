@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import type { CreatedTheme, ThemeConfigInput } from '@ohJohny/theme-builder-core';
+import type { CreatedTheme, ReducedMotionPreference, ThemeConfigInput } from '@ohJohny/theme-builder-core';
 
 import { ColorSchemeContext, type ColorSchemeContextValue, ThemeContext } from './ColorSchemeContext';
 import { DeviceSizeProvider } from './DeviceSizeProvider';
@@ -13,8 +13,11 @@ export type ThemeProviderTreeProps<C extends ThemeConfigInput> = {
 	readonly breakpoints?: Partial<DeviceBreakpoints>;
 	/** @deprecated Use {@link ThemeProviderTreeProps.breakpoints} */
 	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
-	/** When set, overrides the OS `prefers-reduced-motion` preference for this subtree. */
-	readonly reducedMotion?: boolean;
+	/**
+	 * `true` / `false` force reduced motion on or off; `'auto'` (default) follows
+	 * OS `prefers-reduced-motion`. `false` is not recommended — prefer `'auto'`.
+	 */
+	readonly reducedMotion?: ReducedMotionPreference;
 	readonly children: ReactNode;
 };
 

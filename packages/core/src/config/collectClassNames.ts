@@ -8,8 +8,12 @@ import {
 	gapUtilityClass,
 	iconUtilityClass,
 	lineHeightUtilityClass,
+	motionDurationUtilityClass,
+	opacityUtilityClass,
+	radiusUtilityClass,
 	shadowUtilityClass,
 	spacingUtilityClass,
+	zIndexUtilityClass,
 } from '../utils/theme-token-spec';
 import { SPACING_PREFIXES } from '../types/theme.js';
 import type { ThemeConfigInput } from './types';
@@ -69,6 +73,30 @@ export function collectClassNames(config: ThemeConfigInput): readonly string[] {
 	if (config.shadow) {
 		for (const name of Object.keys(config.shadow)) {
 			names.add(shadowUtilityClass(name));
+		}
+	}
+
+	if (config.radius) {
+		for (const name of Object.keys(config.radius)) {
+			names.add(radiusUtilityClass(name));
+		}
+	}
+
+	if (config.motion?.duration) {
+		for (const name of Object.keys(config.motion.duration)) {
+			names.add(motionDurationUtilityClass(name));
+		}
+	}
+
+	if (config.opacity) {
+		for (const name of Object.keys(config.opacity)) {
+			names.add(opacityUtilityClass(name));
+		}
+	}
+
+	if (config.zIndex) {
+		for (const name of Object.keys(config.zIndex)) {
+			names.add(zIndexUtilityClass(name));
 		}
 	}
 

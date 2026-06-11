@@ -57,13 +57,118 @@ await generateThemeArtifacts(themeConfig, {
 // writes: theme.css, utility-class-map.json, _breakpoints.scss (when breakpoints set)
 ```
 
-Helpers: `buildThemeStylesheet`, `buildBreakpointsScss`, `rewriteUtilityCss`, `collectClassNames`.
+Optional outputs and checks (see **Tooling** below): `initScript`, `exportDtcg`, `lintA11y`, `strictA11y`.
+
+Lower-level helpers: `buildThemeStylesheet`, `buildBreakpointsScss`, `rewriteUtilityCss`, `collectClassNames`, `buildColorSchemeInitScript`, `resolveColorSchemeFromCookie`.
+
+## Tooling
+
+CLI, Vite plugin, DTCG export, and contrast lint live in `@ohJohny/theme-builder/core/build-utils` (or the `theme-builder` CLI binary).
+
+### CLI
+
+```bash
+# Watch config and regenerate artifacts on change
+theme-builder generate --watch --config src/theme/theme.config.ts --out src/generated
+
+# Anti-FOUC init script + DTCG export + contrast lint
+theme-builder generate \
+  --config src/theme/theme.config.ts \
+  --out src/generated \
+  --storage-key theme \
+  --storage-type localStorage \
+  --export-dtcg
+
+# Fail the build on contrast violations (lint is on by default)
+theme-builder generate --strict-a11y
+
+# Opt out of contrast warnings
+theme-builder generate --no-lint-a11y
+```
+
+| Flag | Effect |
+| ---- | ------ |
+| `--watch` | Re-run generation when the config file changes |
+| `--config`, `--out`, `--mode`, `--default-scheme` | Paths and build options (`THEME_*` env vars also supported) |
+| `--storage-key`, `--storage-type` | Emit `theme-init.js` + `theme-init.html` (`localStorage` or `cookie`) |
+| `--export-dtcg` | Write `design-tokens.json` (W3C DTCG) |
+| `--no-lint-a11y` | Skip contrast warnings (enabled by default) |
+| `--strict-a11y` | Throw instead of warn on contrast failures |
+
+Config modules may also export `themeInitOptions` for init-script defaults.
+
+### Vite plugin
+
+Regenerates theme artifacts on `buildStart` and when the config file changes during dev:
+
+```ts
+import { defineConfig } from 'vite';
+import { themeBuilder } from '@ohJohny/theme-builder/core/build-utils';
+
+export default defineConfig({
+  plugins: [
+    themeBuilder({
+      configPath: 'src/theme/theme.config.ts',
+      outDir: 'src/generated',
+      storageKey: 'theme',
+      storageType: 'localStorage',
+      lintA11y: true, // default
+      strictA11y: process.env.CI === 'true',
+    }),
+  ],
+});
+```
+
+### Programmatic APIs
+
+```ts
+import {
+  exportDesignTokens,
+  lintThemeContrast,
+  generateThemeArtifacts,
+} from '@ohJohny/theme-builder/core/build-utils';
+
+const dtcg = exportDesignTokens(themeConfig); // W3C DTCG JSON
+
+const warnings = lintThemeContrast(themeConfig);
+// { token, scheme, foreground, background, ratio }[]
+
+await generateThemeArtifacts(themeConfig, {
+  mode: 'hashed',
+  outDir: 'src/generated',
+  defaultScheme: 'light',
+  initScript: { storage: { type: 'localStorage', key: 'theme' } },
+  exportDtcg: true,
+  // lintA11y defaults to true; strictA11y defaults to false
+  strictA11y: process.env.CI === 'true',
+});
+```
+
+`exportDesignTokens` covers colors, spacing, fonts, radius, and motion. `lintThemeContrast` checks semantic foreground/background pairs per scheme (hex colors; minimum ratio 4.5).
+
+## Anti-FOUC
+
+Set `data-theme` before first paint. `ThemeProvider` runs too late on its own.
+
+**Match storage everywhere** — init script, provider, and SSR must share the same `storage.key`, `storage.type`, `schemes`, and default/preset.
+
+**Client (pick one):**
+- External: `<script src="/theme-init.js"></script>` in `<head>` before CSS (`theme-init.html` is a copy-paste snippet).
+- Inline (often faster): `<script>${buildColorSchemeInitScript({...})}</script>` in a shared layout — no extra request.
+
+Generate via `generateThemeArtifacts` `initScript`, CLI `--storage-key` / `--storage-type`, or `buildColorSchemeInitScript` directly. Preload/`fetchpriority` is usually unnecessary when the script is first in `<head>`; inlining skips the network hop.
+
+**SSR:** `resolveColorSchemeFromCookie` → `<html data-theme={scheme}>`. Use `cookie` storage (not `localStorage`) when pairing init script + provider with SSR.
+
+Store re-applies the same scheme on mount via `resolveColorSchemePreference` — no flash when init or SSR is correct.
 
 ## Color schemes
 
 - Scheme-varying colors use `{ light, dark, ... }` objects in config.
 - CSS emits `:root` (invariant + default scheme) and `[data-theme="<name>"]` blocks.
-- `createColorSchemeStore({ schemes })` cycles round-robin when `changeColorScheme()` is called with no argument.
+- `createColorSchemeStore({ schemes })` cycles round-robin when `changeColorScheme()` is called with no argument (includes `system` when `includeSystemScheme` is true).
+- `SYSTEM_COLOR_SCHEME` (`'system'`) follows OS preference; `getState().resolvedColorScheme` is what lands on `data-theme`.
+- Optional `viewTransition: true` wraps scheme changes in `startColorSchemeViewTransition`.
 - Multi-root apps (Astro islands): use `SingletonThemeProvider` from `@ohJohny/theme-builder/react` or `/solid` — it wraps a shared store via `peekOrCreateSharedColorSchemeStore`, `retainSharedColorSchemeStore`, and `releaseSharedColorSchemeStore` (ref-counted dispose when the last provider unmounts). One store per page; first-call options win.
 
 ## Utility props
@@ -80,6 +185,6 @@ const { className, style } = resolveUtilityClasses(
 // px/md → utility class; raw bg → inline style
 ```
 
-Spacing tokens drive padding (`p-*`), margin (`m-*`), and flex/grid gap (`gap-*`) utilities from a single `spacing` config scale.
+Spacing tokens drive padding (`p-*`), margin (`m-*`), and flex/grid gap (`gap-*`) utilities from a single `spacing` config scale. Also: `radius`, `motion.duration` → `transition`, `opacity`, `zIndex`. Responsive spacing: `{ px: { mobile: 'sm', desktop: 'md' } }` with `resolveUtilityClasses(props, theme, { deviceMatches })`.
 
 A consumer layout library typically extends this with `resolveBoxPresentation` and `prepareHostPresentation` in its lib internals (not exported from theme-builder). See the `theme-builder-react` skill — **Layout component integration** — for when to use resolvers vs `useUtilityClasses`.

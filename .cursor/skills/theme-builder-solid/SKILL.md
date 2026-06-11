@@ -31,7 +31,7 @@ Pass identical store options on every island; first mount wins. No singleton nee
 ## Hooks
 
 - `useTheme()` — typed token tree accessor from context
-- `useColorScheme()` — `colorScheme`, `changeColorScheme`, `colorSchemeList`, `labelShort` accessors
+- `useColorScheme()` — `colorScheme`, `resolvedColorScheme`, `changeColorScheme`, `colorSchemeList`, `labelShort` accessors
 - `useDeviceSize(options?)` — `Accessor<{ mobile, tablet, desktop, wide }>`
 - `useReducedMotion()` — `Accessor<boolean>`; OS `prefers-reduced-motion` preference
 - `DeviceMatch` — renders `children` only when viewport matches `size`
@@ -50,3 +50,7 @@ function AnimatedPanel(props: { children: JSX.Element }) {
 ```
 
 Use `[data-reduced-motion]` in CSS when any `useReducedMotion()` subscriber is mounted. Core exports `subscribeReducedMotion` / `getReducedMotionSnapshot` for imperative or custom subscriptions.
+
+## Build tooling
+
+CLI watch mode, `themeBuilder` Vite plugin, DTCG export (`exportDesignTokens`), and contrast lint (`lintThemeContrast`) are documented in the **Tooling** section of the `theme-builder-core` skill.

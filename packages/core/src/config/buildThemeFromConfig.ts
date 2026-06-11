@@ -13,8 +13,17 @@ import {
 	iconVarRef,
 	lineHeightUtilityClass,
 	lineHeightVarRef,
+	motionDurationUtilityClass,
+	motionDurationVarRef,
+	motionEasingVarRef,
+	opacityUtilityClass,
+	opacityVarRef,
+	radiusUtilityClass,
+	radiusVarRef,
 	shadowUtilityClass,
 	shadowVarRef,
+	zIndexUtilityClass,
+	zIndexVarRef,
 	spaceVarRef,
 	spacingUtilityClass,
 } from '../utils/theme-token-spec';
@@ -127,6 +136,46 @@ export function buildThemeFromConfig<C extends ThemeConfigInput>(
 		};
 	}
 
+	const radius = {} as Record<string, TokenClass>;
+	for (const name of Object.keys(config.radius ?? {})) {
+		radius[name] = {
+			class: resolveUtilityClassFromMap(radiusUtilityClass(name), classMap),
+			value: radiusVarRef(name),
+		};
+	}
+
+	const motionDuration = {} as Record<string, TokenClass>;
+	for (const name of Object.keys(config.motion?.duration ?? {})) {
+		motionDuration[name] = {
+			class: resolveUtilityClassFromMap(motionDurationUtilityClass(name), classMap),
+			value: motionDurationVarRef(name),
+		};
+	}
+
+	const motionEasing = {} as Record<string, TokenClass>;
+	for (const name of Object.keys(config.motion?.easing ?? {})) {
+		motionEasing[name] = {
+			class: '',
+			value: motionEasingVarRef(name),
+		};
+	}
+
+	const opacity = {} as Record<string, TokenClass>;
+	for (const name of Object.keys(config.opacity ?? {})) {
+		opacity[name] = {
+			class: resolveUtilityClassFromMap(opacityUtilityClass(name), classMap),
+			value: opacityVarRef(name),
+		};
+	}
+
+	const zIndex = {} as Record<string, TokenClass>;
+	for (const name of Object.keys(config.zIndex ?? {})) {
+		zIndex[name] = {
+			class: resolveUtilityClassFromMap(zIndexUtilityClass(name), classMap),
+			value: zIndexVarRef(name),
+		};
+	}
+
 	const icon = {} as Record<string, IconSizeToken>;
 	for (const [name, rawValue] of Object.entries(config.icon ?? {})) {
 		icon[name] = {
@@ -179,6 +228,13 @@ export function buildThemeFromConfig<C extends ThemeConfigInput>(
 		icon: icon as Theme<C>['icon'],
 		display: display as Theme<C>['display'],
 		shadow: shadow as Theme<C>['shadow'],
+		radius: radius as Theme<C>['radius'],
+		motion: {
+			duration: motionDuration as Theme<C>['motion']['duration'],
+			easing: motionEasing as Theme<C>['motion']['easing'],
+		},
+		opacity: opacity as Theme<C>['opacity'],
+		zIndex: zIndex as Theme<C>['zIndex'],
 		classes: classes as Theme<C>['classes'],
 	} as Theme<C>;
 }

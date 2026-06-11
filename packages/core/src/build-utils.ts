@@ -15,7 +15,20 @@ export {
 } from './utils/utility-class-hash.js';
 export {
 	generateThemeArtifacts,
+	type ColorSchemeInitScriptOptions,
 	type GenerateThemeArtifactsOptions,
 } from './config/generateThemeArtifacts.js';
+export {
+	buildColorSchemeInitScript,
+	buildColorSchemeInitScriptHtmlSnippet,
+	type BuildColorSchemeInitScriptOptions,
+} from './buildColorSchemeInitScript.js';
+export {
+	resolveColorSchemeFromCookie,
+	type ResolveColorSchemeFromCookieOptions,
+} from './resolveColorSchemeFromCookie.js';
+export { exportDesignTokens, type DesignTokensDocument } from './exportDesignTokens.js';
+export { lintThemeContrast, type ThemeContrastWarning } from './lintThemeContrast.js';
+export { themeBuilder, type ThemeBuilderVitePluginOptions } from './vite-plugin-theme-builder.js';
 export { buildThemeStylesheet, resolveSchemes, resolveDefaultScheme } from './config/buildThemeStylesheet.js';
 export { buildBreakpointsScss } from './config/buildBreakpointsScss.js';

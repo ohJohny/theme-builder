@@ -1,5 +1,16 @@
 export type ColorSchemeId = string;
 
+/** Reserved preference id — follows OS `prefers-color-scheme`. */
+export const SYSTEM_COLOR_SCHEME = 'system' as const;
+
+export type ColorSchemePreference = ColorSchemeId | typeof SYSTEM_COLOR_SCHEME;
+
+export const SYSTEM_THEME_META: ThemeMetaItem = {
+	id: SYSTEM_COLOR_SCHEME,
+	label: 'System',
+	labelShort: 'Sys',
+};
+
 export type ThemeOption = {
 	readonly id: string;
 	readonly label: string;
@@ -27,7 +38,18 @@ export function isKnownScheme(value: string, schemes: readonly string[]): boolea
 	return schemes.includes(value);
 }
 
-/** @deprecated Use isKnownScheme with explicit schemes */
+export function isColorSchemePreference(
+	value: string,
+	schemes: readonly string[],
+	includeSystemScheme = true,
+): value is ColorSchemePreference {
+	if (includeSystemScheme && value === SYSTEM_COLOR_SCHEME) {
+		return true;
+	}
+	return isKnownScheme(value, schemes);
+}
+
+/** @deprecated Use isColorSchemePreference or isKnownScheme with explicit schemes */
 export function isColorSchemeId(value: string): value is ColorSchemeId {
 	return value === 'light' || value === 'dark';
 }

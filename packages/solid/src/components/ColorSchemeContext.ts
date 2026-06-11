@@ -1,15 +1,20 @@
 import type { Accessor } from 'solid-js';
 import { createContext, useContext } from 'solid-js';
 
-import type { ColorSchemeId, ColorSchemeListItem, ThemeMetaItem } from '@ohJohny/theme-builder-core';
+import type {
+	ColorSchemeListItem,
+	ColorSchemePreference,
+	ThemeMetaItem,
+} from '@ohJohny/theme-builder-core';
 
 export type { ColorSchemeListItem };
 
 export type ColorSchemeContextValue = {
-	readonly colorScheme: Accessor<ColorSchemeId>;
+	readonly colorScheme: Accessor<ColorSchemePreference>;
+	readonly resolvedColorScheme: Accessor<string>;
 	readonly colorSchemeList: Accessor<readonly ColorSchemeListItem[]>;
 	readonly labelShort: Accessor<string>;
-	readonly changeColorScheme: (next?: ColorSchemeId) => void;
+	readonly changeColorScheme: (next?: ColorSchemePreference) => void;
 };
 
 const ColorSchemeContext = createContext<ColorSchemeContextValue>();

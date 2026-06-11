@@ -35,8 +35,24 @@ describe('createColorSchemeStore', () => {
 		store.changeColorScheme('dark');
 
 		expect(store.getState().colorScheme).toBe('dark');
+		expect(store.getState().resolvedColorScheme).toBe('dark');
 		expect(store.getState().colorSchemeList.find((item) => item.active)?.id).toBe('dark');
 		expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+	});
+
+	it('applies resolved scheme when preference is system', () => {
+		const store = createColorSchemeStore({
+			schemes,
+			presetColorScheme: 'light',
+			applyColorSchemeOnMount: true,
+		});
+
+		store.changeColorScheme('system');
+		expect(store.getState().colorScheme).toBe('system');
+		expect(store.getState().resolvedColorScheme).toMatch(/light|dark/);
+		expect(document.documentElement.getAttribute('data-theme')).toBe(
+			store.getState().resolvedColorScheme,
+		);
 	});
 
 	it('reads initial scheme from localStorage when configured', () => {
@@ -50,6 +66,19 @@ describe('createColorSchemeStore', () => {
 		});
 
 		expect(store.getState().colorScheme).toBe('dark');
+	});
+
+	it('reads custom schemes such as sepia from localStorage', () => {
+		localStorage.setItem('tb-store-test', 'sepia');
+
+		const store = createColorSchemeStore({
+			schemes: ['light', 'dark', 'sepia'],
+			presetColorScheme: 'light',
+			storage: { type: 'localStorage', key: 'tb-store-test' },
+			applyColorSchemeOnMount: false,
+		});
+
+		expect(store.getState().colorScheme).toBe('sepia');
 	});
 
 	it('dispose clears listeners so subscribers stop receiving updates', () => {

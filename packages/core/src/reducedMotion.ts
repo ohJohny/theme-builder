@@ -1,3 +1,26 @@
+/** Follow OS `prefers-reduced-motion` when `'auto'` or omitted. */
+export const AUTO_REDUCED_MOTION = 'auto' as const;
+
+/**
+ * `true` forces reduced motion; `'auto'` follows OS `prefers-reduced-motion`.
+ * `false` is supported but not recommended.
+ */
+export type ReducedMotionPreference = boolean | typeof AUTO_REDUCED_MOTION;
+
+/**
+ * Resolves {@link ReducedMotionPreference} to an active reduced-motion flag.
+ * `false` is supported but not recommended — prefer `'auto'` so OS preferences are respected.
+ */
+export function resolveReducedMotion(
+	preference: ReducedMotionPreference | undefined,
+	osReducedMotion: boolean,
+): boolean {
+	if (preference === undefined || preference === AUTO_REDUCED_MOTION) {
+		return osReducedMotion;
+	}
+	return preference;
+}
+
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 const REDUCED_MOTION_ATTR = 'data-reduced-motion';
 

@@ -139,6 +139,7 @@ describe('createColorSchemeStore round-robin', () => {
 		const store = createColorSchemeStore({
 			schemes: ['light', 'dark', 'sepia'],
 			applyColorSchemeOnMount: false,
+			includeSystemScheme: false,
 		});
 		expect(store.getState().colorScheme).toBe('light');
 		store.changeColorScheme();

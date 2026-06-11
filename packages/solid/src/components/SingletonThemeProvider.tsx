@@ -14,6 +14,7 @@ import {
 	retainSharedColorSchemeStore,
 	type ColorSchemeStoreOptions,
 	type CreatedTheme,
+	type ReducedMotionPreference,
 	type ThemeConfigInput,
 } from '@ohJohny/theme-builder-core';
 
@@ -31,8 +32,11 @@ export type SingletonThemeProviderProps<C extends ThemeConfigInput> = Omit<
 	readonly breakpoints?: Partial<DeviceBreakpoints>;
 	/** @deprecated Use {@link SingletonThemeProviderProps.breakpoints} */
 	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
-	/** When set, overrides the OS `prefers-reduced-motion` preference for this subtree. */
-	readonly reducedMotion?: boolean;
+	/**
+	 * `true` / `false` force reduced motion on or off; `'auto'` (default) follows
+	 * OS `prefers-reduced-motion`. `false` is not recommended — prefer `'auto'`.
+	 */
+	readonly reducedMotion?: ReducedMotionPreference;
 };
 
 export function SingletonThemeProvider<C extends ThemeConfigInput>(
@@ -63,11 +67,13 @@ export function SingletonThemeProvider<C extends ThemeConfigInput>(
 	});
 
 	const colorScheme = () => snapshot().colorScheme;
+	const resolvedColorScheme = () => snapshot().resolvedColorScheme;
 	const colorSchemeList = createMemo(() => snapshot().colorSchemeList);
 	const labelShort = createMemo(() => snapshot().labelShort);
 
 	const colorSchemeValue = {
 		colorScheme,
+		resolvedColorScheme,
 		colorSchemeList,
 		labelShort,
 		changeColorScheme: store.changeColorScheme,

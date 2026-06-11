@@ -8,6 +8,7 @@ export function useColorScheme() {
 
 	return {
 		colorScheme: state.colorScheme,
+		resolvedColorScheme: state.resolvedColorScheme,
 		colorSchemeList: state.colorSchemeList,
 		labelShort: state.labelShort,
 		changeColorScheme: ctx.changeColorScheme,

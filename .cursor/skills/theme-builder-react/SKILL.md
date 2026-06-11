@@ -45,7 +45,7 @@ export const { ThemeProvider, SingletonThemeProvider, useTheme, useUtilityClasse
 ```
 
 ```tsx
-<ThemeProvider presetColorScheme="light" storage={{ type: 'localStorage', key: 'theme' }}>
+<ThemeProvider presetColorScheme="light" storage={{ type: 'localStorage', key: 'theme' }} viewTransition>
   <App />
 </ThemeProvider>
 
@@ -149,7 +149,7 @@ Prefer `useColorScheme()` in UI — it handles subscription and returns `{ color
 ## Hooks
 
 - `useTheme()` — typed token tree from context
-- `useColorScheme()` — `colorScheme`, `changeColorScheme`, `colorSchemeList`, `labelShort`
+- `useColorScheme()` — `colorScheme`, `resolvedColorScheme`, `changeColorScheme`, `colorSchemeList`, `labelShort`
 - `useDeviceSize(options?)` — `{ mobile, tablet, desktop, wide }`; `options.breakpointsRem` overrides provider defaults
 - `useReducedMotion()` — `boolean`; OS `prefers-reduced-motion` preference (shared ref-counted subscription)
 - `DeviceMatch` — renders `children` only when viewport matches `size`
@@ -285,6 +285,8 @@ function Sidebar() {
 ## CSS
 
 Import or inject theme CSS (`createTheme` with `inject: true`, or `generateThemeArtifacts` at build time). Style `[data-theme="dark"]` on `:root`. This package does not ship app styles.
+
+For CLI watch mode, the `themeBuilder` Vite plugin, DTCG export, and contrast lint, see the **Tooling** section in the `theme-builder-core` skill.
 
 ## TypeScript extension
 

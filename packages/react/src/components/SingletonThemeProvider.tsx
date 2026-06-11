@@ -6,6 +6,7 @@ import {
 	retainSharedColorSchemeStore,
 	type ColorSchemeStoreOptions,
 	type CreatedTheme,
+	type ReducedMotionPreference,
 	type ThemeConfigInput,
 } from '@ohJohny/theme-builder-core';
 
@@ -20,8 +21,11 @@ export type SingletonThemeProviderProps<C extends ThemeConfigInput> = Omit<
 	readonly breakpoints?: Partial<DeviceBreakpoints>;
 	/** @deprecated Use {@link SingletonThemeProviderProps.breakpoints} */
 	readonly breakpointsRem?: Partial<DeviceBreakpoints>;
-	/** When set, overrides the OS `prefers-reduced-motion` preference for this subtree. */
-	readonly reducedMotion?: boolean;
+	/**
+	 * `true` / `false` force reduced motion on or off; `'auto'` (default) follows
+	 * OS `prefers-reduced-motion`. `false` is not recommended — prefer `'auto'`.
+	 */
+	readonly reducedMotion?: ReducedMotionPreference;
 	readonly children: ReactNode;
 };
 

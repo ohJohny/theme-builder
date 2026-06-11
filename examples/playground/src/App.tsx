@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type RefObject } from 'react';
 
 import type {
 	CreatedTheme,
@@ -12,11 +12,14 @@ import {
 	useTheme,
 	useUtilityClasses,
 	DeviceMatch,
+	useColorSchemeTogglePosition,
 } from '@ohJohny/theme-builder/react';
 
 import { createPlaygroundTheme } from './createPlaygroundTheme';
 import { defaultThemeJson } from './demoTheme';
 import './playground.css';
+
+const PLAYGROUND_STORAGE_KEY = 'playground-theme';
 
 function parseThemeJson(
 	jsonText: string,
@@ -31,12 +34,13 @@ function parseThemeJson(
 	}
 }
 
-function SchemeBar() {
+function SchemeBar({ toggleRef }: { toggleRef: RefObject<HTMLButtonElement | null> }) {
 	const { colorScheme, changeColorScheme } = useColorScheme();
+	useColorSchemeTogglePosition(toggleRef);
 
 	return (
 		<header className="playground-toolbar">
-			<button type="button" onClick={() => changeColorScheme()}>
+			<button ref={toggleRef} type="button" className="scheme-toggle" onClick={() => changeColorScheme()}>
 				Cycle scheme ({colorScheme})
 			</button>
 		</header>
@@ -377,16 +381,18 @@ function ThemeConfigPanel({
 	error,
 	onJsonChange,
 	showSchemeBar,
+	toggleRef,
 }: {
 	jsonText: string;
 	error: string | null;
 	onJsonChange: (event: ChangeEvent<HTMLTextAreaElement>) => void;
 	showSchemeBar: boolean;
+	toggleRef: RefObject<HTMLButtonElement | null>;
 }) {
 	return (
 		<aside className="playground-sidebar">
 			<h1>Theme Builder Playground</h1>
-			{showSchemeBar ? <SchemeBar /> : null}
+			{showSchemeBar ? <SchemeBar toggleRef={toggleRef} /> : null}
 			<label className="theme-config-label" htmlFor="theme-config-json">
 				Theme config (JSON)
 			</label>
@@ -405,6 +411,7 @@ function ThemeConfigPanel({
 export function App() {
 	const [jsonText, setJsonText] = useState(defaultThemeJson);
 	const lastValidTheme = useRef<CreatedTheme<ThemeConfigInput> | null>(null);
+	const schemeToggleRef = useRef<HTMLButtonElement | null>(null);
 
 	const { created, error } = useMemo(() => parseThemeJson(jsonText), [jsonText]);
 
@@ -428,6 +435,7 @@ export function App() {
 				error={error}
 				onJsonChange={handleJsonChange}
 				showSchemeBar={activeTheme !== null}
+				toggleRef={schemeToggleRef}
 			/>
 			<main className="playground-main">
 				{activeTheme ? <PlaygroundPreview config={activeTheme.config} /> : null}
@@ -441,6 +449,8 @@ export function App() {
 				<ThemeProvider
 					theme={activeTheme}
 					presetColorScheme={activeTheme.defaultScheme}
+					storage={{ type: 'localStorage', key: PLAYGROUND_STORAGE_KEY }}
+					viewTransition
 				>
 					{layout}
 				</ThemeProvider>

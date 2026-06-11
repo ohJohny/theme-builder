@@ -20,6 +20,22 @@ export function hasShadowName(theme: Theme<ThemeConfigInput>, name: string): boo
 	return name in theme.shadow;
 }
 
+export function hasRadiusName(theme: Theme<ThemeConfigInput>, name: string): boolean {
+	return name in theme.radius;
+}
+
+export function hasMotionDurationName(theme: Theme<ThemeConfigInput>, name: string): boolean {
+	return name in theme.motion.duration;
+}
+
+export function hasOpacityName(theme: Theme<ThemeConfigInput>, name: string): boolean {
+	return name in theme.opacity;
+}
+
+export function hasZIndexName(theme: Theme<ThemeConfigInput>, name: string): boolean {
+	return name in theme.zIndex;
+}
+
 export function hasIconSizeName(theme: Theme<ThemeConfigInput>, name: string): boolean {
 	return name in theme.icon;
 }
@@ -85,6 +101,43 @@ export function resolveLineHeightName(
 
 export function resolveShadowName(theme: Theme<ThemeConfigInput>, value: string): string | undefined {
 	return hasShadowName(theme, value) ? value : undefined;
+}
+
+export function resolveRadiusName(
+	theme: Theme<ThemeConfigInput>,
+	value: string | number,
+): string | undefined {
+	if (typeof value === 'string' && hasRadiusName(theme, value)) {
+		return value;
+	}
+	return undefined;
+}
+
+export function resolveMotionDurationName(
+	theme: Theme<ThemeConfigInput>,
+	value: string,
+): string | undefined {
+	return hasMotionDurationName(theme, value) ? value : undefined;
+}
+
+export function resolveOpacityName(
+	theme: Theme<ThemeConfigInput>,
+	value: string | number,
+): string | undefined {
+	if (typeof value === 'string' && hasOpacityName(theme, value)) {
+		return value;
+	}
+	return undefined;
+}
+
+export function resolveZIndexName(
+	theme: Theme<ThemeConfigInput>,
+	value: string | number,
+): string | undefined {
+	if (typeof value === 'string' && hasZIndexName(theme, value)) {
+		return value;
+	}
+	return undefined;
 }
 
 export function resolveDisplayName(theme: Theme<ThemeConfigInput>, value: string): string | undefined {

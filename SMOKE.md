@@ -1,15 +1,31 @@
 # Smoke verification
 
 ```ts
-import { ThemeBuilder, createColorSchemeStore } from '@ohJohny/theme-builder/core';
+import { createTheme, createColorSchemeStore, defineThemeConfig } from '@ohJohny/theme-builder/core';
 
-const theme = ThemeBuilder.getInstance().getTheme();
-console.assert(typeof theme.spacing.p.md.class === 'string', 'spacing token');
+const config = defineThemeConfig({
+  schemes: ['light', 'dark'] as const,
+  colors: {
+    semantic: {
+      'text-primary': { light: '#111', dark: '#eee' },
+    },
+  },
+  spacing: { md: '16px' },
+});
 
-const scheme = createColorSchemeStore({ presetColorScheme: 'light' });
-scheme.changeColorScheme('dark');
-console.assert(scheme.getState().colorScheme === 'dark', 'color scheme');
-scheme.dispose();
+const created = createTheme(config, { mode: 'identity' });
+console.assert(typeof created.theme.spacing.p.md.class === 'string', 'spacing token');
+
+const store = createColorSchemeStore({
+  schemes: created.schemes,
+  presetColorScheme: 'light',
+  applyColorSchemeOnMount: false,
+});
+store.changeColorScheme('dark');
+console.assert(store.getState().colorScheme === 'dark', 'color scheme');
+store.dispose();
 ```
 
-React / Solid: `<ThemeProvider>` + `useTheme()` / `useColorScheme()`.
+React / Solid: `<ThemeProvider theme={created}>` + `useTheme()` / `useColorScheme()`.
+
+Anti-FOUC: add generated `theme-init.js` in `<head>` before CSS (see README).

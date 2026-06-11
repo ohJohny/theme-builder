@@ -1,5 +1,6 @@
 import path from 'node:path';
 
+import type { ThemeStorageConfig } from '../colorScheme.types.js';
 import type { UtilityClassMapMode } from '../config/types.js';
 
 export type GenerateCliConfig = {
@@ -11,6 +12,11 @@ export type GenerateCliConfig = {
 	readonly utilityClassHashSalt?: string;
 	readonly utilityClassHashPrefix?: string;
 	readonly force: boolean;
+	readonly initScriptStorage?: ThemeStorageConfig;
+	readonly watch: boolean;
+	readonly exportDtcg: boolean;
+	readonly lintA11y: boolean;
+	readonly strictA11y: boolean;
 };
 
 function readArg(flag: string): string | undefined {
@@ -36,6 +42,18 @@ function parseMode(value: string | undefined): UtilityClassMapMode {
 	);
 }
 
+function parseStorageType(value: string | undefined): ThemeStorageConfig['type'] | undefined {
+	if (value === 'localStorage' || value === 'cookie') {
+		return value;
+	}
+	if (value !== undefined) {
+		throw new Error(
+			`Invalid --storage-type "${value}". Expected "localStorage" or "cookie".`,
+		);
+	}
+	return undefined;
+}
+
 export function resolveGenerateCliConfig(cwd = process.cwd()): GenerateCliConfig {
 	const configPath =
 		readArg('--config') ?? process.env.THEME_CONFIG ?? 'src/theme/default-theme.ts';
@@ -44,6 +62,14 @@ export function resolveGenerateCliConfig(cwd = process.cwd()): GenerateCliConfig
 	const defaultScheme = readArg('--default-scheme') ?? process.env.THEME_DEFAULT_SCHEME;
 	const utilityClassHashSalt = readArg('--salt') ?? process.env.THEME_HASH_SALT;
 	const utilityClassHashPrefix = readArg('--prefix') ?? process.env.THEME_HASH_PREFIX;
+	const storageKey = readArg('--storage-key') ?? process.env.THEME_STORAGE_KEY;
+	const storageType = parseStorageType(
+		readArg('--storage-type') ?? process.env.THEME_STORAGE_TYPE,
+	);
+	const initScriptStorage =
+		storageKey !== undefined && storageType !== undefined
+			? { type: storageType, key: storageKey }
+			: undefined;
 
 	return {
 		cwd,
@@ -54,5 +80,10 @@ export function resolveGenerateCliConfig(cwd = process.cwd()): GenerateCliConfig
 		utilityClassHashSalt,
 		utilityClassHashPrefix,
 		force: hasFlag('--force'),
+		initScriptStorage,
+		watch: hasFlag('--watch'),
+		exportDtcg: hasFlag('--export-dtcg'),
+		lintA11y: hasFlag('--no-lint-a11y') ? false : true,
+		strictA11y: hasFlag('--strict-a11y'),
 	};
 }
